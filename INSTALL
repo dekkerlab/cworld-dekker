@@ -1,0 +1,11 @@
+# To install the cworld::dekker perl module
+
+perl Build.pl
+./Build
+./Build install
+
+then run your desired script.
+
+e.g.
+perl scripts/heatmap.pl
+

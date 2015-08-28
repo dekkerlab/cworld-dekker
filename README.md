@@ -84,6 +84,8 @@ $ sudo make install
 ```
 More here - http://www.physics.buffalo.edu/phy410-505/tools/install/
 
+* You will then need to re-build GD!
+
 ## Full Documentation
 
 WIP

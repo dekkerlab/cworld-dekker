@@ -10,28 +10,19 @@ a collection of perl/python/R scripts for maniputing 3C/4C/5C/Hi-C data.
 
 ## Installation
 
-```
-
 This package requires:
-
+```
 libgd (2.0.28 or higher)
 bedtools (bedtools or bedtools2)
 R / Rscript
-
-```
-
 ```
 
 To download/install dependencies:
-
+```
 libgd - https://github.com/libgd/libgd/releases
 bedtools - https://github.com/arq5x/bedtools2/releases
 R - https://cran.r-project.org/bin/
-
 ```
-
-```
-
 
 Download the project.
 ```

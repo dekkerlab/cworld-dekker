@@ -38,7 +38,8 @@ yum install libgd
 
 Download the project.
 ```
-wget -O cworld-dekker.zip https://github.com/blajoie/cworld-dekker/archive/master.zip
+https://github.com/blajoie/cworld-dekker
+Click 'Download ZIP' in lower-right corner.
 ```
 or clone the git project
 ```

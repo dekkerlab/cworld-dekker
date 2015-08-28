@@ -26,9 +26,14 @@ R - https://cran.r-project.org/bin/
 Please follow installation instructions per dependency.
 ```
 
-For Mac OSX
+LIBGD Troubleshooting 
+
 ```
+For Mac OSX:
 brew install gd
+
+For Linux:
+yum install libgd
 ```
 
 Download the project.

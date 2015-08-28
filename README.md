@@ -86,6 +86,18 @@ More here - http://www.physics.buffalo.edu/phy410-505/tools/install/
 
 * You will then need to re-build GD!
 
+Uninstall GD
+e.g.
+```
+$ cpanp u GD
+```
+
+re-install GD
+```
+$ sudo cpan
+install GD
+```
+
 ## Full Documentation
 
 WIP

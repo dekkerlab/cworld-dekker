@@ -32,11 +32,35 @@ R - https://cran.r-project.org/bin/
 
 ```
 
-To install cworld perl module:
 
-perl Build.pl
+Download the project.
+```
+wget https://github.com/blajoie/cworld-dekker/archive/master.zip
+```
+or clone the git project
+```
+[ssh] - git clone git@github.com:blajoie/cworld-dekker.git
+[https] - git clone https://github.com/blajoie/cworld-dekker.git
+```
+
+Unzip the master:
+```
+unzip cworld-dekker-master.zip
+cd cworld-dekker-master/
+```
+
+To install the module:
+```
+perl Build.PL
 ./Build
 ./Build install
+```
+
+After installing the module, you should be free to run the any scripts found in scriots/
+e.g.
+```
+$ perl scripts/heatmap.pl
+```
 
 ```
 
@@ -56,7 +80,6 @@ cworld::dekker is a large collection of perl / python / R scripts for manipulati
 ## Usage
 
 ```
-
 Tool:		addMatrixHeaders.pl
 Version:	0.01
 Summary:	add headers to a matrix txt file
@@ -82,11 +105,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		aggregrateBED.pl
 Version:	0.01
 Summary:	sliding window aggregrate of BED5 data
@@ -118,11 +140,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		anchorPileUp.pl
 Version:	0.01
 Summary:	pile up cData around specified list of 'anchors'
@@ -154,11 +175,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		anchorPurge.pl
 Version:	0.01
 Summary:	filters out row/col from C data matrix file
@@ -196,11 +216,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		applyCorrection.pl
 Version:	0.01
 Summary:	apply correction to factor - external factors
@@ -236,11 +255,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		binMatrix.pl
 Version:	0.01
 Summary:	bin/aggregrate matrix into fixed sized intervals
@@ -269,11 +287,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		changeMatrixHeaders.pl
 Version:	0.01
 Summary:	replace matrix row/col headers, or subset matrix by list of headers
@@ -298,11 +315,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		collapseMatrix.pl
 Version:	0.01
 Summary:	collapse matrix by (chr,name,group), sum signal
@@ -328,11 +344,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		column2matrix.pl
 Version:	0.01
 Summary:	turn list (3 tab) file into matrix
@@ -359,11 +374,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		combineMatrices.pl
 Version:	0.01
 Summary:	combine matrices [sum,mean,median,min,max]
@@ -389,11 +403,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		compareInsulation.pl
 Version:	0.01
 Summary:	compare insulation vector - calculate difference
@@ -419,11 +432,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		compareMatrices.pl
 Version:	0.01
 Summary:	performs comparison between two matrices
@@ -448,11 +460,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		correlateMatrices.pl
 Version:	0.01
 Summary:	performs correlation between two matrices
@@ -492,11 +503,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		coverageCorrect.pl
 Version:	0.01
 Summary:	can perform coverage correction on matrix [balancing] cis/trans
@@ -530,11 +540,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		digitizePicture.pl
 Version:	0.01
 Summary:	digitize picture into my5C matrix format
@@ -557,11 +566,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		extractSubMatrices.pl
 Version:	0.01
 Summary:	this script can extract sub matrices classified by chr/group/name
@@ -590,11 +598,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		fillMissingData.pl
 Version:	0.01
 Summary:	replace NAs with expected signals
@@ -627,11 +634,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		generateBins.pl
 Version:	0.01
 Summary:	create my5C formatted headers
@@ -658,11 +664,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		heatmap.pl
 Version:	0.01
 Summary:	draws heatmap PNG of matrix file
@@ -714,11 +719,10 @@ Contact:
     Dekker Lab
     http://my5C.umassmed.edu
     my5C.help@umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		insulation2tads.pl
 Version:	0.01
 Summary:	create tad specific headers
@@ -744,11 +748,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		interactionPileUp.pl
 Version:	0.01
 Summary:	pile up cData around specified list of 'elements'
@@ -785,11 +788,10 @@ Contact:
     Dekker Lab
     http://my5C.umassmed.edu
     my5C.help@umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2anchorPlot.pl
 Version:	0.01
 Summary:	transform each row/col into 4C style 'anchor' plot.
@@ -824,11 +826,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2bed12.pl
 Version:	0.01
 Summary:	transform matrix into bed12 format (track per row)
@@ -856,11 +857,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2compartment.pl
 Version:	0.01
 Summary:	perform PCA on input matrix
@@ -895,11 +895,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2direction.pl
 Version:	0.01
 Summary:	calculate directionality [tads] on matrix
@@ -928,11 +927,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2distance.pl
 Version:	0.01
 Summary:	cumlative reads versus distance
@@ -961,11 +959,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2headerBed.pl
 Version:	0.01
 Summary:	dump matrix headers as BED file
@@ -989,11 +986,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		getMatrixInfo.pl
 Version:	0.01
 Summary:	get matrix info
@@ -1019,11 +1015,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2insulation.pl
 Version:	0.01
 Summary:	calculate insulation index (TADs) of supplied matrix
@@ -1059,11 +1054,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2insulationRange.pl
 Version:	0.01
 Summary:	calculate insulation index (TADs) over range of square sizes
@@ -1094,11 +1088,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2loess.pl
 Version:	0.01
 Summary:	calculate the loess (expected/stdev/zScore) for a given matrix
@@ -1135,11 +1128,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2pairwise.pl
 Version:	0.01
 Summary:	transform tsv matrix into 3 column tsv file
@@ -1167,11 +1159,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2scaling.pl
 Version:	0.01
 Summary:	transform matrix into scaling (polymer) plot
@@ -1203,11 +1194,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2stacked.pl
 Version:	0.01
 Summary:	transform matrix into stacked anchor matrix
@@ -1233,11 +1223,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2symmetrical.pl
 Version:	0.01
 Summary:	transform rectangular matrix into square (symmetrical) matrix
@@ -1261,11 +1250,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		matrix2webplot.pl
 Version:	0.01
 Summary:	draws 'web-plot' of matrix file
@@ -1302,11 +1290,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		normalizeMatrix.pl
 Version:	0.01
 Summary:	normalizes matrix sum - scales to 10^6
@@ -1335,11 +1322,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		primer2plates.pl
 Version:	0.01
 Summary:	layout primers in 96-well plate format
@@ -1364,11 +1350,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		reOrderMatrix.pl
 Version:	0.01
 Summary:	re-order matrix by list of headers
@@ -1395,11 +1380,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		singletonRemoval.pl
 Version:	0.01
 Summary:	detect and remove singleton outliers
@@ -1436,11 +1420,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		subsetMatrix.pl
 Version:	0.01
 Summary:	subset matrix by distance, or by BED file (bin overlap)
@@ -1477,11 +1460,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		symmetrical2seperate.pl
 Version:	0.01
 Summary:	transform symmetrical matrix into axis-seperated [5C headers only]
@@ -1505,11 +1487,10 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
 
-```
 
+```
 Tool:		elementPileUp.pl
 Version:	0.01
 Summary:	pile up cData around specified list of 'elements'
@@ -1540,7 +1521,6 @@ Contact:
     Dekker Lab 2015
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
-
 ```
   
 ## Usage Examples

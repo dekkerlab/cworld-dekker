@@ -11,8 +11,17 @@ a collection of perl/python/R scripts for maniputing 3C/4C/5C/Hi-C data.
 ## Installation
 
 ```
-This package requires [ libgd 2.0.28 or higher ].
-Download from https://github.com/libgd/libgd/releases
+This package requires
+
+libgd (2.0.28 or higher)
+bedtools (bedtools or bedtools2)
+
+To download/install
+libgd - https://github.com/libgd/libgd/releases
+bedtools - https://github.com/arq5x/bedtools2/releases
+
+
+To install cworld perl module
 
 perl Build.pl
 ./Build

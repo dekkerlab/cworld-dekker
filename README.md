@@ -65,6 +65,24 @@ e.g.
 ```
 $ perl scripts/heatmap.pl
 ```
+## Install Troubleshooting
+
+Trouble with libgd?
+```
+libgd 2.0.33 or higher required for copyRotated support
+```
+
+You need to install libgd 2.0.33 or higher.
+Try to compile from source.
+
+Download and install libgd using this link - http://www.boutell.com/gd/http/gd-2.0.33.tar.gz
+```
+$ cd gd-2.0.33
+$ ./configure
+$ make
+$ sudo make install
+```
+More here - http://www.physics.buffalo.edu/phy410-505/tools/install/
 
 ## Full Documentation
 

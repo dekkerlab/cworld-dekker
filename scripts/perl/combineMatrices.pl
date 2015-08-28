@@ -151,7 +151,7 @@ sub combineMatrices($$$$;$) {
         
         print STDERR "\tsorting ... " if($verbose);
         my $sortedPairwiseFile=$tmpDir.$pairwiseFileName.".sorted.pairwise.txt.gz";
-        system("zcat '".$pairwiseFile."' | grep -v '^#' | sort -k1,1 -k2,2 | gzip > '".$sortedPairwiseFile."'");
+        system("gunzip -c '".$pairwiseFile."' | grep -v '^#' | sort -k1,1 -k2,2 | gzip > '".$sortedPairwiseFile."'");
         print STDERR "done\n" if($verbose);
         
         system("rm '$pairwiseFile'");

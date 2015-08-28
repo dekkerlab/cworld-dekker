@@ -443,7 +443,7 @@ print STDERR "\n" if($verbose);
 
 print STDERR "sorting pairwise file by distance ...\n" if($verbose);
 my $sortedPairwiseFile=$output.".correlate.sorted.txt.gz";
-system("zcat $pairwiseFile | tail -n +2 | sort -k1,1n | gzip > $sortedPairwiseFile");
+system("gunzip -c $pairwiseFile | tail -n +2 | sort -k1,1n | gzip > $sortedPairwiseFile");
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

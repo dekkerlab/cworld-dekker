@@ -240,7 +240,7 @@ my $inputBedFileName=getFileName($inputBedFile);
 print STDERR "checking for sorted file ($inputBedFile) [$sortString]...\n" if($verbose);
 my $sortCheck=undef;
 if($inputBedFile =~ /\.gz$/) {
-    $sortCheck=`zcat '$inputBedFile' | grep -v "track" | sort -c $sortString 2>&1`;
+    $sortCheck=`gunzip -c '$inputBedFile' | grep -v "track" | sort -c $sortString 2>&1`;
 } else {
     $sortCheck=`cat $inputBedFile | grep -v "track" | sort -c $sortString 2>&1`;
 }

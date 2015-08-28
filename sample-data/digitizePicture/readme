@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/digitizePicture.pl -i K5.png

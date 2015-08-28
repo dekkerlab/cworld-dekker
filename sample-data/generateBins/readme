@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/generateBins.pl -r chr1:1-2000000 -bsize 30000 -bstep 10 -a hg19 -v -n chr1-FGF5

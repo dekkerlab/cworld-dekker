@@ -1,0 +1,2 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/applyCorrection.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -ff ../samp
+le-data/applyCorrection/K5.allPrimerFactors -ic

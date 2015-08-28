@@ -1,0 +1,1 @@
+perl -I ../lib/ ../scripts/perl/matrix2headerBed.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz

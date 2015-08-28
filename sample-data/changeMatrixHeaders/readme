@@ -1,0 +1,2 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/changeMatrixHeaders.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -hmf ..
+/sample-data/changeMatrixHeaders/K5.headers.map

@@ -1,0 +1,1 @@
+ perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/addMatrixHeaders.pl -i ../sample-data/addMatrixHeaders/5C.naked.matrix.gz -xhf ../sample-data/addMatrixHeaders/5C.xHeaders.gz -yhf ../sample-data/addMatrixHeaders/5C.yHeaders.gz

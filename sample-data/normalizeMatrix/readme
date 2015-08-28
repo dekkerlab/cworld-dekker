@@ -1,0 +1,1 @@
+perl -I ../lib ../scripts/perl/normalizeMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -i ../sample-data/combineMatrices/GM.matrix.gz

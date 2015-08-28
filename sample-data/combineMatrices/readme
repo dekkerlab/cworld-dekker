@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/combineMatrices.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -i ../sample-data/combineMatrices/GM.matrix.gz -cm max -n K5__GM

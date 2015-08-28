@@ -1,0 +1,3 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/binMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -bsize 30000 -bst
+ep 10 -bmode median
+

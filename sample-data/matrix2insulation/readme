@@ -1,0 +1,2 @@
+ perl -I ../lib/ ../scripts/perl/matrix2insulation.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr14__chr14__cis.matrix.gz -is 480000 -ids 320000 -im iqrMean -nt 0 -ss 160000 -yb 
+1.5 -nt 0 -bmoe 0

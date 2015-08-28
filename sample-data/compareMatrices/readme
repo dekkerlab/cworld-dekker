@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/compareMatrices.pl -i1 ../sample-data/addMatrixHeaders/K5.matrix.gz -i2 ../sample-data/combineMatrices/GM.matrix.gz -n K5__GM -cm log2ratio

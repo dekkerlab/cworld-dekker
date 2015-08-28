@@ -1,0 +1,4 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/anchorPileUp.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -abf ../sample
+-data/anchorPileUp/enm009.bed
+
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/anchorPileUp.pl -i ../sample-data/anchorPileUp/NPC_chrX.matrix.gz -abf ../sample-data/anchorPileUp/Xi-escapees.bed -v -azs 50000000 -iz -dl 50000000 

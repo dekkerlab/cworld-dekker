@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/anchorPurge.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -ic -ta 0.5

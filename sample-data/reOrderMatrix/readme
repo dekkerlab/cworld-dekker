@@ -1,0 +1,2 @@
+perl -I ../lib ../scripts/perl/reOrderMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --xohl ../sample-data/reOrderMatrix/K5.rev --yohl ..
+/sample-data/reOrderMatrix/K5.for

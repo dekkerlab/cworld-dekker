@@ -1,0 +1,4 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/heatmap.pl -i K5__30000__10.matrix.gz -i GM__30000__10.matrix.gz -n test
+
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/heatmap.pl -i ../sample-data/anchorPileUp/NPC_chrX.matrix.gz -hbf ../sample-data/anchorPileUp/Xi-escapees.bed -hc cyan
+

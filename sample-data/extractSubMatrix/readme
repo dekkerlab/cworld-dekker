@@ -1,0 +1,2 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/extractSubMatrices.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz -ozc chr14:50000000-70000000 -ozc chr15:1-30000000 -ozc chr16:30000000-900000
+00 -ozc chr14:1-20000000

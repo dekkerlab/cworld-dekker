@@ -1,0 +1,3 @@
+perl -I ../lib ../scripts/perl/matrix2insulationRange.pl -i ../sample-data/binMatrix/K5__30000__10.matrix.gz -v --istart 40000 --iend
+ 4000000 --istep 40000 --im mean
+

@@ -1,0 +1,3 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/correlateMatrices.pl -i1 ../sample-data/addMatrixHeaders/K5.matrix.gz -i2 ../s
+ample-data/combineMatrices/GM.matrix.gz -n K5__GM
+

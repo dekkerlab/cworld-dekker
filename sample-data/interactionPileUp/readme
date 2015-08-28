@@ -1,0 +1,4 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/interactionPileUp.pl -i ~/projects/HiC-Meyer/data/chrxchr/H-10000/combinedReplicates/readNormalized.4MBsubset/input/MeyersHiC-N2-DpnII.ce10.NA.H-10000-wDiag-noSS-iced.normalized.subset4000000__chrX__chrX__cis.matrix.gz -ebf ~/projects/HiC-Meyer/exter
+nalData/Top25RexPRex.bed -ezs 200000 -am sum -maxED 3
+
+ perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/interactionPileUp.pl -i ~/projects/HiC-Meyer/data/chrxchr/M-50000/combinedReplicates/readNormalized/input/MeyersHiC-N2-DpnII.ce10.NA.M-50000-wDiag-noSS-iced.matrix.normalized__chrX__chrX__cis.matrix.gz -ebf ~/projects/HiC-Meyer/externalData/Top25RexPRex.bed -ezs 500000 -am sum -maxED 3 

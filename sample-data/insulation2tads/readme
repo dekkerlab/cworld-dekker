@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/insulation2tads.pl -i ../sample-data/insulation2tads/NPC.insulation.gz -b ../sample-data/insulation2tads/NPC.boundaries.gz

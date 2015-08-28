@@ -1,0 +1,2 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/compareInsulation.pl -i1 ../sample-data/compareInsulation/N2.insulation.gz -i2
+ ../sample-data/compareInsulation/SRy93.insulation.gz

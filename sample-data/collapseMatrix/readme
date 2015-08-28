@@ -1,0 +1,2 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/collapseMatrix.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matri
+x.gz

@@ -1,0 +1,1 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/aggregateBED.pl -i ../sample-data/aggregrateBED/chrX.bed.gz -a mm9 -wsize 40000 -wstep 1 -wmode sum

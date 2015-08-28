@@ -1,0 +1,1 @@
+perl -I ../lib ../scripts/perl/matrix2pairwise.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --et --sna --ez

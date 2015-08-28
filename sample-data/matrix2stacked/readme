@@ -1,0 +1,1 @@
+perl -I ../lib ../scripts/perl/matrix2stacked.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr14__chr14__cis.matrix.gz --dl 5000000

@@ -1,0 +1,2 @@
+perl -I ../lib ../scripts/perl/matrix2scaling.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -i ../sample-data/com
+bineMatrices/GM.matrix.gz -o K5__GM

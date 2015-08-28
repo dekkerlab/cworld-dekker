@@ -1,0 +1,2 @@
+perl -I ~/projects/git/cworld-dekker/lib/ ../scripts/perl/column2matrix.pl -i ../sample-data/column2matrix/K5.pairwise.txt.gz -oxh ../sa
+mple-data/column2matrix/K5.x.headers -oyh ../sample-data/column2matrix/K5.y.headers

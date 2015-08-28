@@ -184,8 +184,3 @@ scripts/util/geneDensity/mm9-cast-129s1.refseq.txt
 scripts/util/geneDensity/mm9.refseq.txt
 scripts/util/geneDensity/readme
 scripts/util/geneDensity/sacCer3.refseq.txt
-t/00-load.t
-t/manifest.t
-t/pod-coverage.t
-t/pod.t
-xt/boilerplate.t

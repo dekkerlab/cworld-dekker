@@ -22,6 +22,13 @@ To download/install dependencies:
 libgd - https://github.com/libgd/libgd/releases
 bedtools - https://github.com/arq5x/bedtools2/releases
 R - https://cran.r-project.org/bin/
+
+Please follow installation instructions per dependency.
+```
+
+For Mac OSX
+```
+brew install gd
 ```
 
 Download the project.

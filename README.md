@@ -65,8 +65,6 @@ e.g.
 $ perl scripts/heatmap.pl
 ```
 
-```
-
 ## Full Documentation
 
 WIP
@@ -80,7 +78,7 @@ WIP
 
 cworld::dekker is a large collection of perl / python / R scripts for manipulating 3C/4C/5C/Hi-C data
 
-## Usage
+## Tools
 
 ```
 Tool:		addMatrixHeaders.pl
@@ -1529,7 +1527,6 @@ Contact:
 ## Usage Examples
 
 ```
-
 perl ../scripts/perl/addMatrixHeaders.pl -i ../sample-data/addMatrixHeaders/5C.naked.matrix.gz --xhf ../sample-data/addMatrixHeaders/5C.xHeaders.gz --yhf ../sample-data/addMatrixHeaders/5C.yHeaders.gz
 perl ../scripts/perl/aggregateBED.pl -i ../sample-data/aggregrateBED/chrX.bed.gz --a mm9 --wsize 40000 --wstep 1 --wmode sum
 perl ../scripts/perl/anchorPileUp.pl -i ../sample-data/anchorPileUp/NPC_chrX.matrix.gz --abf ../sample-data/anchorPileUp/Xi-escapees.bed --azs 50000000 --ez --maxDist 50000000 
@@ -1575,7 +1572,6 @@ perl ../scripts/perl/subsetMatrix.pl -i ../sample-data/collapseMatrix/NPC_chr14-
 perl ../scripts/perl/subsetMatrix.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz --yz chr14:30000000-60000000 --yz chr15:20000000-50000000 --yz chr16:30000000-40000000 -z chr14:1-200000000
 perl ../scripts/perl/symmetrical2seperate.pl -i ../sample-data/symmetrical2seperate/K5.symmetrical.matrix.gz
 perl ../scripts/perl/tickPlot.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr14__chr14__cis.matrix.gz --ebf ../sample-data/tickPlot/chr14.bed --bs 25
-
 ```
 
 ## Change Log

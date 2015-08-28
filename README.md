@@ -35,8 +35,6 @@ cworld::dekker is a large collection of perl / python / R scripts for manipulati
 
 ```
 
-
-
 Tool:		addMatrixHeaders.pl
 Version:	0.01
 Summary:	add headers to a matrix txt file
@@ -63,7 +61,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		aggregrateBED.pl
 Version:	0.01
@@ -97,7 +97,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		anchorPileUp.pl
 Version:	0.01
@@ -131,7 +133,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		anchorPurge.pl
 Version:	0.01
@@ -171,7 +175,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		applyCorrection.pl
 Version:	0.01
@@ -209,7 +215,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		binMatrix.pl
 Version:	0.01
@@ -240,7 +248,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		changeMatrixHeaders.pl
 Version:	0.01
@@ -267,7 +277,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		collapseMatrix.pl
 Version:	0.01
@@ -295,7 +307,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		column2matrix.pl
 Version:	0.01
@@ -324,7 +338,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		combineMatrices.pl
 Version:	0.01
@@ -352,7 +368,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		compareInsulation.pl
 Version:	0.01
@@ -380,7 +398,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		compareMatrices.pl
 Version:	0.01
@@ -407,7 +427,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		correlateMatrices.pl
 Version:	0.01
@@ -449,7 +471,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		coverageCorrect.pl
 Version:	0.01
@@ -485,7 +509,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		digitizePicture.pl
 Version:	0.01
@@ -510,7 +536,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		extractSubMatrices.pl
 Version:	0.01
@@ -541,7 +569,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		fillMissingData.pl
 Version:	0.01
@@ -576,7 +606,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		generateBins.pl
 Version:	0.01
@@ -605,7 +637,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		heatmap.pl
 Version:	0.01
@@ -659,7 +693,9 @@ Contact:
     http://my5C.umassmed.edu
     my5C.help@umassmed.edu
 
+```
 
+```
 
 Tool:		insulation2tads.pl
 Version:	0.01
@@ -687,7 +723,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		interactionPileUp.pl
 Version:	0.01
@@ -726,7 +764,9 @@ Contact:
     http://my5C.umassmed.edu
     my5C.help@umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2anchorPlot.pl
 Version:	0.01
@@ -763,7 +803,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2bed12.pl
 Version:	0.01
@@ -793,7 +835,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2compartment.pl
 Version:	0.01
@@ -830,7 +874,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2direction.pl
 Version:	0.01
@@ -861,7 +907,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2distance.pl
 Version:	0.01
@@ -892,7 +940,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2headerBed.pl
 Version:	0.01
@@ -918,7 +968,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		getMatrixInfo.pl
 Version:	0.01
@@ -946,7 +998,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2insulation.pl
 Version:	0.01
@@ -984,7 +1038,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2insulationRange.pl
 Version:	0.01
@@ -1017,7 +1073,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2loess.pl
 Version:	0.01
@@ -1056,7 +1114,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2pairwise.pl
 Version:	0.01
@@ -1086,7 +1146,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2scaling.pl
 Version:	0.01
@@ -1120,7 +1182,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2stacked.pl
 Version:	0.01
@@ -1148,7 +1212,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2symmetrical.pl
 Version:	0.01
@@ -1174,7 +1240,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		matrix2webplot.pl
 Version:	0.01
@@ -1213,7 +1281,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		normalizeMatrix.pl
 Version:	0.01
@@ -1244,7 +1314,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		primer2plates.pl
 Version:	0.01
@@ -1271,7 +1343,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		reOrderMatrix.pl
 Version:	0.01
@@ -1300,7 +1374,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		singletonRemoval.pl
 Version:	0.01
@@ -1339,7 +1415,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		subsetMatrix.pl
 Version:	0.01
@@ -1378,7 +1456,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		symmetrical2seperate.pl
 Version:	0.01
@@ -1404,7 +1484,9 @@ Contact:
     https://github.com/blajoie/cworld-dekker
     http://my5C.umassmed.edu
 
+```
 
+```
 
 Tool:		elementPileUp.pl
 Version:	0.01

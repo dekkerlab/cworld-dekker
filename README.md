@@ -54,6 +54,9 @@ To install the module:
 perl Build.PL
 ./Build
 ./Build install
+OR 
+./Build install --install_base /your/custom/dir)
+export PERL5LIB=/your/custom/dir [or add to bashrc]
 ```
 
 After installing the module, you should be free to run the any scripts found in scriots/

@@ -10,7 +10,6 @@ use POSIX qw(ceil floor strftime);
 use List::Util qw[min max];
 use Cwd 'abs_path';
 use Cwd;
-use cworld::dekker::version;
 
 =head1 NAME
 

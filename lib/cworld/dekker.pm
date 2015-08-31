@@ -10,6 +10,7 @@ use POSIX qw(ceil floor strftime);
 use List::Util qw[min max];
 use Cwd 'abs_path';
 use Cwd;
+use cworld::dekker::version;
 
 =head1 NAME
 
@@ -4329,7 +4330,8 @@ sub matrix2distance($$;$$$$$) {
     system("gunzip -c '".$tmpPairwiseFile."' | grep -v '^[^#;]' > '".$tmpCommentFile."'");
     
     # append on comment headers
-    open(COMMENT,outputWrapper($tmpCommentFile,0,1)) or confess "Could not open file [$tmpCommentFile] - $!";
+    open(COMMENT,outputWrapper($tmpCommentFile,0,1)) or con
+    fess "Could not open file [$tmpCommentFile] - $!";
     print COMMENT "yHeader\txHeader\tdistance\n";
     close(COMMENT);
     
@@ -5597,9 +5599,15 @@ sub outputWrapper($;$$) {
         print OUT "## Contact:\tBryan R. Lajoie\n";
         print OUT "## https://github.com/blajoie\n";
         print OUT "## \n";
+        print OUT "## Git Commit:\t".$cworld::dekker::GIT_COMMIT."\n";
+        print OUT "## Git Author:\t".$cworld::dekker::GIT_AUTHOR."\n";
+        print OUT "## Git Date:\t".$cworld::dekker::GIT_DATE."\n";
+        print OUT "## Git Comment:\t".$cworld::dekker::GIT_COMMENT."\n";
+        print OUT "## \n";
         print OUT "## Version:\t".$cworld::dekker::VERSION."\n";
         print OUT "## Date:\t".getDate()."\n";
         print OUT "## Host:\t".getComputeResource()."\n";
+        print OUT "## \n";
         close(OUT);
     }
     

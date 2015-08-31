@@ -37,20 +37,16 @@ yum install libgd
 ```
 
 Download the project.
+
+Grab the latest stable release
 ```
-https://github.com/blajoie/cworld-dekker
-Click 'Download ZIP' in lower-right corner.
+https://github.com/blajoie/cworld-dekker/releases
 ```
+
 or clone the git project
 ```
 [ssh] - git clone git@github.com:blajoie/cworld-dekker.git
 [https] - git clone https://github.com/blajoie/cworld-dekker.git
-```
-
-Unzip the master:
-```
-unzip cworld-dekker.zip
-cd cworld-dekker/
 ```
 
 To install the module:

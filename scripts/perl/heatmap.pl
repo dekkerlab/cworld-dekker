@@ -584,7 +584,7 @@ my $labelPixelSize=max($labelFontWidth,$labelFontHeight);
 print STDERR "Calculating Auto Pixel Size ($imageSize)...\n" if($verbose);
 $pixelSize=autoSize($imageSize,$numYHeaders,$numXHeaders) if($pixelSize eq "NA");
 # disable draw label if image_size > max_dim
-if(($drawLabel) and (($numYHeaders * $labelPixelSize) > $maxImageDim) or  (($numXHeaders * $labelPixelSize) > $maxImageDim) ) {
+if( ($drawLabel) and ((($numYHeaders * $labelPixelSize) > $maxImageDim) or  (($numXHeaders * $labelPixelSize) > $maxImageDim) ) ) {
     print STDERR "\tCannot enable row/col labels [".$drawLabel."] - image too large (".$pixelSize."->".$labelPixelSize.") [".($numYHeaders*$labelPixelSize).">".$maxImageDim." or ".($numXHeaders*$labelPixelSize).">".$maxImageDim."]\n";
     $drawLabel=0;
 }

@@ -5598,11 +5598,6 @@ sub outputWrapper($;$$) {
         print OUT "## Contact:\tBryan R. Lajoie\n";
         print OUT "## https://github.com/blajoie\n";
         print OUT "## \n";
-        print OUT "## Git Commit:\t".$cworld::dekker::GIT_COMMIT."\n";
-        print OUT "## Git Author:\t".$cworld::dekker::GIT_AUTHOR."\n";
-        print OUT "## Git Date:\t".$cworld::dekker::GIT_DATE."\n";
-        print OUT "## Git Comment:\t".$cworld::dekker::GIT_COMMENT."\n";
-        print OUT "## \n";
         print OUT "## Version:\t".$cworld::dekker::VERSION."\n";
         print OUT "## Date:\t".getDate()."\n";
         print OUT "## Host:\t".getComputeResource()."\n";

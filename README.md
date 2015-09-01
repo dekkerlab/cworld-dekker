@@ -22,6 +22,7 @@ To download/install dependencies:
 libgd - https://github.com/libgd/libgd/releases
 bedtools - https://github.com/arq5x/bedtools2/releases
 R - https://cran.r-project.org/bin/
+imagemagick - http://www.imagemagick.org/script/index.php
 
 Please follow installation instructions per dependency.
 ```
@@ -54,9 +55,13 @@ To install the module:
 perl Build.PL
 ./Build
 ./Build install
+```
 OR 
+```
+perl Build.PL
+./Build
 ./Build install --install_base /your/custom/dir)
-export PERL5LIB=/your/custom/dir [or add to bashrc]
+PERL5LIB=${PERL5LIB}:/your/custom/dir [or add to bashrc]
 ```
 
 After installing the module, you should be free to run the any scripts found in scriots/

@@ -1,11 +1,16 @@
 # To install the cworld::dekker perl module
 
-perl Build.pl
+perl Build.PL
 ./Build
 ./Build install
 
-then run your desired script.
+OR 
 
+./Build install --install_base /your/custom/dir)
+THEN
+PERL5LIB=${PERL5LIB}:/your/custom/dir [or add to bashrc]
+
+Then run your desired script.
 e.g.
 perl scripts/heatmap.pl
 

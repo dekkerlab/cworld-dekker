@@ -145,7 +145,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--en", "[]", "elementName, descriptor for output files");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "-zs", "[100000]", "elementZoneSize, size of zone to use around element (x axis - in BP)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ezs", "[100000]", "elementZoneSize, size of zone to use around element (x axis - in BP)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--am", "[]", "aggregrateMode, how to aggregrate data (mean,sum,median,iqrMean,min,max etc)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--minDist", "[]", "minimum allowed interaction distance, exclude < N distance (in BP)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--maxDist", "[]", "maximum allowed interaction distance, exclude > N distance (in BP)");

@@ -249,7 +249,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--dt", "[]", "FLAG, drawTriangle, draw heatmap as triangle (only upper triangle)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--dd", "[]", "FLAG, drawDiamond, draw heatmap as diamond");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--bg", "[]", "FLAG, use transparent background");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--em", "[]", "FLAG, embed meta data into PNG (warning - usage on large images (>5000pixels) will use ~GB mem");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--em", "[]", "FLAG, embed meta data into PNG");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--dpb", "[]", "FLAG, draw pixel border");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ocb", "[]", "FLAG, omit contig/region border");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--maxDist", "[]", "FLAG, draw header labels");
@@ -267,7 +267,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--endTile", "[0.975]", "fraction value for color end");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--hbf", "[]", "highlight bed file - overlap row/col will be highlighted");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--iq", "[9]", "image quality, 0=best 9=worst");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--sm", "[]", "scale mode, single color scale, or seperate for cis/trans [combined/seperate]");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--sm", "[]", "scale mode, combined or seperate for cis/trans [combined/seperate]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--pc", "[white,orange,red,darkRed]", "positive color scale string");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--nc", "[white,cyan,blue,darkBlue]",  "negative color scale string");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--mc", "[null]", "missing data color");
@@ -825,7 +825,12 @@ print STDERR "\tcomplete\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
-if( (($drawTriangle) or ($drawDiamond)) and ($symmetrical)) {
+if( (($drawTriangle) or ($drawDiamond)) and (!$symmetrical)) {
+    
+    print STDERR "error - triangle/diamond requires a symmetrical matrix!\n";
+    print STDERR "\n" if($verbose);    
+    
+} elsif( (($drawTriangle) or ($drawDiamond)) and ($symmetrical)) {
 
     $output .= ".triangle" if($drawTriangle);
     $output .= ".diamond" if($drawDiamond);

@@ -61,7 +61,7 @@ OR
 perl Build.PL
 ./Build
 ./Build install --install_base /your/custom/dir)
-PERL5LIB=${PERL5LIB}:/your/custom/dir [or add to bashrc]
+(ensure /your/custom/dir is added to your PERL5LIB path)
 ```
 
 After installing the module, you should be free to run the any scripts found in scriots/
@@ -101,6 +101,12 @@ re-install GD
 $ sudo cpan
 install GD
 ```
+
+This looks to be a known bug/issue.
+See below.
+http://lists.freebsd.org/pipermail/freebsd-perl/2014-February/009206.html
+https://github.com/lstein/Perl-GD/issues/14
+http://www.ogris.de/oldnews.html
 
 ## Full Documentation
 

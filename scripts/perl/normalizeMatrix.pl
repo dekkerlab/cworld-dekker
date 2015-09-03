@@ -272,7 +272,7 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
     # get matrix information
-    my $matrixObject=getMatrixObject($inputMatrix,$output,0);
+    my $matrixObject=getMatrixObject($inputMatrix,"",0);
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -307,7 +307,7 @@ for(my $i=0;$i<@normalizedMatrixArray;$i++) {
     croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
     # get matrix information
-    my $matrixObject=getMatrixObject($inputMatrix,$output,0);
+    my $matrixObject=getMatrixObject($inputMatrix,"",0);
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=$matrixObject->{ numYHeaders };

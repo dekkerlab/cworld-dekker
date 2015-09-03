@@ -238,7 +238,7 @@ sub help() {
     print STDERR "\n";
     
     print STDERR "Required:\n";
-    printf STDERR ("\t%-10s %-10s %-10s\n", "-i@", "[]", "input matrix file [MULTIPLE]");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "-i@", "[]", "input matrix file [2 allowed, 1st=bottom-left, 2nd=top-right]");
     
     print STDERR "\n";
     
@@ -427,6 +427,8 @@ my ($matrixObject);
 if(@{$inputMatrixArray} == 2) {
     
     my ($inputMatrix_1,$inputMatrix_2)=@{$inputMatrixArray};
+    
+    $output="default" if($output eq "");
     
     croak "inputMatrix_1 must be symmetrical! [$inputMatrix_1]" if(!isSymmetrical($inputMatrix_1));
     croak "inputMatrix_2 must be symmetrical! [$inputMatrix_2]" if(!isSymmetrical($inputMatrix_2));

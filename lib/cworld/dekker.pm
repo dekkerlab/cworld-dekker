@@ -5701,11 +5701,11 @@ sub stitchMatrices($$$$) {
     for(my $y=0;$y<$numYHeaders;$y++) {
         for(my $x=0;$x<$numXHeaders;$x++) {
             my $cScore="NA";
-            if($y > $x) { #upper diagonal
-                # use matrix_1 for upper diagonal
+            if($y > $x) { #lower diagonal
+                # use matrix_1 
                 $cScore=$matrixObject_1->{ missingValue };
                 $cScore=$matrix_1->{$y}->{$x} if(defined($matrix_1->{$y}->{$x}));
-            } elsif($x > $y) { # lower diagonal
+            } elsif($x > $y) { # upper diagonal
                 $cScore=$matrixObject_2->{ missingValue };
                 $cScore=$matrix_2->{$y}->{$x} if(defined($matrix_2->{$y}->{$x}));
             } else { #exact diagonal

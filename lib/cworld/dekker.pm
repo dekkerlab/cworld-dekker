@@ -4155,6 +4155,10 @@ sub matrix2pairwise($$;$$$$$) {
     my $output=$matrixObject->{ output };
     
     my $tmpDir=createTmpDir();
+    
+    my $includeCis=flipBool($excludeCis);
+    my $includeTrans=flipBool($excludeTrans);
+
     my $tmpPairwiseFile=$tmpDir.$output.".pairwise.txt.gz";
     open(OUT,outputWrapper($tmpPairwiseFile)) or confess "Could not open file [$tmpPairwiseFile] - $!";
     
@@ -4229,7 +4233,13 @@ sub matrix2pairwise($$;$$$$$) {
     system("gunzip -c '".$tmpPairwiseFile."' | grep '^[^#;]' | sort -k3,3n | gzip > '".$sortedPairwiseFile."'");
     
     # put comment lines back on
-    my $pairwiseFile=$output.".pairwise-score.txt.gz";
+    my $pairwiseMeta="";
+    $pairwiseMeta .= "--ic" if($includeCis);
+    $pairwiseMeta .= "--it" if($includeTrans);
+    $pairwiseMeta .= "--sna" if($skipNAs);
+    $pairwiseMeta .= "--ez" if($excludeZero);
+    my $pairwiseFile=$output.$pairwiseMeta.".pairwise-score.txt.gz";
+    
     system("cat '".$tmpCommentFile.".gz' '".$sortedPairwiseFile."' > '".$pairwiseFile."'");
     
     removeTmpDir($tmpDir);

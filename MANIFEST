@@ -93,7 +93,6 @@ sample-data/symmetrical2seperate/K5.symmetrical.matrix.gz
 sample-data/tickPlot/chr14.bed
 scripts/perl/addMatrixHeaders.pl
 scripts/perl/aggregateBED.pl
-scripts/perl/anchorPileUp.pl
 scripts/perl/anchorPurge.pl
 scripts/perl/applyCorrection.pl
 scripts/perl/binMatrix.pl
@@ -106,6 +105,7 @@ scripts/perl/compareMatrices.pl
 scripts/perl/correlateMatrices.pl
 scripts/perl/coverageCorrect.pl
 scripts/perl/digitizePicture.pl
+scripts/perl/elementPileUp.pl
 scripts/perl/extractSubMatrices.pl
 scripts/perl/fillMissingData.pl
 scripts/perl/generateBins.pl
@@ -139,6 +139,7 @@ scripts/python/findTADs.py
 scripts/python/getEigenVectors.py
 scripts/python/matrix2correlation.py
 scripts/python/matrix2EigenVectors.py
+scripts/python/sampleHDF5.py
 scripts/python/smoothImage.py
 scripts/python/smoothMatrix.py
 scripts/R/anchorIterativeCorrectionPlot.R

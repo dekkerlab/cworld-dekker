@@ -33,7 +33,7 @@ sub check_options {
     if( exists($opts->{ output }) ) {
         $output = $opts->{ output };
     } else {
-        $output = "";
+        $output = "default";
     }
     
     if( exists($opts->{ excludeDiagonal }) ) {
@@ -222,7 +222,7 @@ if(@{$inputMatrixArray} > 1) {
         croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
         # get matrix information
-        my $matrixObject=getMatrixObject($inputMatrix,$output,0);
+        my $matrixObject=getMatrixObject($inputMatrix,"",0);
         my $inc2header=$matrixObject->{ inc2header };
         my $header2inc=$matrixObject->{ header2inc };
         my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -318,7 +318,7 @@ for(my $i=0;$i<@normalizedMatrixArray;$i++) {
     my $inputMatrixName=$matrixObject->{ inputMatrixName };
     $output=$matrixObject->{ output };
     
-    print STDERR "$inputMatrixName\n" if($verbose);
+    print STDERR "$output\n" if($verbose);
     
     if($numYHeaders < 2000) {
         my ($matrix)=getData($inputMatrix,$matrixObject);        

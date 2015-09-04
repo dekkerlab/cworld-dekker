@@ -83,7 +83,7 @@ sub help() {
     
     print STDERR "Required:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-i", "[]", "cWorld insulation file");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--b", "[]", "cWorld boundary file");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "-b", "[]", "cWorld boundary file");
     
     print STDERR "\n";
     

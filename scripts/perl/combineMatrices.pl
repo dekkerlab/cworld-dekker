@@ -214,9 +214,9 @@ sub combineMatrices($$$$;$) {
         next if(($lastY eq "NA") or ($lastX eq "NA"));
         
         my $tmpScoreStats=listStats(\@tmpScores) if(@tmpScores > 0);
-        my $combinedScore="NA";
         
-        croak "combineMode [$combineMode] is invalid!" if(!exists($tmpScoreStats->{$combineMode}));
+        my $combinedScore="NA";      
+        croak "combineMode [$combineMode] is invalid!" if((!exists($tmpScoreStats->{$combineMode})) and (@tmpScores > 0));
         $combinedScore=$tmpScoreStats->{$combineMode} if(exists($tmpScoreStats->{$combineMode}));
         
         $combinedScore="NA" if(($NAFlag) and ($combineMode eq "sum"));

@@ -112,10 +112,8 @@ def main():
     last_fib_i=0
     for fib_n,fib_i in enumerate(fib(num_reads)):
         
-        print(fib_n,fib_i)
-        
         out_file="sample"+str(fib_n)+".hdf5"
-        verboseprint(out_file)
+        verboseprint(fib_n,fib_i,out_file)
         
         verboseprint("copying hdf file")
         shutil.copy(in_file,out_file)
@@ -136,7 +134,7 @@ def main():
             outhdf['interactions'][i:i+blocksize,:]=B[i:i+blocksize,:]
           
         outhdf.close()
-    
+        
         last_fib_i=fib_i
         verboseprint("")
     

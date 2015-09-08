@@ -79,7 +79,7 @@ sub check_options {
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\telementPileUp.pl\n";
+    print STDERR "Tool:\t\ttickPlot.pl\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tpile up cData around specified list of 'elements'\n";
     
@@ -89,7 +89,7 @@ sub intro() {
 sub help() {
     intro();
     
-    print STDERR "Usage: perl elementPileUp.pl [OPTIONS] -i <inputMatrix>\n";
+    print STDERR "Usage: perl tickPlot.pl [OPTIONS] -i <inputMatrix>\n";
     
     print STDERR "\n";
     

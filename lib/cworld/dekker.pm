@@ -290,7 +290,7 @@ sub calculateZscore($$$;$$$) {
                 
                 $zScore = (($cScore-$loessValue)/$loessStdev) if(($loessValue ne "NA") and ($loessStdev != 0));
             }
-            $zScore="NA" if(($excludeZero) and ($cScore == 0));
+            $zScore="NA" if(($excludeZero) and ($cScore ne "NA") and ($cScore == 0));
             
             # truncate numbers to minimal digits
             $zScore = sprintf "%.".$sigDigits."f", $zScore if($zScore ne "NA");
@@ -363,7 +363,7 @@ sub calculateLog2Ratio($$$;$$$) {
                 
                 $log2ratio = log($cScore/$loessValue)/log(2) if(($loessValue ne "NA") and ($loessValue > 0) and ($cScore > 0));
             }
-            $log2ratio="NA" if(($excludeZero) and ($cScore == 0));
+            $log2ratio="NA" if(($excludeZero) and ($cScore ne "NA") and ($cScore == 0));
             
             # truncate numbers to minimal digits
             $log2ratio = sprintf "%.".$sigDigits."f", $log2ratio if($log2ratio ne "NA");
@@ -436,7 +436,7 @@ sub calculateObsMinusExp($$$;$$$) {
                 
                 $obsMinusExp = $cScore-$loessValue if($loessValue ne "NA");
             }
-            $obsMinusExp="NA" if(($excludeZero) and ($cScore == 0));
+            $obsMinusExp="NA" if(($excludeZero) and ($cScore ne "NA") and ($cScore == 0));
                 
             # truncate numbers to minimal digits
             $obsMinusExp = sprintf "%.".$sigDigits."f", $obsMinusExp if($obsMinusExp ne "NA");

@@ -72,12 +72,12 @@ sub help() {
     
     print STDERR "Required:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-i@", "[]", "input matrix file array [MULTIPLE]");
-    
+    printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
+
     print STDERR "\n";
     
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--n", "[]", "optional, prefix for output file");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--cm", "[]", "optional, combine mode [sum,mean,median,min,max]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--tmp", "[/tmp]", "optional, tmp direction for tmp files");

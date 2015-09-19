@@ -5711,7 +5711,7 @@ sub stitchMatrices($$$$) {
             } else { #exact diagonal
                 $stitchMatrix{$y}{$x}="NA";
             }
-            $stitchMatrix{$y}{$x}=$cScore if(($cScore ne "NA") and ($cScore ne "NA"));
+            $stitchMatrix{$y}{$x}=$cScore if($cScore ne "NA");
         }
     }
     

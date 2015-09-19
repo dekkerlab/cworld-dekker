@@ -252,7 +252,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--em", "[]", "FLAG, embed meta data into PNG");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--dpb", "[]", "FLAG, draw pixel border");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ocb", "[]", "FLAG, omit contig/region border");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--maxDist", "[]", "FLAG, draw header labels");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--dl", "[]", "FLAG, draw header labels");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ds", "[]", "FLAG, draw scores in pixels");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--name", "[]", "prefix for output file");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--is", "[800]", "ideal image size in pixel (larger of width/height");

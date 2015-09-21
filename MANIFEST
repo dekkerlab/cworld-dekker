@@ -16,10 +16,6 @@ sample-data/addMatrixHeaders/K5.transpose.matrix.gz
 sample-data/addMatrixHeaders/readme
 sample-data/aggregrateBED/chrX.bed.gz
 sample-data/aggregrateBED/readme
-sample-data/anchorPileUp/enm009.bed
-sample-data/anchorPileUp/NPC_chrX.matrix.gz
-sample-data/anchorPileUp/readme
-sample-data/anchorPileUp/Xi-escapees.bed
 sample-data/anchorPurge/readme
 sample-data/applyCorrection/K5.allPrimerFactors
 sample-data/applyCorrection/readme
@@ -47,6 +43,10 @@ sample-data/corrrelateMatrices/readme
 sample-data/coverageCorrect/readme
 sample-data/digitizePicture/K5.png
 sample-data/digitizePicture/readme
+sample-data/elementPileUp/enm009.bed
+sample-data/elementPileUp/NPC_chrX.matrix.gz
+sample-data/elementPileUp/readme
+sample-data/elementPileUp/Xi-escapees.bed
 sample-data/extractSubMatrix/readme
 sample-data/fillMissingData/K5.loess
 sample-data/fillMissingData/K5.loess.png

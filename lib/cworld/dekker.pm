@@ -2873,10 +2873,12 @@ sub isSymmetrical($) {
     my ($inc2header,$header2inc);
     if(-e $input) {
         ($inc2header,$header2inc)=parseHeaders($input);
-    } else {
+    } elsif((ref $input eq ref {}) and (exists($input->{ y }))) {
         $inc2header=$input;
+    } else {
+        confess "isSymmetrical() - invalid input!"
     }
-        
+    
     my $numYHeaders=keys(%{$inc2header->{ y }});
     my $numXHeaders=keys(%{$inc2header->{ x }});
     

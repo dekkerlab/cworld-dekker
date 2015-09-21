@@ -430,9 +430,6 @@ if(@{$inputMatrixArray} == 2) {
     
     $output="default" if($output eq "");
     
-    croak "inputMatrix_1 must be symmetrical! [$inputMatrix_1]" if(!isSymmetrical($inputMatrix_1));
-    croak "inputMatrix_2 must be symmetrical! [$inputMatrix_2]" if(!isSymmetrical($inputMatrix_2));
-
     # validate all files are the same
     print STDERR "validating identical matrices...\n" if($verbose);
     for(my $i1=0;$i1<@{$inputMatrixArray};$i1++) {
@@ -450,6 +447,9 @@ if(@{$inputMatrixArray} == 2) {
         }
     }
     print STDERR "\tdone\n" if($verbose);
+    
+    croak "inputMatrix_1 must be symmetrical! [$inputMatrix_1]" if(!isSymmetrical($inputMatrix_1));
+    croak "inputMatrix_2 must be symmetrical! [$inputMatrix_2]" if(!isSymmetrical($inputMatrix_2));
 
     print STDERR "\n" if($verbose);
     

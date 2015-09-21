@@ -2951,11 +2951,15 @@ sub normalizeMatrix($$;$$) {
             $cScore=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
             
             next if( ($cScore eq $missingValue) or (($cScore ne "NA") and ($missingValue ne "NA") and ($cScore == $missingValue)) );
-            
-            $cScore = (($cScore/$matrixSum)*1000000);
-            $cScore = sprintf "%.".$sigDigits."f", $cScore;
-            
-            $matrix->{$y}->{$x}=$cScore;
+
+            my $normalized_cScore="NA";
+
+            if($cScore ne "NA") {
+                $normalized_cScore = (($cScore/$matrixSum)*1000000);
+                $normalized_cScore = sprintf "%.".$sigDigits."f", $cScore;
+            }
+
+            $matrix->{$y}->{$x}=$normalized_cScore;
         }
     }
     

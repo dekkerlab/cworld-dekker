@@ -2947,15 +2947,15 @@ sub normalizeMatrix($$;$$) {
     for(my $y=0;$y<$numYHeaders;$y++) {
         for(my $x=0;$x<$numXHeaders;$x++) {
         
-            my $inten=$missingValue;
-            $inten=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
+            my $cScore=$missingValue;
+            $cScore=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
             
-            next if($inten eq "NA");
+            next if( ($cScore eq $missingValue) or (($cScore ne "NA") and ($missingValue ne "NA") and ($cScore == $missingValue)) );
             
-            $inten = (($inten/$matrixSum)*1000000);
-            $inten = sprintf "%.".$sigDigits."f", $inten;
+            $cScore = (($cScore/$matrixSum)*1000000);
+            $cScore = sprintf "%.".$sigDigits."f", $cScore;
             
-            $matrix->{$y}->{$x}=$inten;
+            $matrix->{$y}->{$x}=$cScore;
         }
     }
     
@@ -2997,10 +2997,10 @@ sub getMatrixSum($$;$) {
             # skip diagonal
             next if(($excludeDiagonal) and ($y == $x) and ($symmetrical));
             
-            my $inten=$missingValue;
-            $inten=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
+            my $cScore=$missingValue;
+            $cScore=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
                         
-            $sumMatrix += $inten if($inten ne "NA");
+            $sumMatrix += $cScore if($cScore ne "NA");
         }
     }
     

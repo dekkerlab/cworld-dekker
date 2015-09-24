@@ -226,46 +226,41 @@ sub processElements($$$$$$) {
     my $elementName=shift;
     my $elementZoneSize=shift;
     my $headerBedFile=shift;
-    my $subset_inc2header=shift;
-    my $subset_header2inc=shift;
+    my $element_headers=shift;
+    my $verbose=shift;
     
     for(my $i=0;$i<@{$elementBedFiles};$i++) {
         my $elementBedFile = $elementBedFiles->[$i];
-        print STDERR "validating $elementBedFile ...\n";
+        print STDERR "validating $elementBedFile ...\n" if($verbose);
         validateBED($elementBedFile);
     }
 
-    print STDERR "\n";
+    print STDERR "\n" if($verbose);
 
     my $elementBedFile=$elementBedFiles->[0] if(@{$elementBedFiles});
     $elementBedFile=combineBedFiles($elementBedFiles,$elementName) if(@{$elementBedFiles} > 1);
 
-    print STDERR "intersecting BED files ...\n";
+    print STDERR "intersecting BED files ...\n" if($verbose);
     my $bedOverlapFile=intersectBED($headerBedFile,$elementBedFile,$elementZoneSize);
-    print STDERR "\t$bedOverlapFile\n";
+    print STDERR "\t$bedOverlapFile\n" if($verbose);
     system("rm '".$elementBedFile."'") if(@{$elementBedFiles} > 1);
 
-    print STDERR "\n";
+    print STDERR "\n" if($verbose);
 
-    print STDERR "loading BED file ...\n";
+    print STDERR "loading BED file ...\n" if($verbose);
     my ($elements)=loadBED($bedOverlapFile);
-    print STDERR "\tfound ".@{$elements}." elements\n";
+    print STDERR "\tfound ".@{$elements}." elements\n" if($verbose);
     system("rm '".$bedOverlapFile."'");
 
     croak "found no overlapping headers!" if(@{$elements} == 0);
     
-    my $numElements=@{$elements};
-    my $numHeaders=0;
+    my $numElements=@{$elements};    
     for(my $e=0;$e<$numElements;$e++) {
         my $elementHeader=$elements->[$e]->{ name };
-        next if(exists($subset_header2inc->{$elementHeader}));
-        my $elementObject=getHeaderObject($elementHeader,1);
-        $subset_inc2header->{$numHeaders}=$elementHeader;
-        $subset_header2inc->{$elementHeader}=$numHeaders;
-        $numHeaders++;
+        $element_headers->{$elementHeader}=1;
     }
     
-    return($subset_inc2header,$subset_header2inc);
+    return($element_headers);
 
 }
 
@@ -311,8 +306,37 @@ $y_elementBedFiles = [ @$elementBedFiles, @$y_elementBedFiles ];
 $x_elementBedFiles = [ @$elementBedFiles, @$x_elementBedFiles ];
 
 # load bed files
-($subset_inc2header->{ y },$subset_header2inc->{ y })=processElements($y_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$subset_inc2header->{ y },$subset_header2inc->{ y }) if(@{$y_elementBedFiles} > 0);
-($subset_inc2header->{ x },$subset_header2inc->{ x })=processElements($x_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$subset_inc2header->{ x },$subset_header2inc->{ x }) if(@{$x_elementBedFiles} > 0);
+my $element_headers={};
+($element_headers)=processElements($y_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$element_headers,$verbose) if(@{$y_elementBedFiles} > 0);
+($element_headers)=processElements($x_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$element_headers,$verbose) if(@{$x_elementBedFiles} > 0);
+
+my $element_header2inc={};
+my $element_inc2header={};
+
+my $num_element_yHeaders=0;
+for(my $y=0;$y<$numYHeaders;$y++) {
+    my $yHeader=$inc2header->{ y }->{$y};
+    if(exists($element_headers->{$yHeader})) {
+        $element_header2inc->{ y }->{$yHeader}=$num_element_yHeaders;
+        $element_inc2header->{ y }->{$num_element_yHeaders}=$yHeader;
+        $num_element_yHeaders++;
+    }
+}
+my $num_element_xHeaders=0;
+for(my $x=0;$x<$numXHeaders;$x++) {
+    my $xHeader=$inc2header->{ x }->{$x};
+    if(exists($element_headers->{$xHeader})) {
+        $element_header2inc->{ x }->{$xHeader}=$num_element_xHeaders;
+        $element_inc2header->{ x }->{$num_element_xHeaders}=$xHeader;
+        $num_element_xHeaders++;
+    }
+    
+}
+$subset_header2inc->{ y }=$element_header2inc->{ y } if($num_element_yHeaders > 0);
+$subset_inc2header->{ y }=$element_inc2header->{ y } if($num_element_yHeaders > 0);
+$subset_header2inc->{ x }=$element_header2inc->{ x } if($num_element_xHeaders > 0);
+$subset_inc2header->{ x }=$element_inc2header->{ x } if($num_element_xHeaders > 0);
+
 system("rm '".$headerBedFile."'");
 
 # process zoom coordinates
@@ -330,7 +354,6 @@ $inc2header->{ x }=$subset_inc2header->{ x } if($num_subsetXHeaders != 0);
 $inc2header->{ y }=$subset_inc2header->{ y } if($num_subsetYHeaders != 0);
 $header2inc->{ x }=$subset_header2inc->{ x } if($num_subsetXHeaders != 0);
 $header2inc->{ y }=$subset_header2inc->{ y } if($num_subsetYHeaders != 0);
-print "$num_subsetYHeaders\t$num_subsetXHeaders\n";
 
 # update matrix object
 $matrixObject->{ inc2header }=$inc2header;
@@ -340,7 +363,6 @@ $inc2header=$matrixObject->{ inc2header };
 $header2inc=$matrixObject->{ header2inc };
 $numYHeaders=$matrixObject->{ numYHeaders };
 $numXHeaders=$matrixObject->{ numXHeaders };
-print "$numYHeaders\t$numXHeaders\n";
 
 print STDERR "\n" if($verbose);
 

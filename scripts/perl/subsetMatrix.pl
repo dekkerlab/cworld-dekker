@@ -222,11 +222,11 @@ sub processZoom($$$) {
 }
 
 sub processElements($$$$$$) {
+    my $axis=shift;
     my $elementBedFiles=shift;
     my $elementName=shift;
     my $elementZoneSize=shift;
     my $headerBedFile=shift;
-    my $element_headers=shift;
     my $verbose=shift;
     
     for(my $i=0;$i<@{$elementBedFiles};$i++) {
@@ -253,6 +253,8 @@ sub processElements($$$$$$) {
     system("rm '".$bedOverlapFile."'");
 
     croak "found no overlapping headers!" if(@{$elements} == 0);
+    
+    my $element_headers={};
     
     my $numElements=@{$elements};    
     for(my $e=0;$e<$numElements;$e++) {
@@ -306,9 +308,8 @@ $y_elementBedFiles = [ @$elementBedFiles, @$y_elementBedFiles ];
 $x_elementBedFiles = [ @$elementBedFiles, @$x_elementBedFiles ];
 
 # load bed files
-my $element_headers={};
-($element_headers)=processElements($y_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$element_headers,$verbose) if(@{$y_elementBedFiles} > 0);
-($element_headers)=processElements($x_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$element_headers,$verbose) if(@{$x_elementBedFiles} > 0);
+my ($y_element_headers)=processElements('y',$y_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$verbose) if(@{$y_elementBedFiles} > 0);
+my ($x_element_headers)=processElements('x',$x_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$verbose) if(@{$x_elementBedFiles} > 0);
 
 my $element_header2inc={};
 my $element_inc2header={};
@@ -316,7 +317,7 @@ my $element_inc2header={};
 my $num_element_yHeaders=0;
 for(my $y=0;$y<$numYHeaders;$y++) {
     my $yHeader=$inc2header->{ y }->{$y};
-    if(exists($element_headers->{$yHeader})) {
+    if(exists($y_element_headers->{$yHeader})) {
         $element_header2inc->{ y }->{$yHeader}=$num_element_yHeaders;
         $element_inc2header->{ y }->{$num_element_yHeaders}=$yHeader;
         $num_element_yHeaders++;
@@ -325,7 +326,7 @@ for(my $y=0;$y<$numYHeaders;$y++) {
 my $num_element_xHeaders=0;
 for(my $x=0;$x<$numXHeaders;$x++) {
     my $xHeader=$inc2header->{ x }->{$x};
-    if(exists($element_headers->{$xHeader})) {
+    if(exists($x_element_headers->{$xHeader})) {
         $element_header2inc->{ x }->{$xHeader}=$num_element_xHeaders;
         $element_inc2header->{ x }->{$num_element_xHeaders}=$xHeader;
         $num_element_xHeaders++;

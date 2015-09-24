@@ -24,6 +24,7 @@ sample-data/binMatrix/K5__30000__10.matrix.gz
 sample-data/binMatrix/readme
 sample-data/changeMatrixHeaders/K5.headers.map
 sample-data/changeMatrixHeaders/readme
+sample-data/collapseMatrix/chr14.bed
 sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz
 sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr14__chr14__cis.matrix.gz
 sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr15__chr15__cis.matrix.gz

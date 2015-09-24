@@ -923,6 +923,7 @@ sub classifyInteraction($$$$$$$) {
     
     if($interactionDistance == -1) { # trans
         return("USABLE") if( $includeTrans );
+        return("NULL");
     } else { #cis
         return("USABLE") if( ( $includeCis ) and (!defined($minDistance)) and (!defined($maxDistance)) ); # handle no distance criteria
         return("NULL") if( ( $includeCis ) and (defined($minDistance)) and ($interactionDistance < $minDistance) ); # handle lower bound
@@ -2271,15 +2272,16 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
     $lineNum=$dataIndex=0;
     my %col2primer=();
    
+    my $nLines = getNumberOfLines($inputMatrix)-1;
+    my $pcComplete=0;
+
     open(IN,inputWrapper($inputMatrix)) or confess "Could not open file [$inputMatrix] - $!";
     while($line = <IN>) {
         chomp($line);
         next if(($line eq "") or ($line =~ m/^#/));
         
         $lineNum++;
-        
-        next if(($line eq "") or ($line =~ m/^#/));
-        
+                
         if($dataIndex != 0) {
             my @tmp=split(/\t/,$line);
             my $anchorName=$tmp[0];
@@ -2364,6 +2366,12 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
             }
             
         }
+
+
+        $pcComplete = 100 if($lineNum == ($nLines-1));
+        print STDERR "\e[A" if(($verbose) and ($lineNum != 1));
+        printf STDERR "\t%.2f%% complete ($lineNum/$nLines)...\n", $pcComplete if($verbose);
+        $pcComplete = round((($lineNum/$nLines)*100),2);
         
         $dataIndex++;
     }
@@ -5749,7 +5757,6 @@ sub intersectHeaders($$;$) {
     my $bedOverlapFile=intersectBED($headerBEDFile,$elementBedFile,$elementExtension);
     system("rm '".$headerBEDFile."'");
 
-    
     validateBED($bedOverlapFile);
     
     my %elementHeaders=();      

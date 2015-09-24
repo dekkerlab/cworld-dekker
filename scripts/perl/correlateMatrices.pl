@@ -179,7 +179,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--cm", "[]", "optional, correlation mode (pearson,spearman)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--lt", "[]", "optional, log transform data (2,10)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--fbp", "[]", "optional, fixed bin population size (num of interactions) (-1=auto, 0= ff)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--of", "[]", "optional, outlierFraction [0-1], removed from top/bottom during correlation");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--of", "[]", "optional, outlierFraction [0-1], removed from top/bottom during correlation, black=outliers");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ymin", "[]", "optional, y min value of plot");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ymax", "[]", "optional, y max value of plot");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--xmin", "[]", "optional, x min value of plot");

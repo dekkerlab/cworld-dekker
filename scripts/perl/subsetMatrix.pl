@@ -330,6 +330,7 @@ $inc2header->{ x }=$subset_inc2header->{ x } if($num_subsetXHeaders != 0);
 $inc2header->{ y }=$subset_inc2header->{ y } if($num_subsetYHeaders != 0);
 $header2inc->{ x }=$subset_header2inc->{ x } if($num_subsetXHeaders != 0);
 $header2inc->{ y }=$subset_header2inc->{ y } if($num_subsetYHeaders != 0);
+print "$num_subsetYHeaders\t$num_subsetXHeaders\n";
 
 # update matrix object
 $matrixObject->{ inc2header }=$inc2header;
@@ -339,6 +340,7 @@ $inc2header=$matrixObject->{ inc2header };
 $header2inc=$matrixObject->{ header2inc };
 $numYHeaders=$matrixObject->{ numYHeaders };
 $numXHeaders=$matrixObject->{ numXHeaders };
+print "$numYHeaders\t$numXHeaders\n";
 
 print STDERR "\n" if($verbose);
 

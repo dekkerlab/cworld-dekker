@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrixArray,$verbose,$output,$excludeDiagonal);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrixArray }) ) {
         $inputMatrixArray = $opts->{ inputMatrixArray };
@@ -41,14 +45,19 @@ sub check_options {
     } else {
         $excludeDiagonal = 0;
     }
-
-    return($inputMatrixArray,$verbose,$output,$excludeDiagonal);
+    
+    $ret->{ inputMatrixArray }=$inputMatrixArray;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ excludeDiagonal }=$excludeDiagonal;
+    
+    return($ret,$inputMatrixArray,$verbose,$output,$excludeDiagonal);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tnormalizeMatrix.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tnormalizes matrix sum - scales to 10^6\n";
     
@@ -152,8 +161,7 @@ sub applyNAMask($$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','excludeDiagonal|ed') or croak help();
-
-my ($inputMatrixArray,$verbose,$output,$excludeDiagonal)=check_options( \%options );
+my ($ret,$inputMatrixArray,$verbose,$output,$excludeDiagonal)=check_options( \%options );
 
 intro() if($verbose);
 

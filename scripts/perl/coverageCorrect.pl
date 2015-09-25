@@ -12,11 +12,15 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
-    my ($inputMatrix,$verbose,$output,$excludeCis,$excludeTrans,$correctionMode,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$logTransform,$excludeZero,$factorMode,$convergenceThreshold,$debug);
+    my ($inputMatrix,$verbose,$output,$excludeCis,$excludeTrans,$correctionMode,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$logTransform,$excludeZero,$factorMode,$maxIterations,$convergenceThreshold,$debug);
  
+    my $ret={};
+    
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
     } else {
@@ -105,6 +109,12 @@ sub check_options {
         $factorMode="zScore";
     }
         
+    if( exists($opts->{ maxIterations }) ) {
+        $maxIterations = $opts->{ maxIterations };
+    } else {
+        $maxIterations = 100;
+    }
+    
     if( exists($opts->{ convergenceThreshold }) ) {
         $convergenceThreshold = $opts->{ convergenceThreshold };
     } else {
@@ -115,15 +125,33 @@ sub check_options {
         $debug = 1;
     } else {
         $debug =0;
-    }    
+    }
     
-    return($inputMatrix,$verbose,$output,$excludeCis,$excludeTrans,$correctionMode,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$logTransform,$excludeZero,$factorMode,$convergenceThreshold,$debug);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ excludeCis }=$excludeCis;
+    $ret->{ excludeTrans }=$excludeTrans;
+    $ret->{ correctionMode }=$correctionMode;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ factorMode }=$factorMode;
+    $ret->{ maxIterations }=$maxIterations;
+    $ret->{ convergenceThreshold }=$convergenceThreshold;
+    $ret->{ debug }=$debug;
+    
+    return($ret,$inputMatrix,$verbose,$output,$excludeCis,$excludeTrans,$correctionMode,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$logTransform,$excludeZero,$factorMode,$maxIterations,$convergenceThreshold,$debug);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tcoverageCorrect.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcan perform coverage correction on matrix [balancing] cis/trans\n";
     
@@ -156,6 +184,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--lt", "[]", "log transform input data into specified base");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ez", "[]", "FLAG, ignore 0s in all calculations");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--fm", "[zScore]", "outlier detection mode - zScore,obsExp");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--mi", "[]", "max iterations allowed");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ct", "[0.1]", "optional, convergance threshold");
     print STDERR "\n";
     
@@ -208,9 +237,8 @@ sub getDeltaFactors($$) {
 
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','excludeCis|ec','excludeTrans|et','correctionMode|cm=s','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','logTransform|lt=f','excludeZero|ez','factorMode|fm=s','convergenceThreshold|ct=f','debug|d') or croak help();
-
-my ($inputMatrix,$verbose,$output,$excludeCis,$excludeTrans,$correctionMode,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$logTransform,$excludeZero,$factorMode,$convergenceThreshold,$debug)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','excludeCis|ec','excludeTrans|et','correctionMode|cm=s','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','logTransform|lt=f','excludeZero|ez','factorMode|fm=s','maxIterations|mi=i','convergenceThreshold|ct=f','debug|d') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$excludeCis,$excludeTrans,$correctionMode,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$logTransform,$excludeZero,$factorMode,$maxIterations,$convergenceThreshold,$debug)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -236,6 +264,11 @@ my $inputMatrixName=$matrixObject->{ inputMatrixName };
 my $includeCis=flipBool($excludeCis);
 my $includeTrans=flipBool($excludeTrans);
 
+my $factor_includeCis=0;
+$factor_includeCis=1 if($correctionMode eq "cis");
+my $factor_includeTrans=0;
+$factor_includeTrans=1 if($correctionMode eq "trans");
+
 my $tmpInputMatrix = "input__".$inputMatrixName.".matrix.gz";
 $tmpInputMatrix=$output if($output ne "");
 $output=$matrixObject->{ output };
@@ -255,7 +288,7 @@ open(LOG,outputWrapper($iterationFile)) or croak "Could not open file [$iteratio
 
 print STDERR "\n";
 
-while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
+while(($meanDelta > $convergenceThreshold) and ($iterationNumber <= $maxIterations)) {
     
     $iterationKey="i".$iterationNumber."__" if($debug);
     $tmpInputMatrixName = $iterationKey.getFileName($tmpInputMatrix) if($iterationNumber > 0);
@@ -276,7 +309,7 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
 
     # calculate LOWESS smoothing for cis data
 
-    my $loessMeta="";
+     my $loessMeta="";
     $loessMeta .= "--ic" if($includeCis);
     $loessMeta .= "--it" if($includeTrans);
     $loessMeta .= "--maxDist".$maxDistance if(defined($maxDistance));
@@ -290,6 +323,7 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
     
     my $inputDataCis=[];
     my $inputDataTrans=[];
+    
     if(!validateLoessObject($loessObjectFile)) {
         # dump matrix data into input lists (CIS + TRANS)
         print STDERR "seperating cis/trans data...\n" if($verbose);
@@ -310,15 +344,10 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
 
     # calculate cis-expected
     $loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFile,$verbose);
-
-    my $cis_factor=0;
-    my $trans_factor=0;
-    $cis_factor = 1 if($correctionMode eq "cis");
-    $trans_factor = 1 if($correctionMode eq "trans");
-
+    
     print STDERR "calculating y-axis factors ... \n" if($verbose);
     my $yFactorFile=$tmpInputMatrixName.".y.factors";
-    my $normalPrimerData=getRowColFactor($matrixObject,$tmpInputMatrix,$tmpInputMatrixName,$cis_factor,$minDistance,$maxDistance,$trans_factor,$logTransform,$loess,$factorMode,$yFactorFile,$inputMatrixName,$cisApproximateFactor,$excludeZero);
+    my $normalPrimerData=getRowColFactor($matrixObject,$tmpInputMatrix,$tmpInputMatrixName,$factor_includeCis,$minDistance,$maxDistance,$factor_includeTrans,$logTransform,$loess,$factorMode,$yFactorFile,$inputMatrixName,$cisApproximateFactor,$excludeZero);
    
     print STDERR "\n" if($verbose);
 
@@ -330,7 +359,7 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
     
     print STDERR "calculating x-axis factors ... \n" if($verbose);
     my $xFactorFile=$tmpInputMatrixName.".x.factors";
-    my $transposedPrimerData=getRowColFactor($transposedMatrixObject,$transposedMatrix,$tmpInputMatrixName,$cis_factor,$minDistance,$maxDistance,$trans_factor,$logTransform,$loess,$factorMode,$xFactorFile,$inputMatrixName,$cisApproximateFactor,$excludeZero);
+    my $transposedPrimerData=getRowColFactor($transposedMatrixObject,$transposedMatrix,$tmpInputMatrixName,$factor_includeCis,$minDistance,$maxDistance,$factor_includeTrans,$logTransform,$loess,$factorMode,$xFactorFile,$inputMatrixName,$cisApproximateFactor,$excludeZero);
     
     print STDERR "\n" if($verbose);
 
@@ -377,9 +406,6 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
 
     # now normalize the matrix
     my $normalizedMatrix=correctMatrix($matrixObject,$matrix,$rowcolData,$includeCis,$includeTrans,$factorMode,$logTransform,$loess,$excludeZero,$cisApproximateFactor);
-    #optional
-    my $cisApproximateFactor=1;
-    $cisApproximateFactor=shift if @_;
     
     my $normalizedMatrixFile = $iterationKey.$output.".corrected.matrix.gz";
     writeMatrix($normalizedMatrix,$inc2header,$normalizedMatrixFile);
@@ -396,62 +422,4 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber < 100)) {
     $iterationNumber++;
 }
 
-# do final anchor plot calculation
-
-#
-#
-#
-
 print STDERR "\nconverged in $iterationNumber iterations!\n";
-
-$iterationKey="i".$iterationNumber."__" if($debug);
-$tmpInputMatrixName = $iterationKey.$output;
-
-# get matrix information
-$matrixObject=getMatrixObject($tmpInputMatrix);
-$inc2header=$matrixObject->{ inc2header };
-$header2inc=$matrixObject->{ header2inc };
-$numYHeaders=$matrixObject->{ numYHeaders };
-$numXHeaders=$matrixObject->{ numXHeaders };
-
-# get matrix data
-my ($matrix)=getData($tmpInputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
-
-print STDERR "\n" if($verbose);
-
-# calculate LOWESS smoothing for cis data
-
-my $loessMeta="";
-$loessMeta .= "--ic" if($includeCis);
-$loessMeta .= "--it" if($includeTrans);
-$loessMeta .= "--maxDist".$maxDistance if(defined($maxDistance));
-$loessMeta .= "--ez" if($excludeZero);
-$loessMeta .= "--caf".$cisApproximateFactor;
-$loessMeta .= "--ca".$cisAlpha;
-$loessMeta .= "--dif" if($disableIQRFilter);
-my $loessFile=$tmpInputMatrixName.$loessMeta.".loess.gz";
-my $loessObjectFile=$tmpInputMatrixName.$loessMeta.".loess.object.gz";
-system("rm '".$loessObjectFile."'") if(-e($loessObjectFile));
-
-my $inputDataCis=[];
-my $inputDataTrans=[];
-if(!validateLoessObject($loessObjectFile)) {
-    # dump matrix data into input lists (CIS + TRANS)
-    print STDERR "seperating cis/trans data...\n" if($verbose);
-    ($inputDataCis,$inputDataTrans)=matrix2inputlist($matrixObject,$matrix,$includeCis,$includeTrans,$minDistance,$maxDistance,$excludeZero,$cisApproximateFactor);
-    croak "$tmpInputMatrixName - no avaible CIS data" if((scalar @{ $inputDataCis } <= 0) and ($includeCis) and ($includeTrans == 0));
-    croak "$tmpInputMatrixName - no avaible TRANS data" if((scalar @{ $inputDataTrans } <= 0) and ($includeTrans) and ($includeCis == 0));
-    print STDERR "\n" if($verbose);
-}
-
-# init loess object [hash]
-my $loess={};
-
-# calculate cis-expected
-$loess=calculateLoess($matrixObject,$inputDataCis,$loessFile,$loessObjectFile,$cisAlpha,$disableIQRFilter,$excludeZero);
-
-# plot cis-expected
-system("Rscript '".$scriptPath."/R/plotLoess.R' '".$cwd."' '".$loessFile."' > /dev/null") if(scalar @{ $inputDataCis } > 0);
-
-# calculate cis-expected
-$loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFile,$verbose);

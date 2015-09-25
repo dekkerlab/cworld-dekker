@@ -12,11 +12,15 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($assembly,$verbose,$output,$regionCoordinates,$binSize,$binStep);
 
+    my $ret={};
+    
     if( exists($opts->{ assembly }) ) {
         $assembly = $opts->{ assembly };
     } else {
@@ -56,15 +60,22 @@ sub check_options {
         print STDERR "\nERROR: Option binStep|bstep is required.\n";
         help();
     }
-
-    return($assembly,$verbose,$output,$regionCoordinates,$binSize,$binStep);
+    
+    $ret->{ assembly }=$assembly;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ regionCoordinates }=$regionCoordinates;
+    $ret->{ binSize }=$binSize;
+    $ret->{ binStep }=$binStep;
+    
+    return($ret,$assembly,$verbose,$output,$regionCoordinates,$binSize,$binStep);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tgenerateBins.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcreate my5C formatted headers\n";
     
@@ -147,8 +158,7 @@ sub generateBins($$$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'assembly|a=s','verbose|v','output|o=s','regionCoordinates|r=s','binSize|bsize=s','binStep|bstep=s') or croak help();
-
-my ($assembly,$verbose,$output,$regionCoordinates,$binSize,$binStep) = check_options( \%options );
+my ($ret,$assembly,$verbose,$output,$regionCoordinates,$binSize,$binStep) = check_options( \%options );
 
 intro() if($verbose);
 

@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix_1 }) ) {
         $inputMatrix_1 = $opts->{ inputMatrix_1 };
@@ -49,13 +53,19 @@ sub check_options {
         $compareMode = "log2ratio";
     }
     
-    return($inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode);
+    $ret->{ inputMatrix_1 }=$inputMatrix_1;
+    $ret->{ inputMatrix_2 }=$inputMatrix_2;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ compareMode }=$compareMode;
+    
+    return($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tcompareMatrices.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tperforms comparison between two matrices\n";
     
@@ -103,8 +113,7 @@ sub help() {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix_1|1=s','inputMatrix_2|2=s','verbose|v','output|o=s','compareMode|cm=s') or croak help();
-
-my ($inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode)=check_options( \%options );
+my ($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode)=check_options( \%options );
 
 intro() if($verbose);
 

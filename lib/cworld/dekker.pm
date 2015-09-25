@@ -128,7 +128,7 @@ our @EXPORT = qw(autoScale autoSize badFormat baseName
              getFilePath getHeaderSpacing getMatrixAttributes getMatrixObject
              getMatrixSum getNARows getNumberOfLines getRowColFactor
              getHeaderObject getRestrictionEnzymeSequences
-             getRowSum getShortFileName getSmallUniqueString
+             getRowSum getScriptOpts getShortFileName getSmallUniqueString
              getUniqueString getUserHomeDirectory header2subMatrix headers2bed
              initHeatmap inputWrapper intersectBED intersectHeaders isOverlapping
              isSymmetrical listStats loadBED logTransformMatrix matrix2distance
@@ -172,7 +172,41 @@ sub commify {
    (my $num = shift) =~ s/\G(\d{1,3})(?=(?:\d\d\d)+(?:\.|$))/$1,/g; 
    return $num; 
 }
+
+=head2 get_script_opts
+
+ Title     : get_script_opts
+ Usage     : get_script_opts(...)
+ Function  : turn script opts into string (comment line)
+ Returns   : Str
+ Argument  : opt hash
+
+=cut
+
+sub getScriptOpts($$) {
+    # required
+    my $ret=shift;
+    my $tool=shift;
     
+    my $commentLine="";
+    
+    $commentLine = "## Tool:\t".$tool;
+    $commentLine .= "\n## ";
+    
+    foreach my $opt ( sort keys %{$ret} ) {
+        my $value=$ret->{$opt};
+        $value="" if(!defined($value));
+        if (ref $value eq 'ARRAY') {
+            my @value=@$value;
+            my $value_str=join(',',@value);
+            $value=$value_str;
+        }
+        $commentLine .= "\n## ".$opt." = '".$value."'";
+    }
+    
+    return $commentLine;
+}
+   
 =head2 writeMatrix
 
  Title     : writeMatrix
@@ -183,7 +217,7 @@ sub commify {
 
 =cut
 
-sub writeMatrix($$$;$$) {
+sub writeMatrix($$$;$$$) {
     #required
     my $matrix=shift;
     my $inc2header=shift;
@@ -191,13 +225,15 @@ sub writeMatrix($$$;$$) {
     #optional
     my $missingValue=0;
     $missingValue=shift if @_;
+    my $commentLine="";
+    $commentLine=shift if @_;
     my $sigDigits=4;
     $sigDigits=shift if @_;
     
     my $numYHeaders=keys(%{$inc2header->{ y }});
     my $numXHeaders=keys(%{$inc2header->{ x }});
     
-    open(OUT,outputWrapper($matrixFile)) or confess "Could not open file [$matrixFile] - $!";
+    open(OUT,outputWrapper($matrixFile,$commentLine)) or confess "Could not open file [$matrixFile] - $!";
     
     print OUT $numXHeaders."x".$numYHeaders;
     
@@ -920,16 +956,16 @@ sub classifyInteraction($$$$$$$) {
     
     return("USABLE") if(($includeTrans) and ($interactionDistance == -1) and ($chr_1 ne $chr_2));
     
-    
     if($interactionDistance == -1) { # trans
+        return("NULL") if( !$includeTrans );
         return("USABLE") if( $includeTrans );
-        return("NULL");
     } else { #cis
+        return("NULL") if( !$includeCis );
         return("USABLE") if( ( $includeCis ) and (!defined($minDistance)) and (!defined($maxDistance)) ); # handle no distance criteria
         return("NULL") if( ( $includeCis ) and (defined($minDistance)) and ($interactionDistance < $minDistance) ); # handle lower bound
         return("NULL") if( ( $includeCis ) and (defined($maxDistance)) and ($interactionDistance > $maxDistance) ); # handle upper bound
+
         # remaining = within distance range
-        
         return("USABLE");
     }
     
@@ -1576,7 +1612,7 @@ sub getData($$;$$$$$$) {
                 }
                 
                 confess "error - matrix is too large ($nDataPoints > $maxNonZeros)!" if($nDataPoints > $maxNonZeros);
-                
+               
                 $matrix{$yIndex}{$xIndex}=$cScore;
                 $nDataPoints++
                 
@@ -2214,7 +2250,7 @@ sub calculateTransExpected($$$$;$) {
     $loess->{-1}->{ stdev }=$tmpIQRStdev;
     
     if(validateLoessObject($loessObjectFile)) {
-        open(COLLAPSED,outputWrapper($loessObjectFile,1)) or confess "Could not open file [$loessObjectFile] - $!";
+        open(COLLAPSED,outputWrapper($loessObjectFile,"",1)) or confess "Could not open file [$loessObjectFile] - $!";
         print COLLAPSED "-1\t-1\t$tmpIQRMean\t$tmpIQRStdev\n";
         print COLLAPSED "## done\n";
     } else {
@@ -2284,10 +2320,10 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
                 
         if($dataIndex != 0) {
             my @tmp=split(/\t/,$line);
-            my $anchorName=$tmp[0];
+            my $yHeader=$tmp[0];
                         
-            my $anchorObject={};
-            $anchorObject=getHeaderObject($anchorName);
+            my $yHeaderObject={};
+            $yHeaderObject=getHeaderObject($yHeader);
             
             my @tmpFactorArr=();
             my @tmpLoessMeanArr=();
@@ -2295,12 +2331,12 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
             
             my ($i);
             for($i=1;$i<@tmp;$i++) {
-                my $partnerName=$col2primer{$i};
-                my $partnerObject={};
-                $partnerObject=getHeaderObject($partnerName);
+                my $xHeader=$col2primer{$i};
+                my $xHeaderObject={};
+                $xHeaderObject=getHeaderObject($xHeader);
                 
-                my $interactionDistance=getInteractionDistance($matrixObject,$anchorObject,$partnerObject,$cisApproximateFactor);
-                my $interactionClassification=classifyInteraction($matrixObject,$includeCis,$minDistance,$maxDistance,$includeTrans,$anchorObject,$partnerObject);
+                my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,$cisApproximateFactor);
+                my $interactionClassification=classifyInteraction($matrixObject,$includeCis,$minDistance,$maxDistance,$includeTrans,$yHeaderObject,$xHeaderObject);
                 
                 next if($interactionClassification ne "USABLE");
                 
@@ -2351,9 +2387,9 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
                         
             $tmpFactor = 2**$tmpFactor if(($factorMode eq "obsExp") and ($tmpFactor ne "NA"));
             $tmpFactor = sprintf "%.8f", $tmpFactor if($tmpFactor ne "NA");
-            $rowcolData->{$anchorName}->{ factor }=$tmpFactor;    
-            $rowcolData->{$anchorName}->{ loessMean }=$tmpLoessMean;    
-            $rowcolData->{$anchorName}->{ loessStdev }=$tmpLoessStdev;    
+            $rowcolData->{$yHeader}->{ factor }=$tmpFactor;    
+            $rowcolData->{$yHeader}->{ loessMean }=$tmpLoessMean;    
+            $rowcolData->{$yHeader}->{ loessStdev }=$tmpLoessStdev;    
             
         } else {
         
@@ -2679,19 +2715,15 @@ sub matrix2inputlist($$$$$$$;$) {
             #only work above diagonal if symmetrical 
             next if(($symmetrical) and ($y < $x)); 
             
-            my $xHeader=$inc2header->{ x }->{$x};    
-            my $xHeaderObject=getHeaderObject($xHeader);
-            
             my $cScore=$matrixObject->{ missingValue };
             $cScore=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
             
-            next if($cScore eq "");
+            next if(($excludeZero) and ($cScore == 0));
             next if(($cScore =~ /^NULL$/i) or ($cScore =~ /^NA$/i) or ($cScore =~ /inf$/i) or ($cScore =~ /^nan$/i));
             
-            next if(($excludeZero) and ($cScore == 0));
-            
+            my $xHeader=$inc2header->{ x }->{$x};    
+            my $xHeaderObject=getHeaderObject($xHeader);
             my $headerKey=$yHeader."___".$xHeader;
-            
             my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,$cisApproximateFactor);
             
             # skip trans
@@ -2700,19 +2732,15 @@ sub matrix2inputlist($$$$$$$;$) {
             next if(($interactionDistance != -1) and ($includeCis == 0));
             
             if($interactionDistance == -1) {
-                $inputDataTrans[$iTrans][0]=$interactionDistance;
-                $inputDataTrans[$iTrans][1]=$cScore;
-                $inputDataTrans[$iTrans][2]=$headerKey;
+                $inputDataTrans[$iTrans]=[$interactionDistance,$cScore,$headerKey];
                 $iTrans++;
             } else { 
                 my $realInteractionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,1);
-                $inputDataCis[$iCis][0]=$interactionDistance;
-                $inputDataCis[$iCis][1]=$cScore;
-                $inputDataCis[$iCis][2]=$yHeader."___".$xHeader;
-                $inputDataCis[$iCis][3]=$realInteractionDistance;
+                $inputDataCis[$iCis]=[$interactionDistance,$cScore,$yHeader."___".$xHeader,$realInteractionDistance];
                 $iCis++;
             }
         }
+        
         $pcComplete = round((($y/($numYHeaders-1))*100),2);
         print STDERR "\e[A" if(($verbose) and ($y != 0));
         printf STDERR "\t%.2f%% complete (".$y."/".($numYHeaders-1).")...\n", $pcComplete if($verbose);
@@ -3729,7 +3757,9 @@ sub correctMatrix($$$$$$$$$;$) {
                     $normalizedScore = $cScore * $combinedFactor if($cScore ne "NA");
 
                 } else {    
-                    print STDERR "ERROR! $factorMode | $cScore | $interactionDistance\n";
+                    
+                    confess "ERROR with correctMatrix() | $factorMode | $cScore | $interactionDistance | $cisApproximateFactor";
+                    
                 }
                 
             }
@@ -4235,7 +4265,7 @@ sub matrix2pairwise($$;$$$$$) {
     system("gunzip -c '".$tmpPairwiseFile."' | grep -v '^[^#;]' > '".$tmpCommentFile."'");
     
     # append on comment headers
-    open(COMMENT,outputWrapper($tmpCommentFile,0,1)) or confess "Could not open file [$tmpCommentFile] - $!";
+    open(COMMENT,outputWrapper($tmpCommentFile,"",0,1)) or confess "Could not open file [$tmpCommentFile] - $!";
     print COMMENT "yHeader\txHeader\tcScore\n";
     close(COMMENT);
     
@@ -4353,8 +4383,7 @@ sub matrix2distance($$;$$$$$) {
     system("gunzip -c '".$tmpPairwiseFile."' | grep -v '^[^#;]' > '".$tmpCommentFile."'");
     
     # append on comment headers
-    open(COMMENT,outputWrapper($tmpCommentFile,0,1)) or con
-    fess "Could not open file [$tmpCommentFile] - $!";
+    open(COMMENT,outputWrapper($tmpCommentFile,"",0,1)) or confess "Could not open file [$tmpCommentFile] - $!";
     print COMMENT "yHeader\txHeader\tdistance\n";
     close(COMMENT);
     
@@ -5493,7 +5522,7 @@ sub transposeMatrix($;$) {
         my $tmpfile=$tmpDir.$inputMatrixName.".".$linenum.".gz";
         
         #print the single row, which is now a column, into a temporary file.
-        open(OUT,outputWrapper($tmpfile,0,1)) or confess "Could not open file [$tmpfile] - $!";
+        open(OUT,outputWrapper($tmpfile,"",0,1)) or confess "Could not open file [$tmpfile] - $!";
         print OUT $line;
         close(OUT);
         
@@ -5581,10 +5610,12 @@ sub flipBool($) {
 
 =cut
 
-sub outputWrapper($;$$) {
+sub outputWrapper($;$$$) {
     # required
     my $outputFile=shift;
     # optional
+    my $commentLine="";
+    $commentLine=shift if @_;
     my $appendFlag=0;
     $appendFlag=shift if @_;
     my $suppressComments=0;
@@ -5626,6 +5657,9 @@ sub outputWrapper($;$$) {
         print OUT "## Date:\t".getDate()."\n";
         print OUT "## Host:\t".getComputeResource()."\n";
         print OUT "## \n";
+        
+        print OUT "$commentLine\n##\n" if($commentLine ne "");
+        
         close(OUT);
     }
     

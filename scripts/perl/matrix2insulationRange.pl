@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$insulationSquareStart,$insulationSquareEnd,$insulationSquareStep,$insulationMode,$minDistance,$maxDistance,$excludeZero);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -78,13 +82,24 @@ sub check_options {
         $excludeZero = 0;
     }
     
-    return($inputMatrix,$verbose,$output,$insulationSquareStart,$insulationSquareEnd,$insulationSquareStep,$insulationMode,$minDistance,$maxDistance,$excludeZero);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ insulationSquareStart }=$insulationSquareStart;
+    $ret->{ insulationSquareEnd }=$insulationSquareEnd;
+    $ret->{ insulationSquareStep }=$insulationSquareStep;
+    $ret->{ insulationMode }=$insulationMode;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ excludeZero }=$excludeZero;
+    
+    return($ret,$inputMatrix,$verbose,$output,$insulationSquareStart,$insulationSquareEnd,$insulationSquareStep,$insulationMode,$minDistance,$maxDistance,$excludeZero);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2insulationRange.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcalculate insulation index (TADs) over range of square sizes\n";
     
@@ -392,8 +407,7 @@ sub outputInsulation($$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','insulationSquareStart|istart=i','insulationSquareEnd|iend=i','insulationSquareStep|istep=i','insulationMode|im=s','minDistance|minDist=i','maxDistance|maxDist=i','excludeZero|ez') or croak help();
-
-my ($inputMatrix,$verbose,$output,$insulationSquareStart,$insulationSquareEnd,$insulationSquareStep,$insulationMode,$minDistance,$maxDistance,$excludeZero)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$insulationSquareStart,$insulationSquareEnd,$insulationSquareStep,$insulationMode,$minDistance,$maxDistance,$excludeZero)=check_options( \%options );
 
 intro() if($verbose);
 

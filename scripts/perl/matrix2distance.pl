@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$logTransform,$skipNA,$excludeZero);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -48,7 +52,6 @@ sub check_options {
         $maxDistance = undef;
     }
     
-    
     if( exists($opts->{ logTransform }) ) {
         $logTransform = 10;
     } else {
@@ -66,8 +69,17 @@ sub check_options {
     } else {
         $excludeZero = 0;
     }
-
-    return($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$logTransform,$skipNA,$excludeZero);
+  
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ skipNA }=$skipNA;
+    $ret->{ excludeZero }=$excludeZero;
+    
+    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$logTransform,$skipNA,$excludeZero);
     
 }
 
@@ -111,7 +123,7 @@ sub calculateCumulativeReadsPerDistance($$$) {
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2distance.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcumlative reads versus distance\n";
     
@@ -164,8 +176,7 @@ sub help() {
         
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','logTransform|lt','skipNA|sn','excludeZero|ez') or croak help();
-
-my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$logTransform,$skipNA,$excludeZero)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$logTransform,$skipNA,$excludeZero)=check_options( \%options );
 
 intro() if($verbose);
 

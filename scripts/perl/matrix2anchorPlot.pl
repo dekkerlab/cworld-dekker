@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
-   my ($inputMatrix,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero,$highlightMatrix,$yMin,$yMax,$subsetListFile);
+    my ($inputMatrix,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero,$highlightMatrix,$yMin,$yMax,$subsetListFile);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -102,13 +106,28 @@ sub check_options {
         $subsetListFile = "";
     }
     
-    return($inputMatrix,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero,$highlightMatrix,$yMin,$yMax,$subsetListFile);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ loessObjectFile }=$loessObjectFile;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ highlightMatrix }=$highlightMatrix;
+    $ret->{ yMin }=$yMin;
+    $ret->{ yMax }=$yMax;
+    $ret->{ subsetListFile }=$subsetListFile;
+    
+    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero,$highlightMatrix,$yMin,$yMax,$subsetListFile);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2anchorPlot.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\ttransform each row/col into 4C style 'anchor' plot.\n";
     
@@ -246,7 +265,7 @@ sub drawAnchorPlots($$$$$$$$$$$$;$$$) {
         system("rm '".$tmpAnchorPlotFile.".expected'") if(-e($tmpAnchorPlotFile.".expected"));
         system("rm '".$tmpAnchorPlotFile.".png'") if(-e($tmpAnchorPlotFile.".png"));
         
-        open(OUT,outputWrapper($tmpAnchorPlotFile,1)) or croak "Could not open file [$tmpAnchorPlotFile] - $!";
+        open(OUT,outputWrapper($tmpAnchorPlotFile,"",1)) or croak "Could not open file [$tmpAnchorPlotFile] - $!";
         print OUT "yHeader\txHeader\tinteractionMidpoint\tinteractionDistance\tloessExpected\tloessStdev\tcScore\thighlight\n";
         
         my $drawFlag=0;
@@ -343,8 +362,7 @@ sub drawAnchorPlots($$$$$$$$$$$$;$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','cisAlpha|ca=f','disableIQRFilter|dif=s','minDistance|minDist=i','maxDistance|maxDist=i','cisApproximateFactor|caf=i','excludeZero|ez','highlightMatrix|hm=s','yMin|ymin=i','yMax|ymax=i','subsetListFile|slf=s') or croak help();
-
-my ($inputMatrix,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero,$highlightMatrix,$yMin,$yMax,$subsetListFile)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero,$highlightMatrix,$yMin,$yMax,$subsetListFile)=check_options( \%options );
 
 intro() if($verbose);
 

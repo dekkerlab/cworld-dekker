@@ -14,10 +14,14 @@ use GD::Simple;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$imageWidth,$headerSizingFile,$colorScaleStartTile,$colorScaleEndTile,$colorScaleStart,$colorScaleEnd,$posColorString,$negColorString,$missingColorString,$drawBGInteractions);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -110,14 +114,30 @@ sub check_options {
         $drawBGInteractions = 0;
     }
     
-    return($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$imageWidth,$headerSizingFile,$colorScaleStartTile,$colorScaleEndTile,$colorScaleStart,$colorScaleEnd,$posColorString,$negColorString,$missingColorString,$drawBGInteractions);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ imageWidth }=$imageWidth;
+    $ret->{ headerSizingFile }=$headerSizingFile;
+    $ret->{ colorScaleStartTile }=$colorScaleStartTile;
+    $ret->{ colorScaleEndTile }=$colorScaleEndTile;
+    $ret->{ colorScaleStart }=$colorScaleStart;
+    $ret->{ colorScaleEnd }=$colorScaleEnd;
+    $ret->{ posColorString }=$posColorString;
+    $ret->{ negColorString }=$negColorString;
+    $ret->{ missingColorString }=$missingColorString;
+    $ret->{ drawBGInteractions }=$drawBGInteractions;
+    
+    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$imageWidth,$headerSizingFile,$colorScaleStartTile,$colorScaleEndTile,$colorScaleStart,$colorScaleEnd,$posColorString,$negColorString,$missingColorString,$drawBGInteractions);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2webplot.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tdraws 'web-plot' of matrix file\n";
     
@@ -543,8 +563,7 @@ sub getHeaderSizing($) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','imageWidth|iw=s','headerSizingFile|hsf=s','colorScaleStartTile|startTile=s','colorScaleEndTile|endTile=s','colorScaleStart|start=s','colorScaleEnd|end=s','posColorString|pc=s','negColorString|nc=s','missingColorString|mc=s','drawBGInteractions|dbi') or croak help();
-
-my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$imageWidth,$headerSizingFile,$colorScaleStartTile,$colorScaleEndTile,$colorScaleStart,$colorScaleEnd,$posColorString,$negColorString,$missingColorString,$drawBGInteractions)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$imageWidth,$headerSizingFile,$colorScaleStartTile,$colorScaleEndTile,$colorScaleStart,$colorScaleEnd,$posColorString,$negColorString,$missingColorString,$drawBGInteractions)=check_options( \%options );
 
 intro() if($verbose);
 

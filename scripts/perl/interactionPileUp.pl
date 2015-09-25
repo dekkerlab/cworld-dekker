@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -115,13 +119,30 @@ sub check_options {
         $debugMode = 0;
     }
     
-    return($inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ elementBedFiles }=$elementBedFiles;
+    $ret->{ elementName }=$elementName;
+    $ret->{ elementZoneSize }=$elementZoneSize;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ minElementDistance }=$minElementDistance;
+    $ret->{ maxElementDistance }=$maxElementDistance;
+    $ret->{ aggregrateMode }=$aggregrateMode;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ includeDiagonal }=$includeDiagonal;
+    $ret->{ excludeCis }=$excludeCis;
+    $ret->{ excludeTrans }=$excludeTrans;
+    $ret->{ debugMode }=$debugMode;
+    
+    return($ret,$inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tinteractionPileUp.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tpile up cData around specified list of 'elements'\n";
     
@@ -458,8 +479,7 @@ sub writePileUpMatrixFile($$$$$$) {
     
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','elementBedFiles|ebf=s@','elementName|en=s','elementZoneSize|ezs=i','minDistance|minDist=i','maxDistance|maxDist=i','minElementDistance|minED=i','maxElementDistance|maxED=i','aggregrateMode|am=s','excludeZero|ez','includeDiagonal|id','excludeCis|ec','excludeTrans|et','debugMode|d') or croak help();
-
-my ($inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode)=check_options( \%options );
 
 intro() if($verbose);
 

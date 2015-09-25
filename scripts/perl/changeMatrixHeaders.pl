@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$headerMapFile);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -43,13 +47,18 @@ sub check_options {
         help();
     }
     
-    return($inputMatrix,$verbose,$output,$headerMapFile);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ headerMapFile }=$headerMapFile;
+    
+    return($ret,$inputMatrix,$verbose,$output,$headerMapFile);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tchangeMatrixHeaders.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\treplace matrix row/col headers, or subset matrix by list of headers\n";
     
@@ -147,8 +156,7 @@ sub loadNewHeaders($$) {
     
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','headerMapFile|hmf=s') or croak help();
-
-my ($inputMatrix,$verbose,$output,$headerMapFile)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$headerMapFile)=check_options( \%options );
 
 intro() if($verbose);
 

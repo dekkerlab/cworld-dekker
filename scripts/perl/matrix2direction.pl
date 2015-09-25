@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$directionMode,$directionSize,$excludeZero,$yBound,$transparentBGFlag);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -67,14 +71,23 @@ sub check_options {
         $transparentBGFlag = 0;
     }
     
-    return($inputMatrix,$verbose,$output,$directionMode,$directionSize,$excludeZero,$yBound,$transparentBGFlag);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ directionMode }=$directionMode;
+    $ret->{ directionSize }=$directionSize;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ yBound }=$yBound;
+    $ret->{ transparentBGFlag }=$transparentBGFlag;
+    
+    return($ret,$inputMatrix,$verbose,$output,$directionMode,$directionSize,$excludeZero,$yBound,$transparentBGFlag);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2direction.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcalculate directionality [tads] on matrix\n";
     
@@ -342,8 +355,7 @@ sub outputDirection($$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','directionMode|dm=s','directionSize|ds=i','excludeZero|ez','yBound|yb=f','transparentBGFlag|bg') or croak help();
-
-my ($inputMatrix,$verbose,$output,$directionMode,$directionSize,$excludeZero,$yBound,$transparentBGFlag)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$directionMode,$directionSize,$excludeZero,$yBound,$transparentBGFlag)=check_options( \%options );
 
 intro() if($verbose);
 

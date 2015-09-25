@@ -9,14 +9,18 @@ use POSIX qw(ceil floor);
 use List::Util qw[min max];
 use Cwd 'abs_path';
 use Cwd;
+use Data::Dumper;
 
 use cworld::dekker;
+
+my $tool=(split(/\//,abs_path($0)))[-1];
 
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$elementName,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementZoneSize);
+    my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension);
 
+    my $ret={};
         
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -79,10 +83,10 @@ sub check_options {
         $x_elementBedFiles = [];
     }
     
-    if( exists($opts->{ elementName }) ) {
-        $elementName = $opts->{ elementName };
+    if( exists($opts->{ outputSuffix }) ) {
+        $outputSuffix = $opts->{ outputSuffix };
     } else {
-        $elementName=getSmallUniqueString();
+        $outputSuffix = "";
     }
     
     if( exists($opts->{ zoomCoordinates }) ) {
@@ -103,20 +107,36 @@ sub check_options {
         $x_zoomCoordinates = [];
     }
     
-    if( exists($opts->{ elementZoneSize }) ) {
-        $elementZoneSize = $opts->{ elementZoneSize };
+    if( exists($opts->{ elementExtension }) ) {
+        $elementExtension = $opts->{ elementExtension };
     } else {
-        $elementZoneSize=0;
+        $elementExtension=0;
     }
+        
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ excludeCis }=$excludeCis;
+    $ret->{ excludeTrans }=$excludeTrans;
+    $ret->{ elementBedFiles }=$elementBedFiles;
+    $ret->{ y_elementBedFiles }=$y_elementBedFiles;
+    $ret->{ x_elementBedFiles }=$x_elementBedFiles;
+    $ret->{ outputSuffix }=$outputSuffix;
+    $ret->{ zoomCoordinates }=$zoomCoordinates;
+    $ret->{ y_zoomCoordinates }=$y_zoomCoordinates;
+    $ret->{ x_zoomCoordinates }=$x_zoomCoordinates;
+    $ret->{ elementExtension }=$elementExtension;
     
-    return($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$elementName,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementZoneSize);
+    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tsubsetMatrix.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tsubset matrix by distance, or by BED file (bin overlap)\n";
     
@@ -148,8 +168,8 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--z@", "[]", "x/y axis zoom coordinate [UCSC]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--yz@", "[]", "y axis zoom coordinate [UCSC]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--xz@", "[]", "x axis zoom coordinate [UCSC]");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--en", "[]", "elementName, descriptor for output files");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "-zs", "[]", "increase element size by N bp, (increase overlap)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--os", "[]", "outputSuffix, suffix for output file");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ee", "[]", "element extensnion, increase element size by N bp, (increase overlap)");
     
     print STDERR "\n";
     
@@ -224,8 +244,8 @@ sub processZoom($$$) {
 sub processElements($$$$$$) {
     my $axis=shift;
     my $elementBedFiles=shift;
-    my $elementName=shift;
-    my $elementZoneSize=shift;
+    my $outputSuffix=shift;
+    my $elementExtension=shift;
     my $headerBedFile=shift;
     my $verbose=shift;
     
@@ -238,10 +258,10 @@ sub processElements($$$$$$) {
     print STDERR "\n" if($verbose);
 
     my $elementBedFile=$elementBedFiles->[0] if(@{$elementBedFiles});
-    $elementBedFile=combineBedFiles($elementBedFiles,$elementName) if(@{$elementBedFiles} > 1);
+    $elementBedFile=combineBedFiles($elementBedFiles,$outputSuffix) if(@{$elementBedFiles} > 1);
 
     print STDERR "intersecting BED files ...\n" if($verbose);
-    my $bedOverlapFile=intersectBED($headerBedFile,$elementBedFile,$elementZoneSize);
+    my $bedOverlapFile=intersectBED($headerBedFile,$elementBedFile,$elementExtension);
     print STDERR "\t$bedOverlapFile\n" if($verbose);
     system("rm '".$elementBedFile."'") if(@{$elementBedFiles} > 1);
 
@@ -267,9 +287,8 @@ sub processElements($$$$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','excludeCis|ec','excludeTrans|et','elementBedFiles|ebf=s@','y_elementBedFiles|yebf=s@','x_elementBedFiles|xebf=s@','elementName|en=s','zoomCoordinates|z=s@','y_zoomCoordinates|yz=s@','x_zoomCoordinates|xz=s@','elementZoneSize|ezs=s') or croak help();
-
-my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$elementName,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementZoneSize)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','excludeCis|ec','excludeTrans|et','elementBedFiles|ebf=s@','y_elementBedFiles|yebf=s@','x_elementBedFiles|xebf=s@','outputSuffix|os=s','zoomCoordinates|z=s@','y_zoomCoordinates|yz=s@','x_zoomCoordinates|xz=s@','elementExtension|ee=s') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -308,8 +327,8 @@ $y_elementBedFiles = [ @$elementBedFiles, @$y_elementBedFiles ];
 $x_elementBedFiles = [ @$elementBedFiles, @$x_elementBedFiles ];
 
 # load bed files
-my ($y_element_headers)=processElements('y',$y_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$verbose) if(@{$y_elementBedFiles} > 0);
-my ($x_element_headers)=processElements('x',$x_elementBedFiles,$elementName,$elementZoneSize,$headerBedFile,$verbose) if(@{$x_elementBedFiles} > 0);
+my ($y_element_headers)=processElements('y',$y_elementBedFiles,$outputSuffix,$elementExtension,$headerBedFile,$verbose) if(@{$y_elementBedFiles} > 0);
+my ($x_element_headers)=processElements('x',$x_elementBedFiles,$outputSuffix,$elementExtension,$headerBedFile,$verbose) if(@{$x_elementBedFiles} > 0);
 
 my $element_header2inc={};
 my $element_inc2header={};
@@ -367,7 +386,20 @@ $numXHeaders=$matrixObject->{ numXHeaders };
 
 print STDERR "\n" if($verbose);
 
-$output .= "__".$elementName;
+my $zoomCoordinate_str=join('__', @$zoomCoordinates);
+$zoomCoordinate_str =~ s/\:/-/g;
+my $x_zoomCoordinate_str=join('__', @$x_zoomCoordinates);
+$x_zoomCoordinate_str =~ s/\:/-/g;
+my $y_zoomCoordinate_str=join('__', @$y_zoomCoordinates);
+$y_zoomCoordinate_str =~ s/\:/-/g;
+if($x_zoomCoordinate_str eq $y_zoomCoordinate_str) {
+    $output .= "---".$zoomCoordinate_str if($zoomCoordinate_str ne "");
+} else {
+    $output .= "--x-".$x_zoomCoordinate_str if($x_zoomCoordinate_str ne "");
+    $output .= "--y-".$y_zoomCoordinate_str if($y_zoomCoordinate_str ne "");
+}
+
+$output .= "__".$outputSuffix if(($inputMatrixName eq $output) or ($outputSuffix ne ""));
 
 #read Matrix
 my $matrix={};
@@ -376,9 +408,10 @@ print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
+my $commentLine=getScriptOpts($ret,$tool);
+
 my $subsetMatrixFile=$output.".subset.matrix.gz";
-$subsetMatrixFile=$output.".subset".$maxDistance.".matrix.gz" if(defined($maxDistance));
 print STDERR "Writing matrix to file ($subsetMatrixFile)...\n" if($verbose);
-writeMatrix($matrix,$inc2header,$subsetMatrixFile,"NA");
+writeMatrix($matrix,$inc2header,$subsetMatrixFile,"NA",$commentLine);
 print STDERR "\tcomplete\n\n" if($verbose);
 

@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -36,13 +40,17 @@ sub check_options {
         $output = "";
     }
     
-    return($inputMatrix,$verbose,$output);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    
+    return($ret,$inputMatrix,$verbose,$output);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tsymmetrical2seperate.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\ttransform symmetrical matrix into axis-seperated [5C headers only]\n";
     
@@ -161,8 +169,7 @@ sub desymmetricizeData($$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s') or croak help();
-
-my ($inputMatrix,$verbose,$output)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output)=check_options( \%options );
 
 intro() if($verbose);
 

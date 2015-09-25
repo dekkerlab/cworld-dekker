@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix_1,$inputMatrix_2,$verbose,$output,$plotPerDistance,$excludeCis,$excludeTrans,$minDistance,$maxDistance,$correlateMode,$excludeZero,$excludeDiagonal,$logTransform,$fixedBinPopulationSize,$outlierFraction,$ymin,$ymax,$xmin,$xmax,$tmpDir);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix_1 }) ) {
         $inputMatrix_1 = $opts->{ inputMatrix_1 };
@@ -140,13 +144,34 @@ sub check_options {
         $tmpDir = "/tmp";
     }
     
-    return($inputMatrix_1,$inputMatrix_2,$verbose,$output,$plotPerDistance,$excludeCis,$excludeTrans,$minDistance,$maxDistance,$correlateMode,$excludeZero,$excludeDiagonal,$logTransform,$fixedBinPopulationSize,$outlierFraction,$ymin,$ymax,$xmin,$xmax,$tmpDir);
+    $ret->{ inputMatrix_1 }=$inputMatrix_1;
+    $ret->{ inputMatrix_2 }=$inputMatrix_2;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ plotPerDistance }=$plotPerDistance;
+    $ret->{ excludeCis }=$excludeCis;
+    $ret->{ excludeTrans }=$excludeTrans;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ correlateMode }=$correlateMode;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ excludeDiagonal }=$excludeDiagonal;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ fixedBinPopulationSize }=$fixedBinPopulationSize;
+    $ret->{ outlierFraction }=$outlierFraction;
+    $ret->{ ymin }=$ymin;
+    $ret->{ ymax }=$ymax;
+    $ret->{ xmin }=$xmin;
+    $ret->{ xmax }=$xmax;
+    $ret->{ tmpDir }=$tmpDir;
+    
+    return($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$plotPerDistance,$excludeCis,$excludeTrans,$minDistance,$maxDistance,$correlateMode,$excludeZero,$excludeDiagonal,$logTransform,$fixedBinPopulationSize,$outlierFraction,$ymin,$ymax,$xmin,$xmax,$tmpDir);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tcorrelateMatrices.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tperforms correlation between two matrices\n";
     
@@ -351,8 +376,7 @@ sub fixBinPopulation($$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix_1|1=s','inputMatrix_2|2=s','verbose|v','output|o=s','plotPerDistance|ppd','excludeCis|ec','excludeTrans|et','minDistance|minDist=i','maxDistance|maxDist=i','correlateMode|cm=s','excludeZero|ez','excludeDiagonal|ed','logTransform|lt=f','fixedBinPopulationSize|fbps=s','outlierFraction|of=i','ymin=i','ymax=i','xmin=i','xmax=i','tmpDir|tmp=s') or croak help();
-
-my ($inputMatrix_1,$inputMatrix_2,$verbose,$output,$plotPerDistance,$excludeCis,$excludeTrans,$minDistance,$maxDistance,$correlateMode,$excludeZero,$excludeDiagonal,$logTransform,$fixedBinPopulationSize,$outlierFraction,$ymin,$ymax,$xmin,$xmax,$tmpDir)=check_options( \%options );
+my ($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$plotPerDistance,$excludeCis,$excludeTrans,$minDistance,$maxDistance,$correlateMode,$excludeZero,$excludeDiagonal,$logTransform,$fixedBinPopulationSize,$outlierFraction,$ymin,$ymax,$xmin,$xmax,$tmpDir)=check_options( \%options );
 
 intro() if($verbose);
 

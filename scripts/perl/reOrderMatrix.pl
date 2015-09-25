@@ -12,11 +12,15 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputMatrix,$verbose,$output,$xOrderedHeaderList,$yOrderedHeaderList);
  
+    my $ret={};
+    
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
     } else {
@@ -50,13 +54,19 @@ sub check_options {
         help();
     }
     
-    return($inputMatrix,$verbose,$output,$xOrderedHeaderList,$yOrderedHeaderList);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ xOrderedHeaderList }=$xOrderedHeaderList;
+    $ret->{ yOrderedHeaderList }=$yOrderedHeaderList;
+    
+    return($ret,$inputMatrix,$verbose,$output,$xOrderedHeaderList,$yOrderedHeaderList);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\treOrderMatrix.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tre-order matrix by list of headers\n";
     
@@ -147,8 +157,7 @@ sub getOrderedHeaders($$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','xOrderedHeaderList|xohl=s','yOrderedHeaderList|yohl=s') or croak help();
-
-my ($inputMatrix,$verbose,$output,$xOrderedHeaderList,$yOrderedHeaderList)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$xOrderedHeaderList,$yOrderedHeaderList)=check_options( \%options );
 
 intro() if($verbose);
 

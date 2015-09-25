@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputInsulation_1,$inputInsulation_2,$verbose,$output,$yBound,$transparentBGFlag);
+    
+    my $ret={};
     
     if( exists($opts->{ inputInsulation_1 }) ) {
         $inputInsulation_1 = $opts->{ inputInsulation_1 };
@@ -55,13 +59,20 @@ sub check_options {
         $transparentBGFlag = 0;
     }
     
-    return($inputInsulation_1,$inputInsulation_2,$verbose,$output,$yBound,$transparentBGFlag);
+    $ret->{ inputInsulation_1 }=$inputInsulation_1;
+    $ret->{ inputInsulation_2 }=$inputInsulation_2;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ yBound }=$yBound;
+    $ret->{ transparentBGFlag }=$transparentBGFlag;
+    
+    return($ret,$inputInsulation_1,$inputInsulation_2,$verbose,$output,$yBound,$transparentBGFlag);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tcompareInsulation.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcompare insulation vector - calculate difference\n";
     
@@ -76,8 +87,8 @@ sub help() {
     print STDERR "\n";
     
     print STDERR "Required:\n";
-    printf STDERR ("\t%-10s %-10s %-10s\n", "-1", "[]", "insulation vectror 1 file");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "-2", "[]", "insulation vectror 2 file");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "-1", "[]", "insulation vector 1 file");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "-2", "[]", "insulation vector 2 file");
     
     print STDERR "\n";
     
@@ -237,8 +248,7 @@ sub calculateInsulationDifferential($$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputInsulation_1|1=s','inputInsulation_2|2=s','verbose|v','output|o=s','yBound|yb=f','transparentBGFlag|bg') or croak help();
-
-my ($inputInsulation_1,$inputInsulation_2,$verbose,$output,$yBound,$transparentBGFlag)=check_options(\%options );
+my ($ret,$inputInsulation_1,$inputInsulation_2,$verbose,$output,$yBound,$transparentBGFlag)=check_options(\%options );
 
 intro() if($verbose);
 

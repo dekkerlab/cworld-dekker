@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($insulationFile,$boundaryFile,$verbose,$output,$minBoundaryStrength,$minTadStrength,$yBound);
+    
+    my $ret={};
     
     if( exists($opts->{ insulationFile }) ) {
         $insulationFile = $opts->{ insulationFile };
@@ -61,13 +65,21 @@ sub check_options {
         $yBound = 0;
     }
     
-    return($insulationFile,$boundaryFile,$verbose,$output,$minBoundaryStrength,$minTadStrength,$yBound);
+    $ret->{ insulationFile }=$insulationFile;
+    $ret->{ boundaryFile }=$boundaryFile;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ minBoundaryStrength }=$minBoundaryStrength;
+    $ret->{ minTadStrength }=$minTadStrength;
+    $ret->{ yBound }=$yBound;
+    
+    return($ret,$insulationFile,$boundaryFile,$verbose,$output,$minBoundaryStrength,$minTadStrength,$yBound);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tinsulation2tads.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcreate tad specific headers\n";
     
@@ -479,8 +491,7 @@ sub outputTADs($$$$$;$) {
 
 my %options;
 my $results = GetOptions( \%options,'insulationFile|i=s','boundaryFile|b=s','verbose|v','output|o=s','minBoundaryStrength|mbs=s','minTadStrength|mts=s','yBound|yb=f') or croak help();
-
-my ($insulationFile,$boundaryFile,$verbose,$output,$minBoundaryStrength,$minTadStrength,$yBound)=check_options( \%options );
+my ($ret,$insulationFile,$boundaryFile,$verbose,$output,$minBoundaryStrength,$minTadStrength,$yBound)=check_options( \%options );
 
 intro() if($verbose);
 

@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -120,13 +124,30 @@ sub check_options {
         help();
     }
     
-    return($inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ loessObjectFile }=$loessObjectFile;
+    $ret->{ manualOutlierFile }=$manualOutlierFile;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ factorMode }=$factorMode;
+    $ret->{ includeCis }=$includeCis;
+    $ret->{ includeTrans }=$includeTrans;
+    $ret->{ trimAmount }=$trimAmount;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ excludeZero }=$excludeZero;
+    
+    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tanchorPurge.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tfilters out row/col from C data matrix file\n";
     
@@ -422,8 +443,7 @@ sub filterMatrix($$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','manualOutlierFile|mof=i','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','factorMode|fm=s','includeCis|ic','includeTrans|it','trimAmount|ta=f','logTransform|lt=f','excludeZero|ez') or croak help();
-
-my ($inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero) = check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero) = check_options( \%options );
     
 intro() if($verbose);
 

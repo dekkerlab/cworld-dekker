@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$includeTrans,$manualOutlierFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$cisTrimAmount,$transTrimAmount,$logTransform,$excludeZero);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -119,13 +123,30 @@ sub check_options {
         help();
     }
     
-    return($inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$includeTrans,$manualOutlierFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$cisTrimAmount,$transTrimAmount,$logTransform,$excludeZero);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ loessObjectFile }=$loessObjectFile;
+    $ret->{ includeCis }=$includeCis;
+    $ret->{ includeTrans }=$includeTrans;
+    $ret->{ manualOutlierFile }=$manualOutlierFile;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ cisTrimAmount }=$cisTrimAmount;
+    $ret->{ transTrimAmount }=$transTrimAmount;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ excludeZero }=$excludeZero;
+    
+    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$includeTrans,$manualOutlierFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$cisTrimAmount,$transTrimAmount,$logTransform,$excludeZero);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tsingletonRemoval.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tdetect and remove singleton outliers\n";
     
@@ -338,8 +359,7 @@ sub writeOutliers($$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','includeCis|ic','includeTrans|it','manualOutlierFile|mof=i','cisAlpha|ca=f','disableIQRFilter|dif','minDistance|minDist=i','maxDistance|maxDist=i','cisApproximateFactor|caf=i','cisTrimAmount|cta=f','transTrimAmount|tta=f','logTransform|lt=f','excludeZero|ez') or croak help();
-
-my ($inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$includeTrans,$manualOutlierFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$cisTrimAmount,$transTrimAmount,$logTransform,$excludeZero)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$includeTrans,$manualOutlierFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$cisTrimAmount,$transTrimAmount,$logTransform,$excludeZero)=check_options( \%options );
 
 intro() if($verbose);
 

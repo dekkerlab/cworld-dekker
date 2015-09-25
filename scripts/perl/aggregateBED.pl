@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputBedFile,$verbose,$output,$contigBoundFile,$assembly,$windowSize,$windowStep,$windowMode,$missingScore,$cisMode,$excludeZero,$yBound);
+    
+    my $ret={};
     
     if( exists($opts->{ inputBedFile }) ) {
         $inputBedFile = $opts->{ inputBedFile };
@@ -91,13 +95,26 @@ sub check_options {
         $yBound = "";
     }
     
-    return($inputBedFile,$verbose,$output,$contigBoundFile,$assembly,$windowSize,$windowStep,$windowMode,$missingScore,$cisMode,$excludeZero,$yBound);
+    $ret->{ inputBedFile }=$inputBedFile;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ contigBoundFile }=$contigBoundFile;
+    $ret->{ assembly }=$assembly;
+    $ret->{ windowSize }=$windowSize;
+    $ret->{ windowStep }=$windowStep;
+    $ret->{ windowMode }=$windowMode;
+    $ret->{ missingScore }=$missingScore;
+    $ret->{ cisMode }=$cisMode;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ yBound }=$yBound;
+
+    return($ret,$inputBedFile,$verbose,$output,$contigBoundFile,$assembly,$windowSize,$windowStep,$windowMode,$missingScore,$cisMode,$excludeZero,$yBound);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\taggregrateBED.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tsliding window aggregrate of BED5 data\n";
     
@@ -200,8 +217,7 @@ sub loadContigBoundFile($$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputBedFile|i=s','verbose|v','output|o=s','contigBoundFile|cbf=s','assembly|a=s','windowSize|wsize=i','windowStep|wstep=i','windowMode|wmode=s','missingScore|ms=s','cisMode|cis','excludeZero|ez','yBound|yb=f') or croak help();
-
-my ($inputBedFile,$verbose,$output,$contigBoundFile,$assembly,$windowSize,$windowStep,$windowMode,$missingScore,$cisMode,$excludeZero,$yBound)=check_options( \%options );
+my ($ret,$inputBedFile,$verbose,$output,$contigBoundFile,$assembly,$windowSize,$windowStep,$windowMode,$missingScore,$cisMode,$excludeZero,$yBound)=check_options( \%options );
 
 intro() if($verbose);
 

@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$loessObjectFile,$excludeCis,$excludeTrans,$cisAlpha,$cisApproximateFactor,$disableIQRFilter,$minDistance,$maxDistance,$excludeZero,$supressMatrixFiles,$supressLoessFile,$debugMode);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -114,13 +118,29 @@ sub check_options {
         help();
     }
     
-    return($inputMatrix,$verbose,$output,$loessObjectFile,$excludeCis,$excludeTrans,$cisAlpha,$cisApproximateFactor,$disableIQRFilter,$minDistance,$maxDistance,$excludeZero,$supressMatrixFiles,$supressLoessFile,$debugMode);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ loessObjectFile }=$loessObjectFile;
+    $ret->{ excludeCis }=$excludeCis;
+    $ret->{ excludeTrans }=$excludeTrans;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ supressMatrixFiles }=$supressMatrixFiles;
+    $ret->{ supressLoessFile }=$supressLoessFile;
+    $ret->{ debugMode }=$debugMode;
+    
+    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$excludeCis,$excludeTrans,$cisAlpha,$cisApproximateFactor,$disableIQRFilter,$minDistance,$maxDistance,$excludeZero,$supressMatrixFiles,$supressLoessFile,$debugMode);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2loess.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcalculate the loess (expected/stdev/zScore) for a given matrix\n";
     
@@ -233,8 +253,7 @@ sub calculateExpected($$$$$;$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','excludeCis|ec','excludeTrans|et','cisAlpha|ca=f','cisApproximateFactor|caf=i','disableIQRFilter|dif','minDistance|minDist=i','maxDistance|maxDist=i','excludeZero|ez','supressMatrixFiles|smf','supressLoessFile|slf','debugMode|d') or croak help();
-
-my ($inputMatrix,$verbose,$output,$loessObjectFile,$excludeCis,$excludeTrans,$cisAlpha,$cisApproximateFactor,$disableIQRFilter,$minDistance,$maxDistance,$excludeZero,$supressMatrixFiles,$supressLoessFile,$debugMode)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$excludeCis,$excludeTrans,$cisAlpha,$cisApproximateFactor,$disableIQRFilter,$minDistance,$maxDistance,$excludeZero,$supressMatrixFiles,$supressLoessFile,$debugMode)=check_options( \%options );
 
 my $includeCis=flipBool($excludeCis);
 my $includeTrans=flipBool($excludeTrans);

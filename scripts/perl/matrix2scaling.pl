@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrixArray,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrixArray }) ) {
         $inputMatrixArray = $opts->{ inputMatrixArray };
@@ -79,13 +83,24 @@ sub check_options {
         $excludeZero = 0;
     }
     
-    return($inputMatrixArray,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero);
+    $ret->{ inputMatrixArray }=$inputMatrixArray;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ loessObjectFile }=$loessObjectFile;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ excludeZero }=$excludeZero;
+    
+    return($ret,$inputMatrixArray,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2scaling.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\ttransform matrix into scaling (polymer) plot\n";
     
@@ -140,8 +155,7 @@ sub help() {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','loessObjectFile|lof=s','cisAlpha|ca=f','disableIQRFilter|dif=s','minDistance|minDist=i','maxDistance|maxDist=i','cisApproximateFactor|caf=i','excludeZero|ez') or croak help();
-
-my ($inputMatrixArray,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero)=check_options( \%options );
+my ($ret,$inputMatrixArray,$verbose,$output,$loessObjectFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$excludeZero)=check_options( \%options );
 
 intro() if($verbose);
 

@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$excludeDiagonal);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -41,15 +45,20 @@ sub check_options {
     } else {
         $excludeDiagonal = 0;
     }
-
-    return($inputMatrix,$verbose,$output,$excludeDiagonal);
+    
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ excludeDiagonal }=$excludeDiagonal;
+    
+    return($ret,$inputMatrix,$verbose,$output,$excludeDiagonal);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tgetMatrixInfo.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tget matrix info\n";
     
@@ -98,8 +107,7 @@ sub help() {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','excludeDiagonal|ed') or croak help();
-
-my ($inputMatrix,$verbose,$output,$excludeDiagonal)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$excludeDiagonal)=check_options( \%options );
 
 intro() if($verbose);
 

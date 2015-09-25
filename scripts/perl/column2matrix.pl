@@ -12,11 +12,15 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputList,$verbose,$output,$optionalYHeaderFile,$optionalXHeaderFile,$missingValue);
  
+    my $ret={};
+    
     if( exists($opts->{ inputList }) ) {
         $inputList = $opts->{ inputList };
     } else {
@@ -54,15 +58,21 @@ sub check_options {
         $missingValue="NA";
     }
     
-    return($inputList,$verbose,$output,$optionalYHeaderFile,$optionalXHeaderFile,$missingValue);
+    $ret->{ inputList }=$inputList;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ optionalYHeaderFile }=$optionalYHeaderFile;
+    $ret->{ optionalXHeaderFile }=$optionalXHeaderFile;
+    $ret->{ missingValue }=$missingValue;
     
+    return($ret,$inputList,$verbose,$output,$optionalYHeaderFile,$optionalXHeaderFile,$missingValue);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tcolumn2matrix.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tturn list (3 tab) file into matrix\n";
     
@@ -141,8 +151,7 @@ sub readOptionalHeaderFile($;$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputList|i=s','verbose|v','output|o=s','optionalYHeaderFile|oyh=s','optionalXHeaderFile|oxh=s','missingValue|mv=s') or croak help();
-
-my ($inputList,$verbose,$output,$optionalYHeaderFile,$optionalXHeaderFile,$missingValue)=check_options( \%options );
+my ($ret,$inputList,$verbose,$output,$optionalYHeaderFile,$optionalXHeaderFile,$missingValue)=check_options( \%options );
 
 intro() if($verbose);
 

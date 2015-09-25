@@ -12,17 +12,21 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$includeTrans,$logTransform,$excludeZero,$factorMode,$inputFactorFile,$debugMode);
  
+    my $ret={};
+    
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
     } else {
         print STDERR "\nERROR: Option inputMatrix|i is required.\n";
         help();
-    }
+    }   
     
     if( exists($opts->{ verbose }) ) {
         $verbose = 1;
@@ -119,16 +123,33 @@ sub check_options {
         $debugMode = 1;
     } else {
         $debugMode =0;
-    }    
+    }
     
-    return($inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$includeTrans,$logTransform,$excludeZero,$factorMode,$inputFactorFile,$debugMode);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ loessObjectFile }=$loessObjectFile;
+    $ret->{ includeCis }=$includeCis;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ cisAlpha }=$cisAlpha;
+    $ret->{ disableIQRFilter }=$disableIQRFilter;
+    $ret->{ cisApproximateFactor }=$cisApproximateFactor;
+    $ret->{ includeTrans }=$includeTrans;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ factorMode }=$factorMode;
+    $ret->{ inputFactorFile }=$inputFactorFile;
+    $ret->{ debugMode }=$debugMode;
+    
+    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$includeTrans,$logTransform,$excludeZero,$factorMode,$inputFactorFile,$debugMode);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tapplyCorrection.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tapply correction to factor - external factors\n";
     
@@ -216,8 +237,7 @@ sub getDeltaFactors($$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','includeCis|ic','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','includeTrans|it','logTransform|lt=f','excludeZero|ez','factorMode|fm=s','inputFactorFile|ff=s','debugMode|d') or croak help();
-
-my ($inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$includeTrans,$logTransform,$excludeZero,$factorMode,$inputFactorFile,$debugMode)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$includeTrans,$logTransform,$excludeZero,$factorMode,$inputFactorFile,$debugMode)=check_options( \%options );
 
 intro() if($verbose);
 

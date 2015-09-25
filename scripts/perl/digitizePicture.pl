@@ -14,10 +14,14 @@ use GD::Simple;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputPNG,$verbose,$output,$colorMode);
+    
+    my $ret={};
     
     if( exists($opts->{ inputPNG }) ) {
         $inputPNG = $opts->{ inputPNG };
@@ -44,7 +48,12 @@ sub check_options {
         $colorMode="mean";
     }
     
-    return($inputPNG,$verbose,$output,$colorMode);
+    $ret->{ inputPNG }=$inputPNG;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ colorMode }=$colorMode;
+    
+    return($ret,$inputPNG,$verbose,$output,$colorMode);
 }
 
 sub PNG2matrix($$) {
@@ -126,7 +135,7 @@ sub matrix2TXT($$$$) {
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tdigitizePicture.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tdigitize picture into my5C matrix format\n";
     
@@ -171,8 +180,7 @@ sub help() {
 
 my %options;
 my $results = GetOptions( \%options,'inputPNG|i=s','verbose|v','output|o=s','colorMode|cm=s') or croak help();
-
-my ($inputPNG,$verbose,$output,$colorMode)=check_options( \%options );
+my ($ret,$inputPNG,$verbose,$output,$colorMode)=check_options( \%options );
 
 intro() if($verbose);
 

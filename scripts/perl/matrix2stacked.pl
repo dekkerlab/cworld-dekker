@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -48,14 +52,20 @@ sub check_options {
         $maxDistance = 40000;
     }
     
-    return($inputMatrix,$verbose,$output,$minDistance,$maxDistance);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    
+    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance);
 }
 
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2stacked.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\ttransform matrix into stacked anchor matrix\n";
     
@@ -258,8 +268,7 @@ sub matrix2stacked($$$$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i') or croak help();
-
-my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance)=check_options( \%options );
 
 intro() if($verbose);
 

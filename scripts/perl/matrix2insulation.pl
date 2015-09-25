@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputMatrix,$verbose,$output,$insulationSquare,$smoothSize,$insulationDeltaSpan,$insulationMode,$noiseThreshold,$boundaryMarginOfError,$excludeZero,$yBound,$transparentBGFlag,$minDistance,$maxDistance,$meanInsulationScore);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -110,13 +114,29 @@ sub check_options {
         $meanInsulationScore = "NA";
     }
     
-    return($inputMatrix,$verbose,$output,$insulationSquare,$smoothSize,$insulationDeltaSpan,$insulationMode,$noiseThreshold,$boundaryMarginOfError,$excludeZero,$yBound,$transparentBGFlag,$minDistance,$maxDistance,$meanInsulationScore);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ insulationSquare }=$insulationSquare;
+    $ret->{ smoothSize }=$smoothSize;
+    $ret->{ insulationDeltaSpan }=$insulationDeltaSpan;
+    $ret->{ insulationMode }=$insulationMode;
+    $ret->{ noiseThreshold }=$noiseThreshold;
+    $ret->{ boundaryMarginOfError }=$boundaryMarginOfError;
+    $ret->{ excludeZero }=$excludeZero;
+    $ret->{ yBound }=$yBound;
+    $ret->{ transparentBGFlag }=$transparentBGFlag;
+    $ret->{ minDistance }=$minDistance;
+    $ret->{ maxDistance }=$maxDistance;
+    $ret->{ meanInsulationScore }=$meanInsulationScore;
+    
+    return($ret,$inputMatrix,$verbose,$output,$insulationSquare,$smoothSize,$insulationDeltaSpan,$insulationMode,$noiseThreshold,$boundaryMarginOfError,$excludeZero,$yBound,$transparentBGFlag,$minDistance,$maxDistance,$meanInsulationScore);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tmatrix2insulation.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tcalculate insulation index (TADs) of supplied matrix\n";
     
@@ -630,8 +650,7 @@ sub detectInsulationBoundaries($$$$$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','insulationSquare|is=i','smoothSize|ss=i','insulationDeltaSpan|ids=i','insulationMode|im=s','noiseThreshold|nt=f','boundaryMarginOfError|bmoe=i','excludeZero|ez','yBound|yb=f','transparentBGFlag|bg','minDistance|minDist=i','maxDistance|maxDist=i','meanInsulationScore|mis=f') or croak help();
-
-my ($inputMatrix,$verbose,$output,$insulationSquare,$smoothSize,$insulationDeltaSpan,$insulationMode,$noiseThreshold,$boundaryMarginOfError,$excludeZero,$yBound,$transparentBGFlag,$minDistance,$maxDistance,$meanInsulationScore)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$insulationSquare,$smoothSize,$insulationDeltaSpan,$insulationMode,$noiseThreshold,$boundaryMarginOfError,$excludeZero,$yBound,$transparentBGFlag,$minDistance,$maxDistance,$meanInsulationScore)=check_options( \%options );
 
 intro() if($verbose);
 

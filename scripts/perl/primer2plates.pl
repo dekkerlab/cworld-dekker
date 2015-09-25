@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
 
     my ($inputFile,$verbose,$output);
+    
+    my $ret={};
     
     if( $opts->{ inputFile } ) {
         $inputFile = $opts->{ inputFile };
@@ -36,13 +40,17 @@ sub check_options {
         $output = "myPrimers";
     }
    
-    return($inputFile,$verbose,$output);
+   $ret->{ inputFile }=$inputFile;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    
+    return($ret,$inputFile,$verbose,$output);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\tprimer2plates.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tlayout primers in 96-well plate format\n";
     
@@ -90,8 +98,7 @@ sub help() {
 
 my %options;
 my $results = GetOptions( \%options,'inputFile|i=s','verbose|v','output|o=s') or croak help();
-
-my ($inputFile,$verbose,$output) = &check_options( \%options );
+my ($ret,$inputFile,$verbose,$output) = &check_options( \%options );
 
 intro() if($verbose);
 

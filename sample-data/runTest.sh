@@ -11,7 +11,7 @@ perl -I ../lib ../scripts/perl/combineMatrices.pl -i ../sample-data/addMatrixHea
 perl -I ../lib ../scripts/perl/compareInsulation.pl -1 ../sample-data/compareInsulation/N2.insulation.gz -2 ../sample-data/compareInsulation/SRy93.insulation.gz
 perl -I ../lib ../scripts/perl/compareMatrices.pl -1 ../sample-data/addMatrixHeaders/K5.matrix.gz -2 ../sample-data/combineMatrices/GM.matrix.gz -o K5__GM --cm subtract
 perl -I ../lib ../scripts/perl/correlateMatrices.pl -1 ../sample-data/addMatrixHeaders/K5.matrix.gz -2 ../sample-data/combineMatrices/GM.matrix.gz -o K5__GM
-perl -I ../lib ../scripts/perl/coverageCorrect.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --ic --ct 0.2
+perl -I ../lib ../scripts/perl/coverageCorrect.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --cm cis --ct 0.2
 perl -I ../lib ../scripts/perl/digitizePicture.pl -i ../sample-data/digitizePicture/K5.png
 perl -I ../lib ../scripts/perl/extractSubMatrices.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz --ozc chr14:50000000--70000000 --ozc chr15:1--30000000 --ozc chr16:30000000--90000000 --ozc chr14:1--20000000
 perl -I ../lib ../scripts/perl/fillMissingData.pl -i ../sample-data/fillMissingData/K5.outlierFiltered.matrix.gz

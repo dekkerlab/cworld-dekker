@@ -12,10 +12,14 @@ use Cwd;
 
 use cworld::dekker;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 sub check_options {
     my $opts = shift;
     
     my ($inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrix }) ) {
         $inputMatrix = $opts->{ inputMatrix };
@@ -50,13 +54,19 @@ sub check_options {
         help();
     }
     
-    return($inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile);
+    $ret->{ inputMatrix }=$inputMatrix;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ xHeaderFile }=$xHeaderFile;
+    $ret->{ yHeaderFile }=$yHeaderFile;
+    
+    return($ret,$inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\taddMatrixHeaders.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tadd headers to a matrix txt file\n";
     
@@ -156,7 +166,7 @@ sub addMatrixHeaders($$$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','xHeaderFile|xhf=s','yHeaderFile|yhf=s') or croak help();
-my ($inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile,)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile,)=check_options( \%options );
 
 intro() if($verbose);
 

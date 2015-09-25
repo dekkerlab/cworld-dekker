@@ -12,6 +12,8 @@ use Cwd;
 
 use GD::Simple;
 
+my $tool=(split(/\//,abs_path($0)))[-1];
+
 use cworld::dekker;
 
 # def global for PI
@@ -20,7 +22,9 @@ use constant PI    => 4 * atan2(1, 1);
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrixArray,$verbose,$output,$logTransform,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$highlightBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    my ($inputMatrixArray,$verbose,$output,$logTransform,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    
+    my $ret={};
     
     if( exists($opts->{ inputMatrixArray }) ) {
         $inputMatrixArray = $opts->{ inputMatrixArray };
@@ -151,10 +155,10 @@ sub check_options {
         $highlightColor="cyan";
     }
     
-    if( exists($opts->{ highlightBedFile }) ) {
-        $highlightBedFile = $opts->{ highlightBedFile };
+    if( exists($opts->{ elementBedFile }) ) {
+        $elementBedFile = $opts->{ elementBedFile };
     } else {
-        $highlightBedFile="";
+        $elementBedFile="";
     }
     
     if( exists($opts->{ imageQuality }) ) {
@@ -164,7 +168,6 @@ sub check_options {
     } else {
         $imageQuality = 9
     }
-    
     
     if( exists($opts->{ scaleFragmentSizes }) ) {
         $scaleFragmentSizes = 1;
@@ -217,13 +220,44 @@ sub check_options {
         help();
     }
     
-    return($inputMatrixArray,$verbose,$output,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$highlightBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    $ret->{ inputMatrixArray }=$inputMatrixArray;
+    $ret->{ verbose }=$verbose;
+    $ret->{ output }=$output;
+    $ret->{ imageSize }=$imageSize;
+    $ret->{ pixelSize }=$pixelSize;
+    $ret->{ y_pixelSize }=$y_pixelSize;
+    $ret->{ x_pixelSize }=$x_pixelSize;
+    $ret->{ maxImageDim }=$maxImageDim;
+    $ret->{ drawPixelBorder }=$drawPixelBorder;
+    $ret->{ omitContigBorder }=$omitContigBorder;
+    $ret->{ drawLabel }=$drawLabel;
+    $ret->{ drawScores }=$drawScores;
+    $ret->{ logTransform }=$logTransform;
+    $ret->{ colorScaleStart }=$colorScaleStart;
+    $ret->{ colorScaleEnd }=$colorScaleEnd;
+    $ret->{ colorScaleStartTile }=$colorScaleStartTile;
+    $ret->{ colorScaleEndTile }=$colorScaleEndTile;
+    $ret->{ posColorString }=$posColorString;
+    $ret->{ negColorString }=$negColorString;
+    $ret->{ missingColor }=$missingColor;
+    $ret->{ highlightColor }=$highlightColor;
+    $ret->{ elementBedFile }=$elementBedFile;
+    $ret->{ imageQuality }=$imageQuality;
+    $ret->{ scaleFragmentSizes }=$scaleFragmentSizes;
+    $ret->{ drawTriangle }=$drawTriangle;
+    $ret->{ drawDiamond }=$drawDiamond;
+    $ret->{ transparentBGFlag }=$transparentBGFlag;
+    $ret->{ embed_meta }=$embed_meta;
+    $ret->{ contigSpacing }=$contigSpacing;
+    $ret->{ scaleMode }=$scaleMode;
+    
+    return($ret,$inputMatrixArray,$verbose,$output,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
 }
 
 sub intro() {
     print STDERR "\n";
     
-    print STDERR "Tool:\t\theatmap.pl\n";
+    print STDERR "Tool:\t\t".$tool."\n";
     print STDERR "Version:\t".$cworld::dekker::VERSION."\n";
     print STDERR "Summary:\tdraws heatmap PNG of matrix file\n";
     
@@ -265,7 +299,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--end", "[]", "absolute vlaue for color end");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--startTile", "[0.025]", "fraction value for color start");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--endTile", "[0.975]", "fraction value for color end");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--hbf", "[]", "highlight bed file - overlap row/col will be highlighted");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ebf", "[]", "element bed file - overlap row/col will be highlighted");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--iq", "[9]", "image quality, 0=best 9=worst");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--sm", "[]", "scale mode, combined or seperate for cis/trans [combined/seperate]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--pc", "[white,orange,red,darkRed]", "positive color scale string");
@@ -406,9 +440,8 @@ sub scaleByFragmentSize($$;$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','imageSize|is=i','pixelSize|ps=i','y_pixelSize|yps=i','x_pixelSize|xps=i','maxImageDim|maxdim=i','drawPixelBorder|dpb','omitContigBorder|ocb','drawLabel|dl','drawScores|ds','logTransform|lt=f','colorScaleStart|start=f','colorScaleEnd|end=f','colorScaleStartTile|startTile=f','colorScaleEndTile|endTile=f','posColorString|pc=s','negColorString|nc=s','missingColor|mc=s','highlightColor|hc=s','highlightBedFile|hbf=s','imageQuality|iq=i','scaleFragmentSizes|sfs','drawTriangle|dt','drawDiamond|dd','transparentBGFlag|bg','embed_meta|em','contigSpacing|cs=f','scaleMode|sm=s') or croak help();
-
-my ($inputMatrixArray,$verbose,$output,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$highlightBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','imageSize|is=i','pixelSize|ps=i','y_pixelSize|yps=i','x_pixelSize|xps=i','maxImageDim|maxdim=i','drawPixelBorder|dpb','omitContigBorder|ocb','drawLabel|dl','drawScores|ds','logTransform|lt=f','colorScaleStart|start=f','colorScaleEnd|end=f','colorScaleStartTile|startTile=f','colorScaleEndTile|endTile=f','posColorString|pc=s','negColorString|nc=s','missingColor|mc=s','highlightColor|hc=s','elementBedFile|hbf=s','imageQuality|iq=i','scaleFragmentSizes|sfs','drawTriangle|dt','drawDiamond|dd','transparentBGFlag|bg','embed_meta|em','contigSpacing|cs=f','scaleMode|sm=s') or croak help();
+my ($ret,$inputMatrixArray,$verbose,$output,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -657,9 +690,9 @@ print STDERR "\trowcol labels\textendedImageDimensions=($imageHeight x $imageWid
 print STDERR "\n" if($verbose);
 
 my $highlightHeaders={};
-if(-e($highlightBedFile)) {
+if(-e($elementBedFile)) {
     print STDERR "Intersecting headers with highlight bed file...\n" if($verbose);
-    $highlightHeaders=intersectHeaders($matrixObject,$highlightBedFile);
+    $highlightHeaders=intersectHeaders($matrixObject,$elementBedFile);
     print STDERR "\t" . keys(%{$highlightHeaders}) . " highlight headers\n" if($verbose);
     print STDERR "\n" if($verbose);
 }
@@ -898,7 +931,7 @@ if($embed_meta) {
     system("convert '".$pngFile."' -set cw_missingValue '".$missingValue."' '".$pngFile."'");
     system("convert '".$pngFile."' -set cw_posColorString '".$posColorString."' '".$pngFile."'");
     system("convert '".$pngFile."' -set cw_negColorString '".$negColorString."' '".$pngFile."'");
-    system("convert '".$pngFile."' -set cw_highlightBedFile '".$highlightBedFile."' '".$pngFile."'");
+    system("convert '".$pngFile."' -set cw_elementBedFile '".$elementBedFile."' '".$pngFile."'");
     system("convert '".$pngFile."' -set cw_highlightColor '".$highlightColor."' '".$pngFile."'");
     system("convert '".$pngFile."' -set cw_matrixSum '".$matrixSum."' '".$pngFile."'");
     

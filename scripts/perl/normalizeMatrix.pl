@@ -171,6 +171,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 my $na_matrix={};
 
@@ -213,7 +214,7 @@ my $numXHeaders=$matrixObject->{ numXHeaders };
 
 if(@{$inputMatrixArray} > 1) {
     my $na_matrixFile=$output.".nan.matrix.gz";
-    writeMatrix($na_matrix,$inc2header,$na_matrixFile,"NA");
+    writeMatrix($na_matrix,$inc2header,$na_matrixFile,"NA",$commentLine);
     my $nNAs=getMatrixSum($matrixObject,$na_matrix);
     print STDERR "NA mask\n" if($verbose);
     print STDERR "\t$nNAs NAs\n" if($verbose);
@@ -245,7 +246,7 @@ if(@{$inputMatrixArray} > 1) {
         $matrix=applyNAMask($matrixObject,$matrix,$na_matrix);
 
         my $maskedFile=$output.".masked.matrix.gz";
-        writeMatrix($matrix,$inc2header,$maskedFile,$missingValue);
+        writeMatrix($matrix,$inc2header,$maskedFile,$missingValue,$commentLine);
         # replace input file with masked file
         $inputMatrixArray->[$i]=$maskedFile;
         
@@ -299,7 +300,7 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     
     #write the normalized matrix
     my $normalizedMatrixFile=$output.".normalized.matrix.gz";
-    writeMatrix($matrix,$inc2header,$normalizedMatrixFile,$missingValue);
+    writeMatrix($matrix,$inc2header,$normalizedMatrixFile,$missingValue,$commentLine);
     
     undef $matrix;
     

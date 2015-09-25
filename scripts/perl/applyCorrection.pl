@@ -247,6 +247,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -337,7 +338,7 @@ print STDERR "\n" if($verbose);
 
 print STDERR "writing corrected matrix ...\n" if($verbose);
 my $normalizedMatrixFile = $output.".corrected.matrix.gz";
-writeMatrix($normalizedMatrix,$inc2header,$normalizedMatrixFile);
+writeMatrix($normalizedMatrix,$inc2header,$normalizedMatrixFile,$missingValue,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

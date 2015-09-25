@@ -119,17 +119,18 @@ sub help() {
     exit;
 }
 
-sub outputInsulationDifferential($$$$$$) {
+sub outputInsulationDifferential($$$$$$$) {
     my $insulationDifferentialRef=shift;
     my $insulationHeaders=shift;
     my $numHeaders=shift;
     my $output=shift;
     my $headerSpacing=shift;
     my $yBound=shift;
+    my $commentLine=shift;
     
     my $outputName=getFileName($output);
     
-    open(OUT,outputWrapper($output)) or croak "Could not open file [$output] - $!";
+    open(OUT,outputWrapper($output,$commentLine)) or croak "Could not open file [$output] - $!";
     print OUT "header\tstart\tend\tmidpoint\tbinStart\tbinEnd\tbinMidpoint\tinsulationDifferential\n";
     open(BEDGRAPH,outputWrapper($outputName.".bedGraph")) or croak "Could not open file [$output] - $!";
   
@@ -258,6 +259,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputInsulation_1 [$inputInsulation_1] does not exist" if(!(-e $inputInsulation_1));
 croak "inputInsulation_2 [$inputInsulation_2] does not exist" if(!(-e $inputInsulation_2));
@@ -334,7 +336,7 @@ print STDERR "\n" if($verbose);
 
 # write insulation differential data to file
 print STDERR "outputing insulation...\n" if($verbose);
-outputInsulationDifferential($insulationDifferential,$insulationHeadersIndex,$numHeaders,$output,$headerSpacing,$yBound);
+outputInsulationDifferential($insulationDifferential,$insulationHeadersIndex,$numHeaders,$output,$headerSpacing,$yBound,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

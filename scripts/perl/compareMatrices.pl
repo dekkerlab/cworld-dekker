@@ -123,6 +123,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 # ensure input matrices exist
 croak "inputMatrix [$inputMatrix_1] does not exist" if(!(-e $inputMatrix_1));
@@ -177,7 +178,7 @@ print STDERR "\n" if($verbose);
 
 my $compareMatrixFile=$output.".".$compareMode.".matrix.gz";
 print STDERR "writing compare matrix ($compareMatrixFile)...\n" if($verbose);
-writeMatrix($compareMatrix,$inc2header,$compareMatrixFile,"NA");
+writeMatrix($compareMatrix,$inc2header,$compareMatrixFile,"NA",$commentLine);
 print STDERR "\tdone\n" if($verbose);
     
 print STDERR "\n" if($verbose);

@@ -186,6 +186,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 

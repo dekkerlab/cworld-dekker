@@ -148,7 +148,7 @@ sub help() {
     exit;
 }
 
-sub elementPileUp($$$$$$$$$) {
+sub elementPileUp($$$$$$$$$$) {
     my $matrixObject=shift;
     my $matrix=shift;
     my $elementFileName=shift;
@@ -158,6 +158,7 @@ sub elementPileUp($$$$$$$$$) {
     my $maxDistance=shift;
     my $aggregrateMode=shift;
     my $excludeZero=shift;
+    my $commentLine=shift;
     
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
@@ -255,7 +256,7 @@ sub elementPileUp($$$$$$$$$) {
     my $pileUpMatrixFile=$output."___".$elementFileName.".pileUp.matrix.gz";
     print STDERR "writing pileUpMatrix ...\n" if($verbose);
     
-    open(OUT,outputWrapper($pileUpMatrixFile)) or croak "Could not open file [$pileUpMatrixFile] - $!";
+    open(OUT,outputWrapper($pileUpMatrixFile,$commentLine)) or croak "Could not open file [$pileUpMatrixFile] - $!";
     
     for(my $x=-$elementZoneSize_bins;$x<=$elementZoneSize_bins;$x++) {
         my $xLabel=($x*$headerSpacing)."bp";
@@ -312,6 +313,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -366,6 +368,6 @@ print STDERR "\n" if($verbose);
 
 # calculate the boundaryReach index for each bin and store in a new data struct.
 print STDERR "piling up data ...\n" if($verbose);
-elementPileUp($matrixObject,$matrix,$elementFileName,$elements,$elementZoneSize,$minDistance,$maxDistance,$aggregrateMode,$excludeZero);
+elementPileUp($matrixObject,$matrix,$elementFileName,$elements,$elementZoneSize,$minDistance,$maxDistance,$aggregrateMode,$excludeZero,$commentLine);
 
 print STDERR "\n" if($verbose);

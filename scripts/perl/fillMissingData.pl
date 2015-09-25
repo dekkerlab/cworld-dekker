@@ -233,6 +233,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -297,7 +298,7 @@ $loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFi
 print STDERR "filling NAs ...\n" if($verbose);
 my $filledMatrix=fillMissingData($matrixObject,$matrix,$loess,$cisApproximateFactor);
 my $filledFile=$output.".filled.matrix.gz";
-writeMatrix($filledMatrix,$inc2header,$filledFile,$missingValue);
+writeMatrix($filledMatrix,$inc2header,$filledFile,$missingValue,$commentLine);
 $filledMatrix={};
 print STDERR "\tdone\n" if($verbose);
 

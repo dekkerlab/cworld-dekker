@@ -197,12 +197,13 @@ sub help() {
     exit;
 }
 
-sub calculateExpected($$$$$;$) {
+sub calculateExpected($$$$$$;$) {
     my $matrixObject=shift;
     my $loess=shift;
     my $numYHeaders=shift;
     my $numXHeaders=shift;
     my $matrix=shift;
+    my $commentLine=shift;
     #optional
     my $cisApproximateFactor=shift;
     
@@ -244,10 +245,10 @@ sub calculateExpected($$$$$;$) {
     }
     
     my $stdevFile=$output.".stdev.matrix.gz";
-    writeMatrix($stdevMatrix,$inc2header,$stdevFile,"NA");
+    writeMatrix($stdevMatrix,$inc2header,$stdevFile,"NA",$commentLine);
 
     my $expectedFile=$output.".expected.matrix.gz";
-    writeMatrix($expectedMatrix,$inc2header,$expectedFile,"NA");
+    writeMatrix($expectedMatrix,$inc2header,$expectedFile,"NA",$commentLine);
 
 }
 
@@ -266,6 +267,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -328,7 +330,7 @@ $loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFi
 print STDERR "calculating z-score matrix...\n" if($verbose);
 my $zScoreMatrix=calculateZscore($matrixObject,$matrix,$loess,$cisApproximateFactor,$excludeZero);
 my $zScoreFile=$output.".zScore.matrix.gz";
-writeMatrix($zScoreMatrix,$inc2header,$zScoreFile,"NA");
+writeMatrix($zScoreMatrix,$inc2header,$zScoreFile,"NA",$commentLine);
 undef $zScoreMatrix;
 print STDERR "\tdone\n" if($verbose);
 
@@ -339,7 +341,7 @@ exit if($supressMatrixFiles);
 
 # get expected/stdev matrix
 print STDERR "calculating expected matrix...\n" if($verbose);
-calculateExpected($matrixObject,$loess,$numYHeaders,$numXHeaders,$matrix,$cisApproximateFactor);
+calculateExpected($matrixObject,$loess,$numYHeaders,$numXHeaders,$matrix,$commentLine,$cisApproximateFactor);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -348,7 +350,7 @@ print STDERR "\n" if($verbose);
 print STDERR "calculating log2ratio matrix...\n" if($verbose);
 my $log2ratioMatrix=calculateLog2Ratio($matrixObject,$matrix,$loess,$cisApproximateFactor,$excludeZero);
 my $log2ratioFile=$output.".log2ratio.matrix.gz";
-writeMatrix($log2ratioMatrix,$inc2header,$log2ratioFile,"NA");
+writeMatrix($log2ratioMatrix,$inc2header,$log2ratioFile,"NA",$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 #undef log2ratio matrix
@@ -360,7 +362,7 @@ print STDERR "\n" if($verbose);
 print STDERR "calculating obsMinusExp matrix...\n" if($verbose);
 my $obsMinusExpMatrix=calculateObsMinusExp($matrixObject,$matrix,$loess,$cisApproximateFactor,$excludeZero);
 my $obsMinusExpFile=$output.".obs-exp.matrix.gz";
-writeMatrix($obsMinusExpMatrix,$inc2header,$obsMinusExpFile,"NA");
+writeMatrix($obsMinusExpMatrix,$inc2header,$obsMinusExpFile,"NA",$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 #undef obsMinusExp matrix

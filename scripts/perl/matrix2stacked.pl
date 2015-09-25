@@ -278,6 +278,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -302,7 +303,7 @@ print STDERR "\n" if($verbose);
 
 my $subsetMatrixFile=$output.".subset.matrix.gz";
 print STDERR "Writing matrix to file ($subsetMatrixFile)...\n" if($verbose);
-writeMatrix($subsetMatrix,$inc2header,$subsetMatrixFile,$missingValue);
+writeMatrix($subsetMatrix,$inc2header,$subsetMatrixFile,$missingValue,$commentLine);
 print STDERR "\tcomplete\n" if($verbose);
 
 print STDERR "\n" if($verbose);

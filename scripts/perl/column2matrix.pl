@@ -161,6 +161,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputList [$inputList] does not exist" if(!(-e $inputList));
 
@@ -241,19 +242,8 @@ print STDERR "\n" if($verbose);
 
 print STDERR "writing output matrices ...\n" if($verbose);
 
-open(BINARY_MATRIX,outputWrapper($output.".binary.matrix.gz")) or croak "Could not open file [$output] - $!";
-open(SCORE_MATRIX,outputWrapper($output.".score.matrix.gz")) or croak "Could not open file [$output] - $!";
-
-my $time=getDate();
-
-print BINARY_MATRIX "# UMASS 5C\n";
-print BINARY_MATRIX "# http://3DG.umassmed.edu\n";
-print BINARY_MATRIX "# $time\n";
-
-print SCORE_MATRIX "# UMASS 5C\n";
-print SCORE_MATRIX "# http://3DG.umassmed.edu\n";
-print SCORE_MATRIX "# $time\n";
-
+open(BINARY_MATRIX,outputWrapper($output.".binary.matrix.gz",$commentLine)) or croak "Could not open file [$output] - $!";
+open(SCORE_MATRIX,outputWrapper($output.".score.matrix.gz",$commentLine)) or croak "Could not open file [$output] - $!";
 
 print BINARY_MATRIX "\t";
 print SCORE_MATRIX "\t";

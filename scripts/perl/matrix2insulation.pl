@@ -334,13 +334,14 @@ sub calculateInsulation($$$$$$$$) {
     
 }
 
-sub outputInsulation($$$$$$) {
+sub outputInsulation($$$$$$$) {
     my $matrixObject=shift;
     my $matrixInsulation=shift;
     my $matrixDelta=shift;
     my $matrixDeltaSquare=shift;    
     my $insulationFile=shift;
     my $yBound=shift;
+    my $commentLine=shift;
     
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
@@ -349,7 +350,7 @@ sub outputInsulation($$$$$$) {
     my $headerSpacing=$matrixObject->{ headerSpacing };
     
     # main insulation file
-    open(OUT,outputWrapper($insulationFile)) or croak "Could not open file [$insulationFile] - $!";
+    open(OUT,outputWrapper($insulationFile,$commentLine)) or croak "Could not open file [$insulationFile] - $!";
     print OUT "header\tstart\tend\tmidpoint\tbinStart\tbinEnd\tbinMidpoint\trawInsulationScore\tsmoothedInsulaton\tinsulationScore\tdelta\tdeltaSquare\n";
     
     # bed graph file of insulation data
@@ -400,10 +401,11 @@ sub outputInsulation($$$$$$) {
     
 }
 
-sub outputInsulationBoundaries($$$) {
+sub outputInsulationBoundaries($$$$) {
     my $matrixObject=shift;
     my $tadBoundaries=shift;
     my $insulationFile=shift;
+    my $commentLine=shift;
     
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
@@ -411,7 +413,7 @@ sub outputInsulationBoundaries($$$) {
     my $headerSizing=$matrixObject->{ headerSizing };
     my $headerSpacing=$matrixObject->{ headerSpacing };
 
-    open(OUT,outputWrapper($insulationFile)) or croak "Could not open file [$insulationFile] - $!";
+    open(OUT,outputWrapper($insulationFile,$commentLine)) or croak "Could not open file [$insulationFile] - $!";
     print OUT "header\tstart\tend\tbinStart\tbinEnd\tbinMidpoint\tboundaryHeader\tboundaryStrength\tboundaryDirectionality\n";
     
     open(BED,outputWrapper($insulationFile.".bed")) or croak "Could not open file [$insulationFile] - $!";
@@ -660,6 +662,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -757,14 +760,14 @@ print STDERR "\n" if($verbose);
 # write insulation data to file
 my $insulationFile=$output.".insulation";
 print STDERR "outputing insulation...\n" if($verbose);
-outputInsulation($matrixObject,$matrixInsulation,$matrixDelta,$matrixDeltaSquare,$insulationFile,$yBound);
+outputInsulation($matrixObject,$matrixInsulation,$matrixDelta,$matrixDeltaSquare,$insulationFile,$yBound,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
 # write insulation data to file
 print STDERR "outputing insulation boundaries...\n" if($verbose);
-outputInsulationBoundaries($matrixObject,$tadBoundaries,$insulationFile.".boundaries");
+outputInsulationBoundaries($matrixObject,$tadBoundaries,$insulationFile.".boundaries",$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

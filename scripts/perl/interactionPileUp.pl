@@ -199,7 +199,7 @@ sub help() {
     exit;
 }
 
-sub interactionPileUp($$$$$$$$$$$$$$$$) {
+sub interactionPileUp($$$$$$$$$$$$$$$$$) {
     my $matrixObject=shift;
     my $matrix=shift;
     my $elementFileName=shift;
@@ -214,6 +214,7 @@ sub interactionPileUp($$$$$$$$$$$$$$$$) {
     my $includeDiagonal=shift;
     my $excludeCis=shift;
     my $excludeTrans=shift;
+    my $commentLine=shift;
     my $debugMode=shift;
     my $verbose=shift;
     
@@ -406,21 +407,21 @@ sub interactionPileUp($$$$$$$$$$$$$$$$) {
     $output .= "___".$elementFileName.$distanceDescriptor;
     
     my $highlightMatrixFile=$output.".highlight.matrix.gz";
-    writeMatrix($highlightMatrix,$inc2header,$highlightMatrixFile,"NA");
+    writeMatrix($highlightMatrix,$inc2header,$highlightMatrixFile,"NA",$commentLine);
     
     # write cis pileup matrix
     my $cis_pileUpMatrixFile=$output.".cis.pileUp.matrix.gz";
-    writePileUpMatrixFile("cis",$cis_pileUpMatrixFile,$aggregrateMode,$pileUp_inc2header,$pileUpMatrix,$verbose) if(exists($pileUpMatrix->{ cis }) and ($excludeCis == 0));
+    writePileUpMatrixFile("cis",$cis_pileUpMatrixFile,$aggregrateMode,$pileUp_inc2header,$pileUpMatrix,$commentLine,$verbose) if(exists($pileUpMatrix->{ cis }) and ($excludeCis == 0));
     
     # write trans pileup matrix
     my $trans_pileUpMatrixFile=$output.".trans.pileUp.matrix.gz";
-    writePileUpMatrixFile("trans",$trans_pileUpMatrixFile,$aggregrateMode,$pileUp_inc2header,$pileUpMatrix,$verbose) if(exists($pileUpMatrix->{ trans }) and ($excludeTrans == 0));
+    writePileUpMatrixFile("trans",$trans_pileUpMatrixFile,$aggregrateMode,$pileUp_inc2header,$pileUpMatrix,$commentLine,$verbose) if(exists($pileUpMatrix->{ trans }) and ($excludeTrans == 0));
     
     return($cis_pileUpMatrixFile,$trans_pileUpMatrixFile);
     
 }
 
-sub writePileUpMatrixFile($$$$$$) {
+sub writePileUpMatrixFile($$$$$$$) {
     my $interactionType=shift;
     my $outputFile=shift;
     my $aggregrateMode=shift;
@@ -428,11 +429,12 @@ sub writePileUpMatrixFile($$$$$$) {
     my $numYLabels=keys %{$pileUp_inc2header->{ y }};
     my $numXLabels=keys %{$pileUp_inc2header->{ x }};
     my $pileUpMatrix=shift;
+    my $commentLine=shift;
     my $verbose=shift;
     
     print STDERR "writing ($interactionType) pileUpMatrix ...\n" if($verbose);
     
-    open(OUT,outputWrapper($outputFile)) or croak "Could not open file [$outputFile] - $!";
+    open(OUT,outputWrapper($outputFile,$commentLine)) or croak "Could not open file [$outputFile] - $!";
     
     for(my $x=0;$x<$numXLabels;$x++) {
         my $xLabel=$pileUp_inc2header->{ x }->{$x};
@@ -489,6 +491,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -560,4 +563,4 @@ print STDERR "\n" if($verbose);
 
 # calculate the boundaryReach index for each bin and store in a new data struct.
 print STDERR "piling up data ...\n" if($verbose);
-interactionPileUp($matrixObject,$matrix,$elementFileName,$elements,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode,$verbose);
+interactionPileUp($matrixObject,$matrix,$elementFileName,$elements,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$commentLine,$debugMode,$verbose);

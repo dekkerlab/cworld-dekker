@@ -369,6 +369,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -439,7 +440,7 @@ print STDERR "\n" if($verbose);
 
  my $zScoreFile=$output.".zScore.matrix.gz";
 print STDERR "writing matrix to file ($zScoreFile)...\n" if($verbose);
-writeMatrix($zScoreMatrix,$inc2header,$zScoreFile,"NA");
+writeMatrix($zScoreMatrix,$inc2header,$zScoreFile,"NA",$commentLine);
 print STDERR "\tcomplete\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -472,7 +473,7 @@ print STDERR "\n" if($verbose);
 
 my $filteredMatrixFile=$output.".outlierFiltered.matrix.gz";
 print STDERR "writing matrix to file ($filteredMatrixFile)...\n" if($verbose);
-writeMatrix($filteredMatrix,$inc2header,$filteredMatrixFile);
+writeMatrix($filteredMatrix,$inc2header,$filteredMatrixFile,$commentLine);
 print STDERR "\tcomplete\n" if($verbose);
 
 print STDERR "\n" if($verbose);

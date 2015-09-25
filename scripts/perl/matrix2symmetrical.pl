@@ -135,6 +135,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -179,7 +180,7 @@ print STDERR "\n" if($verbose);
 
 my $symmetricalMatrixFile = $output.".symmetrical.matrix.gz";
 print STDERR "writing matrix ($symmetricalMatrixFile)...\n" if($verbose);
-writeMatrix($matrix,$inc2header,$symmetricalMatrixFile,$matrixObject->{ missingValue });
+writeMatrix($matrix,$inc2header,$symmetricalMatrixFile,$matrixObject->{ missingValue },$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

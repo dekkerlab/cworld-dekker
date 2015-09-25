@@ -201,11 +201,12 @@ sub loadBoundaries($$;$) {
     return(\%boundaries);
 }
 
-sub assembleTADs($$$;$) {
+sub assembleTADs($$$$;$) {
     # required
     my $insulationFile=shift;
     my $boundaries=shift;
     my $inputName=shift;
+    my $commentLine=shift;
     # optional
     my $verbose=0;
     $verbose=shift if @_;
@@ -370,7 +371,7 @@ sub assembleTADs($$$;$) {
     
     
     my $headerMapFile=$inputName.".tadHeaders.map";
-    open(MAP,outputWrapper($headerMapFile)) or croak "Could not open file [$headerMapFile] - $!";
+    open(MAP,outputWrapper($headerMapFile,$commentLine)) or croak "Could not open file [$headerMapFile] - $!";
     
     $lastChromosome="NA";
     $lineNum=0;
@@ -501,6 +502,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "insulationFile [$insulationFile] does not exist" if(!(-e $insulationFile));
 croak "boundaryFile [$boundaryFile] does not exist" if(!(-e $boundaryFile));
@@ -516,7 +518,7 @@ my $boundaries=loadBoundaries($boundaryFile,$minBoundaryStrength,$verbose);
 print STDERR "\n" if($verbose);
 
 print STDERR "assembling tads ...\n" if($verbose);
-my ($headerMapFile,$groupInfo,$usableTADs)=assembleTADs($insulationFile,$boundaries,$output,$verbose);
+my ($headerMapFile,$groupInfo,$usableTADs)=assembleTADs($insulationFile,$boundaries,$output,$commentLine,$verbose);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

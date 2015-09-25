@@ -222,10 +222,11 @@ sub processManualOutliers($) {
     return(\%manualOutliers);
 }
     
-sub writeOutliers($$$) {
+sub writeOutliers($$$$) {
     my $trimAmount=shift;
     my $rowcolData=shift;
     my $output=shift;
+    my $commentLine=shift;
     
     my $botCutoff=-$trimAmount;
     my $topCutoff=$trimAmount;
@@ -234,7 +235,7 @@ sub writeOutliers($$$) {
 
     my $toRemoveFile=$output.".toRemove";
 
-    open(OUT,outputWrapper($toRemoveFile)) or croak "Could not open file [$toRemoveFile] - $!";
+    open(OUT,outputWrapper($toRemoveFile,$commentLine)) or croak "Could not open file [$toRemoveFile] - $!";
 
     my %anchorOutliers=();
     my $nAnchorOutliers=0;
@@ -258,20 +259,21 @@ sub writeOutliers($$$) {
     
 }
 
-sub writePrimerFactors($$$$$) {
+sub writePrimerFactors($$$$$$) {
     my $rowcolData=shift;
     my $output=shift;
     my $tmpPosBound=shift;
     my $tmpNegBound=shift;
     my $scriptPath=shift;
+    my $commentLine=shift;
     
     # calculate and draw histogram 
     my $allFactorFile=$output.".factor";
     my $rowcolDataFile=$output.".zScore.txt";
 
     # re-scale and output
-    open(FACTOR,outputWrapper($allFactorFile)) or croak "Could not open file [$allFactorFile] - $!";
-    open(DATA,outputWrapper($rowcolDataFile)) or croak "Could not open file [$rowcolDataFile] - $!";
+    open(FACTOR,outputWrapper($allFactorFile,$commentLine)) or croak "Could not open file [$allFactorFile] - $!";
+    open(DATA,outputWrapper($rowcolDataFile,$commentLine)) or croak "Could not open file [$rowcolDataFile] - $!";
 
     print DATA "primerName\tmean-zscoore\tscaled-mean-zscore\n";
 
@@ -306,11 +308,12 @@ sub writePrimerFactors($$$$$) {
 
 }
 
-sub calculateBounds($$$$) {
+sub calculateBounds($$$$$) {
     my $matrixObject=shift;
     my $rowcolData=shift;
     my $output=shift;
     my $scriptPath=shift;
+    my $commentLine=shift;
     
     my $verbose=$matrixObject->{ verbose };
     
@@ -319,7 +322,7 @@ sub calculateBounds($$$$) {
     my @tmpPos=();
     my @tmpNeg=();
     my $allPrimerFactorFile=$output.".allPrimerFactors";
-    open(OUTALL,outputWrapper($allPrimerFactorFile)) or croak "Could not open file [$allPrimerFactorFile] - $!";
+    open(OUTALL,outputWrapper($allPrimerFactorFile,$commentLine)) or croak "Could not open file [$allPrimerFactorFile] - $!";
     foreach my $primerName ( keys %$rowcolData ) {
         my $mean=$rowcolData->{$primerName}->{ factor };
         next if($mean eq "NA");
@@ -374,7 +377,7 @@ sub calculateBounds($$$$) {
     print STDERR "\tnegBound\t$tmpNegBound\n" if($verbose);
 
     my $scaledZScoreLogFile=$output.".Re-scaled-zScores.txt";
-    open(OUT,outputWrapper($scaledZScoreLogFile)) or croak "Could not open file [$scaledZScoreLogFile] - $!";
+    open(OUT,outputWrapper($scaledZScoreLogFile,$commentLine)) or croak "Could not open file [$scaledZScoreLogFile] - $!";
 
     print OUT "zScore bounds\n";
     print OUT "\tposMax\t$tmpPosMax\n";
@@ -453,6 +456,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -573,19 +577,19 @@ my $rowcolData=\%primerDataHash;
 print STDERR "calculating bounds...\n" if($verbose);
 my $tmpPosBound="NA";
 my $tmpNegBound="NA";
-($tmpPosBound,$tmpNegBound)=calculateBounds($matrixObject,$rowcolData,$output,$scriptPath) if(keys %{$rowcolData} > 0);
+($tmpPosBound,$tmpNegBound)=calculateBounds($matrixObject,$rowcolData,$output,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
 
 print STDERR "\n" if($verbose);
 
 # write primer factors
 print STDERR "writing primer factors\n" if($verbose);
-writePrimerFactors($rowcolData,$output,$tmpPosBound,$tmpNegBound,$scriptPath) if(keys %{$rowcolData} > 0);
+writePrimerFactors($rowcolData,$output,$tmpPosBound,$tmpNegBound,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
 print STDERR "writing outliers...\n" if($verbose);
-my $anchorOutliers=writeOutliers($trimAmount,$rowcolData,$output) if(keys %{$rowcolData} > 0);
+my $anchorOutliers=writeOutliers($trimAmount,$rowcolData,$output,$commentLine) if(keys %{$rowcolData} > 0);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -605,7 +609,7 @@ print STDERR "\n" if($verbose);
 
 my $filteredMatrixFile=$output.".outlierFiltered.matrix.gz";
 print STDERR "writing matrix to file ($filteredMatrixFile)...\n" if($verbose);
-writeMatrix($filteredMatrix,$inc2header,$filteredMatrixFile,$missingValue);
+writeMatrix($filteredMatrix,$inc2header,$filteredMatrixFile,$missingValue,$commentLine);
 print STDERR "\tcomplete\n" if($verbose);
 
 print STDERR "\n" if($verbose);

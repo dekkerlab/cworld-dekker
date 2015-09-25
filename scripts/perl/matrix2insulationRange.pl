@@ -359,10 +359,11 @@ sub normalizeInsulation($$) {
 }
 
 
-sub outputInsulation($$$) {
+sub outputInsulation($$$$) {
     my $matrixObject=shift;
     my $matrixInsulation=shift;
     my $insulationRangeFileName=shift;
+    my $commentLine=shift;
     
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
@@ -371,7 +372,7 @@ sub outputInsulation($$$) {
     my $headerSpacing=$matrixObject->{ headerSpacing };
     
     # main insulation file
-    open(OUT,outputWrapper($insulationRangeFileName)) or croak "Could not open file [$insulationRangeFileName] - $!";
+    open(OUT,outputWrapper($insulationRangeFileName,$commentLine)) or croak "Could not open file [$insulationRangeFileName] - $!";
     
     for(my $y=0;$y<$numHeaders;$y++) {
         my $yHead=$inc2header->{ y }->{$y};
@@ -417,6 +418,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -504,7 +506,7 @@ print STDERR "\n" if($verbose);
 # write insulation data to file
 my $insulationRangeFileName=$output.".insulation.matrix.gz";
 print STDERR "outputing insulation...\n" if($verbose);
-($insulationRangeFileName)=outputInsulation($matrixObject,$normalizedInsulation,$insulationRangeFileName);
+($insulationRangeFileName)=outputInsulation($matrixObject,$normalizedInsulation,$insulationRangeFileName,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

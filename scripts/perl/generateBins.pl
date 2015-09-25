@@ -168,6 +168,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 print STDERR "writing bin positions ... \n" if($verbose);
 generateBins($assembly,$regionCoordinates,$binSize,$binStep,$output);

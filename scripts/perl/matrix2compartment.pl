@@ -184,6 +184,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -252,7 +253,7 @@ $loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFi
 print STDERR "calculating z-score matrix ...\n" if($verbose);
 my $zScoreMatrix=calculateZscore($matrixObject,$matrix,$loess,$cisApproximateFactor,$excludeZero);
 my $zScoreMatrixFile=$output.".zScore.matrix.gz";
-writeMatrix($zScoreMatrix,$inc2header,$zScoreMatrixFile,"NA");
+writeMatrix($zScoreMatrix,$inc2header,$zScoreMatrixFile,"NA",$commentLine);
 $zScoreMatrix={};
 print STDERR "\tdone\n" if($verbose);
 

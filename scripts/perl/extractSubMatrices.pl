@@ -137,7 +137,7 @@ sub getYHeaders($$;$) {
     return($headers,$header2index,$headerSizes);
 }
 
-sub extractRowBlocks($$$$$$$) {
+sub extractRowBlocks($$$$$$$$) {
     my $datasetFile=shift;
     my $datasetFileName=shift;
     my $extractBy=shift;
@@ -145,6 +145,7 @@ sub extractRowBlocks($$$$$$$) {
     my $extractCisOnly=shift;
     my $zoomData=shift;
     my $goodZoomFlag=shift;
+    my $commentLine=shift;
     
     my $line="";
     my $lineNum=0;
@@ -220,7 +221,7 @@ sub extractRowBlocks($$$$$$$) {
                 
                 croak "bad filename [$suffix] - blockMatrix [$blockMatrix]" if($suffix eq "");
                 
-                open(TMP,outputWrapper($file,"",1)) or croak "Could not open file [$file] - $!";
+                open(TMP,outputWrapper($file,$commentLine,1)) or croak "Could not open file [$file] - $!";
                 $rowBlockFiles->{$suffix}->{ file }=$file;
                 $rowBlockFiles->{$suffix}->{ subMatrix}=$subMatrix;
                 print TMP "$xHeaderLine\n" if(!exists($suffixInit->{$suffix}));
@@ -266,7 +267,7 @@ sub transposeFiles($$;$) {
     return($transposedFiles);
 }
 
-sub extractSubMatrices($$$$$$$) {
+sub extractSubMatrices($$$$$$$$) {
     my $fileList=shift;
     my $dataFileName=shift;
     my $output=shift;
@@ -274,6 +275,7 @@ sub extractSubMatrices($$$$$$$) {
     my $extractCisOnly=shift;
     my $zoomData=shift;
     my $goodZoomFlag=shift;
+    my $commentLine=shift;
 
     my @files=();
     
@@ -281,7 +283,7 @@ sub extractSubMatrices($$$$$$$) {
         my $file=$fileList->{$suffix}->{ file };    
         my $blockMatrix=$fileList->{$suffix}->{ subMatrix };
         
-        my $rowBlockFiles=extractRowBlocks($file,$dataFileName,$extractBy,$blockMatrix,$extractCisOnly,$zoomData,$goodZoomFlag);
+        my $rowBlockFiles=extractRowBlocks($file,$dataFileName,$extractBy,$blockMatrix,$extractCisOnly,$zoomData,$goodZoomFlag,$commentLine);
           
         foreach my $suffix ( keys %$rowBlockFiles ) {    
             
@@ -369,6 +371,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -432,7 +435,7 @@ for(my $z1=0;$z1<(keys %{$zoomData});$z1++) {
 }
 
 print STDERR "extracting row blocks ...\n" if($verbose);
-my $rowBlockFiles=extractRowBlocks($inputMatrix,$tmpDirInputMatrixName,$extractBy,"all",$extractCisOnly,$zoomData,$goodZoomFlag);
+my $rowBlockFiles=extractRowBlocks($inputMatrix,$tmpDirInputMatrixName,$extractBy,"all",$extractCisOnly,$zoomData,$goodZoomFlag,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -445,7 +448,7 @@ print STDERR "\n" if($verbose);
 
 print STDERR "extracting sub matrices ...\n" if($verbose);
 # now re-extract row blocks to get sub matrices
-extractSubMatrices($transposedFiles,$tmpDirInputMatrixName,$output,$extractBy,$extractCisOnly,$zoomData,$goodZoomFlag);
+extractSubMatrices($transposedFiles,$tmpDirInputMatrixName,$output,$extractBy,$extractCisOnly,$zoomData,$goodZoomFlag,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

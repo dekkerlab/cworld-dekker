@@ -451,6 +451,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 my ($inputMatrix);
 my ($matrix);
@@ -537,7 +538,7 @@ if(@{$inputMatrixArray} == 2) {
 
     my $stitchMatrixFile=$output.".double.matrix.gz";
     print STDERR "writing stitched matrix ($stitchMatrixFile)...\n" if($verbose);
-    writeMatrix($matrix,$inc2header_1,$stitchMatrixFile,"NA");
+    writeMatrix($matrix,$inc2header_1,$stitchMatrixFile,"NA",$commentLine);
     print STDERR "\tdone\n" if($verbose);
     
     print STDERR "\n" if($verbose);

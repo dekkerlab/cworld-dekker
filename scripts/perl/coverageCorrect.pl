@@ -248,6 +248,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -301,6 +302,7 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber <= $maxIteratio
     my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
+    my $missingValue=$matrixObject->{ missingValue };
 
     # get matrix data
     my ($matrix)=getData($tmpInputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
@@ -408,7 +410,7 @@ while(($meanDelta > $convergenceThreshold) and ($iterationNumber <= $maxIteratio
     my $normalizedMatrix=correctMatrix($matrixObject,$matrix,$rowcolData,$includeCis,$includeTrans,$factorMode,$logTransform,$loess,$excludeZero,$cisApproximateFactor);
     
     my $normalizedMatrixFile = $iterationKey.$output.".corrected.matrix.gz";
-    writeMatrix($normalizedMatrix,$inc2header,$normalizedMatrixFile);
+    writeMatrix($normalizedMatrix,$inc2header,$normalizedMatrixFile,$missingValue,$commentLine);
     
     $meanDelta=getDeltaFactors($rowcolData,$lastPrimerData) if($iterationNumber != 0);
     print STDERR "\tdelta = $meanDelta\n";

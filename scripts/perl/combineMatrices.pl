@@ -268,6 +268,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 print STDERR "inputMatrixArray (-i)\t".@{$inputMatrixArray}." files...\n" if($verbose);
 
@@ -319,7 +320,7 @@ $output=$matrixObject->{ output };
 
 my $combinedMatrixFile=$output.".".$combineMode.".matrix.gz";
 print STDERR "Writing matrix to file ($combinedMatrixFile)...\n" if($verbose);
-writeMatrix($combinedMatrix,$inc2header,$combinedMatrixFile,"NA");
+writeMatrix($combinedMatrix,$inc2header,$combinedMatrixFile,"NA",$commentLine);
 print STDERR "\tcomplete\n" if($verbose);
 
 print STDERR "\n" if($verbose);

@@ -133,15 +133,16 @@ sub loadHeaders($) {
     return(@headerArr);
 }
 
-sub addMatrixHeaders($$$$$) {
+sub addMatrixHeaders($$$$$$) {
     my $matrixObject=shift;
     my $inputMatrix=shift;
     my $outputPrefix=shift;
     my $xHeaderFile=shift;
     my $yHeaderFile=shift;
+    my $commentLine=shift;
     
     my $headeredMatrix=$outputPrefix.".addedHeaders.matrix.gz";
-    open(OUT,outputWrapper($headeredMatrix)) or croak "Could not open file [$headeredMatrix] - $!";
+    open(OUT,outputWrapper($headeredMatrix,$commentLine)) or croak "Could not open file [$headeredMatrix] - $!";
     
     my @yHeaderArr=loadHeaders($yHeaderFile);
     my @xHeaderArr=loadHeaders($xHeaderFile);
@@ -166,7 +167,7 @@ sub addMatrixHeaders($$$$$) {
 
 my %options;
 my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','xHeaderFile|xhf=s','yHeaderFile|yhf=s') or croak help();
-my ($ret,$inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile,)=check_options( \%options );
+my ($ret,$inputMatrix,$verbose,$output,$xHeaderFile,$yHeaderFile)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -176,6 +177,7 @@ my $fullScriptPath=abs_path($0);
 my @fullScriptPathArr=split(/\//,$fullScriptPath);
 @fullScriptPathArr=@fullScriptPathArr[0..@fullScriptPathArr-3];
 my $scriptPath=join("/",@fullScriptPathArr);
+my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
@@ -191,7 +193,7 @@ my $inputMatrixName=$matrixObject->{ inputMatrixName };
 $output=$matrixObject->{ output };
 
 print STDERR "adding matrix headers ...\n" if($verbose);
-addMatrixHeaders($matrixObject,$inputMatrix,$output,$xHeaderFile,$yHeaderFile);
+addMatrixHeaders($matrixObject,$inputMatrix,$output,$xHeaderFile,$yHeaderFile,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

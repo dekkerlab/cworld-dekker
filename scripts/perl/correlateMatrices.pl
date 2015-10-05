@@ -256,7 +256,7 @@ sub correlatePerDistance($$$$) {
         next if(($line eq "") or ($line =~ m/^#/));
         
         my ($interactionDistance,$score_1,$score_2)=split(/\t/,$line);
-        
+
         if($lastInteractionDistance eq "NA") {
             $tmpFile=$tmpDir."tmp_".$interactionDistance.".txt.gz";
             open($TMP,outputWrapper($tmpFile)) or croak "Could not open file [$tmpFile] - $!";
@@ -287,7 +287,7 @@ sub correlatePerDistance($$$$) {
     
     close(OUT);
     
-    system("Rscript ".$scriptPath."correlateMatrices/scripts/correlateMatricesPerDistance.R $correlationPerDistanceFile");
+    system("Rscript ".$scriptPath."/R/correlateMatricesPerDistance.R $correlationPerDistanceFile > /dev/null");
     
     removeTmpDir($tmpDir);
 }
@@ -468,7 +468,7 @@ print STDERR "\n" if($verbose);
 
 print STDERR "sorting pairwise file by distance ...\n" if($verbose);
 my $sortedPairwiseFile=$output.".correlate.sorted.txt.gz";
-system("gunzip -c $pairwiseFile | tail -n +2 | sort -k1,1n | gzip > $sortedPairwiseFile");
+system("gunzip -c $pairwiseFile | grep -v '#' | tail -n +2 | sort -k1,1n | gzip > $sortedPairwiseFile");
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -487,7 +487,7 @@ if($plotPerDistance) {
 
     print STDERR "correlating by distance\n" if($verbose);
     correlatePerDistance($sortedPairwiseFile,$scriptPath,$output,$tmpDir);
-    print STDERR "done\n" if($verbose);
+    print STDERR "\tdone\n" if($verbose);
 
     print STDERR "\n" if($verbose);
 

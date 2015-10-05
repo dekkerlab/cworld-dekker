@@ -1217,7 +1217,6 @@ sub parseHeaders($) {
             
             for(my $x=1;$x<$xhsize;$x++) {
                 my $xHead=$xHeaders[$x];
-                $xHead="x".$numXHeaders if($noHeaderFlag);
                 $header2inc->{ x }->{$xHead}=$numXHeaders;
                 $inc2header->{ x }->{$numXHeaders}=$xHead;
                 $numXHeaders++;
@@ -1242,7 +1241,6 @@ sub parseHeaders($) {
             $noHeaderFlag = 1 if($yHead =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
             confess "non-unique y headers!" if(exists($tmpYHeaders{$yHead}));
             
-            $yHead="y".$numYHeaders if($noHeaderFlag);
             $header2inc->{ y }->{$yHead}=$numYHeaders;
             $inc2header->{ y }->{$numYHeaders}=$yHead;
             

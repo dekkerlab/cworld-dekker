@@ -400,7 +400,7 @@ if($x_zoomCoordinate_str eq $y_zoomCoordinate_str) {
     $output .= "--y-".$y_zoomCoordinate_str if($y_zoomCoordinate_str ne "");
 }
 
-$output .= "__".$outputSuffix if(($inputMatrixName eq $output) or ($outputSuffix ne ""));
+$output .= "__".$outputSuffix if(($inputMatrixName eq $output) and ($outputSuffix ne ""));
 
 #read Matrix
 my $matrix={};

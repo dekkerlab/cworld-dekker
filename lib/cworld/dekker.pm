@@ -3443,6 +3443,33 @@ sub getMaxHeaderLength($) {
     
     return($maxHeaderLength);
 }
+=head2 checkDependencies
+
+ Title     : checkDependencies
+ Usage     : checkDependencies()
+ Function  : ensure dependencies are available
+ Returns   : live or die
+ Argument  : 
+ 
+=cut
+
+sub checkDependencies() {
+
+    my $bedtools_version="NA";
+    $bedtools_version=`bedtools --version 2>&1`;
+    confess "bedtools is not available - please install!" if(!(defined($bedtools_version)));
+    chomp($bedtools_version);
+    #bedtools v2.25.0
+    confess "bedtools is not available!" if((split(/ /,$bedtools_version))[0] ne "bedtools");
+
+    my $Rscript_version="NA";
+    $Rscript_version=`Rscript --version 2>&1`;
+    confess "Rscript is not available - please install!" if(!(defined($Rscript_version)));
+    chomp($Rscript_version);
+    #R scripting front-end version 2.15.2 (2012-10-26)
+    confess "Rscript is not available!" if((split(/ /,$Rscript_version))[0] ne "R");
+    
+}
 
 =head2 getMatrixObject
 
@@ -3464,6 +3491,8 @@ sub getMatrixObject($;$$$) {
     $verbose=shift if @_;
     my $mode="";
     $mode=shift if @_;
+    
+    checkDependencies();
     
     my $output=$tmpOutput;
     $output=getFileName($inputMatrix) if($output eq "");
@@ -5347,13 +5376,6 @@ sub intersectBED($$;$) {
     
     my $bedOverlapFile=$bedFileName_1."___".$bedFileName_2.".bed";
     
-    my $bedtools_version="NA";
-    $bedtools_version=`bedtools --version 2>&1`;
-    confess "bedtools is not installed!" if(!(defined($bedtools_version)));
-    chomp($bedtools_version);
-    #bedtools v2.25.0
-    confess "bedtools is not installed!" if((split(/ /,$bedtools_version))[0] ne "bedtools");
-
     system("bedtools intersect -a '".$standardized_bedFile1 ."' -b '".$standardized_bedFile2."' -wb > '".$bedOverlapFile."'");
     
     confess "could not write bed overlap file" if(!(-e($bedOverlapFile)));

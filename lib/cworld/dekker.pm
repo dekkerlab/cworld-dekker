@@ -5347,6 +5347,13 @@ sub intersectBED($$;$) {
     
     my $bedOverlapFile=$bedFileName_1."___".$bedFileName_2.".bed";
     
+    my $bedtools_version="NA";
+    $bedtools_version=`bedtools --version 2>&1`;
+    confess "bedtools is not installed!" if(!(defined($bedtools_version)));
+    chomp($bedtools_version);
+    #bedtools v2.25.0
+    confess "bedtools is not installed!" if((split(/ /,$bedtools_version))[0] ne "bedtools");
+
     system("bedtools intersect -a '".$standardized_bedFile1 ."' -b '".$standardized_bedFile2."' -wb > '".$bedOverlapFile."'");
     
     confess "could not write bed overlap file" if(!(-e($bedOverlapFile)));

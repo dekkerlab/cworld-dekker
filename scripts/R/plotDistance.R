@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 minor.ticks.axis <- function(ax,n,t.ratio=0.5,mn,mx){
 
   lims <- par("usr")

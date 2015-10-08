@@ -1,3 +1,4 @@
+options(bitmapType='cairo')
 
 args <- commandArgs(TRUE)
 inputFile_1<-args[1]

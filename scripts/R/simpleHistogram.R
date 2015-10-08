@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 args <- commandArgs(TRUE)
 inputFile<-args[1]
 signalColumn<-as.numeric(args[2])

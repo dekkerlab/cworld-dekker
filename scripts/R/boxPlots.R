@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 args <- commandArgs(TRUE)
 name<-args[1]
 dataColumn<-as.numeric(args[2])

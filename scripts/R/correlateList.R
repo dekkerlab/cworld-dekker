@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 args <- commandArgs(TRUE)
 inputFile<-args[1]
 correlationMode<-args[2]

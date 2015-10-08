@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 # http://www.burns-stat.com/pages/Working/perfmeasrandport.pdf
 args <- commandArgs(TRUE)
 wd<-args[1]

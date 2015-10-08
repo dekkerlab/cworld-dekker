@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 args <- commandArgs(TRUE)
 wd<-args[1]
 pvalueString<-args[2]

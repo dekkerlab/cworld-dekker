@@ -1,3 +1,4 @@
+options(bitmapType='cairo')
 
 plotEigen <- function(x,y,plotTitle) {
 	

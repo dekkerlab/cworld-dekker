@@ -1,3 +1,5 @@
+options(bitmapType='cairo')
+
 ks.boot <- function(x, y, ...,
 		alternative = c("two.sided", "less", "greater"),
 		exact = NULL, nboots = 50){

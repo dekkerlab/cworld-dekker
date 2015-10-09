@@ -179,7 +179,7 @@ scripts/R/tickPlot.R
 scripts/R/tTest.R
 scripts/R/zscore2pval.R
 scripts/util/geneDensity/ce10.refseq.txt
-scripts/util/geneDensity/galgal4.refseq.txt
+scripts/util/geneDensity/galGal4.refseq.txt
 scripts/util/geneDensity/hg18.refseq.txt
 scripts/util/geneDensity/hg19.refseq.txt
 scripts/util/geneDensity/mm9-cast-129s1.refseq.txt

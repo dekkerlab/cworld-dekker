@@ -158,11 +158,10 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--is", "[]", "optional, insulation square size, size of the insulation square in bp");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--ss", "[]", "optional, insulation smooth size, size of insulation vector smoothing vector in bp");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--ass", "[]", "optional, insulation amplitude spread size, size of amplitude stdev smoothing vector in bp");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--ids", "[]", "optional, insulation delta span (window size of insulationd delta - blue line)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--im", "[]", "optional, insulation mode (how to aggregrate signal within insulation square), mean,sum,median");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--is", "[500000]", "optional, insulation square size, size of the insulation square in bp");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ss", "[0]", "optional, insulation smooth size, size of insulation vector smoothing vector in bp");   
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ids", "[250000]", "optional, insulation delta span (window size of insulationd delta - blue line)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--im", "[mean]", "optional, insulation mode (how to aggregrate signal within insulation square), mean,sum,median");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--nt", "[0.1]", "optional, noise threshold, minimum depth of valley");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--bmoe", "[3]", "optional, boundary margin of error (specified in number of BINS), added to each side of the boundary");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--yb", "[auto]", "optional, -yBound - +yBound of insulation plot");    

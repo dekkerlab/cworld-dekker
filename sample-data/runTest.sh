@@ -17,7 +17,7 @@ perl -I ../lib ../scripts/perl/extractSubMatrices.pl -i ../sample-data/collapseM
 perl -I ../lib ../scripts/perl/fillMissingData.pl -i ../sample-data/fillMissingData/K5.outlierFiltered.matrix.gz
 perl -I ../lib ../scripts/perl/generateBins.pl --r chr1:1-2000000 --bsize 30000 --bstep 10 -a hg19 chr1-FGF5
 perl -I ../lib ../scripts/perl/heatmap.pl -i ../sample-data/binMatrix/K5__30000__10.matrix.gz -i ../sample-data/binMatrix/GM__30000__10.matrix.gz -o K5__GM__30000__10__median
-perl -I ../lib ../scripts/perl/heatmap.pl -i ../sample-data/elementPileUp/NPC_chrX.matrix.gz --hbf ../sample-data/elementPileUp/Xi-escapees.bed --hc cyan
+perl -I ../lib ../scripts/perl/heatmap.pl -i ../sample-data/elementPileUp/NPC_chrX.matrix.gz --ebf ../sample-data/elementPileUp/Xi-escapees.bed --hc cyan
 perl -I ../lib ../scripts/perl/insulation2tads.pl -i ../sample-data/insulation2tads/NPC.insulation.gz --b ../sample-data/insulation2tads/NPC.boundaries.gz
 perl -I ../lib ../scripts/perl/interactionPileUp.pl -i ../sample-data/interactionPileUp/MeyersHiC-N2-DpnII.ce10.NA.H-10000-wDiag-noSS-iced.normalized.subset4000000__chrX__chrX__cis.matrix.gz --ebf ../sample-data/interactionPileUp/Top25RexPRex.bed --ezs 200000 --am sum --maxED 3
 perl -I ../lib ../scripts/perl/matrix2anchorPlot.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz

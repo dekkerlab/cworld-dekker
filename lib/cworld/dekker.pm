@@ -15,13 +15,9 @@ use Cwd;
 
 cworld::dekker - perl module and collection of utility/analysis scripts for C data (3C, 4C, 5C, Hi-C)
 
-=head1 VERSION
-
-Version 0.01
-
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -5773,6 +5769,9 @@ sub stitchMatrices($$$$) {
 
     my %stitchMatrix=();
     
+    my $stitch_missingValue="NA";
+    $stitch_missingValue = $matrixObject_1->{ missingValue } if($matrixObject_1->{ missingValue } eq $matrixObject_2->{ missingValue });
+    
     for(my $y=0;$y<$numYHeaders;$y++) {
         for(my $x=0;$x<$numXHeaders;$x++) {
             my $cScore="NA";
@@ -5784,13 +5783,13 @@ sub stitchMatrices($$$$) {
                 $cScore=$matrixObject_2->{ missingValue };
                 $cScore=$matrix_2->{$y}->{$x} if(defined($matrix_2->{$y}->{$x}));
             } else { #exact diagonal
-                $stitchMatrix{$y}{$x}="NA";
+                $cScore="NA";
             }
-            $stitchMatrix{$y}{$x}=$cScore if($cScore ne "NA");
+            $stitchMatrix{$y}{$x}=$cScore if($cScore ne $stitch_missingValue);
         }
     }
     
-    return(\%stitchMatrix);
+    return(\%stitchMatrix,$stitch_missingValue);
 
 }
 

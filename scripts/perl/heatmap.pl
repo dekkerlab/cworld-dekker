@@ -528,8 +528,10 @@ if(@{$inputMatrixArray} == 2) {
 
     # stitch matrices
     print STDERR "stiching matrices ...\n" if($verbose);
-    ($matrix)=stitchMatrices($matrixObject_1,$matrixObject_2,$matrix_1,$matrix_2);
+    ($matrix,my $stitch_missingValue)=stitchMatrices($matrixObject_1,$matrixObject_2,$matrix_1,$matrix_2);
+    print STDERR "\t$stitch_missingValue\n" if($verbose);
     print STDERR "\tdone\n" if($verbose);
+    
 
     $matrix_1=undef;
     $matrix_2=undef;
@@ -538,7 +540,7 @@ if(@{$inputMatrixArray} == 2) {
 
     my $stitchMatrixFile=$output.".double.matrix.gz";
     print STDERR "writing stitched matrix ($stitchMatrixFile)...\n" if($verbose);
-    writeMatrix($matrix,$inc2header_1,$stitchMatrixFile,"NA",$commentLine);
+    writeMatrix($matrix,$inc2header_1,$stitchMatrixFile,$stitch_missingValue,$commentLine);
     print STDERR "\tdone\n" if($verbose);
     
     print STDERR "\n" if($verbose);

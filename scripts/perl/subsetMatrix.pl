@@ -385,8 +385,6 @@ $header2inc=$matrixObject->{ header2inc };
 $numYHeaders=$matrixObject->{ numYHeaders };
 $numXHeaders=$matrixObject->{ numXHeaders };
 
-print STDERR "\n" if($verbose);
-
 my $zoomCoordinate_str=join('__', @$zoomCoordinates);
 $zoomCoordinate_str =~ s/\:/-/g;
 my $x_zoomCoordinate_str=join('__', @$x_zoomCoordinates);
@@ -404,13 +402,15 @@ $output .= "__".$outputSuffix if(($inputMatrixName eq $output) and ($outputSuffi
 
 #read Matrix
 my $matrix={};
-($matrix)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
+($matrix,$matrixObject)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
+$missingValue=$matrixObject->{ missingValue };
+
 my $subsetMatrixFile=$output.".subset.matrix.gz";
-print STDERR "Writing matrix to file ($subsetMatrixFile)...\n" if($verbose);
-writeMatrix($matrix,$inc2header,$subsetMatrixFile,"NA",$commentLine);
+print STDERR "Writing matrix to file ($subsetMatrixFile) [$missingValue] ...\n" if($verbose);
+writeMatrix($matrix,$inc2header,$subsetMatrixFile,$missingValue,$commentLine);
 print STDERR "\tcomplete\n\n" if($verbose);
 

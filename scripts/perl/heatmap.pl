@@ -745,15 +745,26 @@ my $lastXRegion="NA";
 my $progressBucketSize=ceil($numYHeaders / 1000);
 my $pcComplete=0;
 
+my $headerObjects={};
+
+my $drawMode="rectangle";
+$drawMode="pixel" if(($x_pixelSize == 0) and ($y_pixelSize == 0));
+
 # draw heatmap
-print STDERR "drawing heatmap image...\n" if($verbose);
+print STDERR "drawing heatmap image [$drawMode] ...\n" if($verbose);
 my ($y,$x);
 for($y=0;$y<$numYHeaders;$y++) {
     $brushX=0;
     $brushX=1 if($drawPixelBorder);
     
     my $yHeader=$inc2header->{ y }->{$y};
-    my $yHeaderObject=getHeaderObject($yHeader);
+    my $yHeaderObject={};
+    if(!exists($headerObjects->{$yHeader})) {
+        $yHeaderObject=getHeaderObject($yHeader);
+        $headerObjects->{$yHeader}=$yHeaderObject;
+    } else {
+        $yHeaderObject=$headerObjects->{$yHeader};
+    }
     my $yHeaderRegion=$yHeaderObject->{ region };
     
     my $tmp_y_pixelSize = $y_pixelSize;
@@ -768,14 +779,21 @@ for($y=0;$y<$numYHeaders;$y++) {
         $brushY+=ceil($contigSpacing/2) if($lastYRegion eq "NA");
         $img->line(($matrixStart_x-$xOffset),$brush_regionY,(($matrixStart_x-$xOffset)+$matrixWidth)-1,$brush_regionY,$colorPalette->{ B });
     }
-    
+        
     $lastXRegion="NA";
-    
+
     for($x=0;$x<$numXHeaders;$x++) {
     
-        my $xHeader=$inc2header->{ x }->{$x};    
-        my $xHeaderObject=getHeaderObject($xHeader);
+        my $xHeader=$inc2header->{ x }->{$x}; 
+        my $xHeaderObject={};
+        if(!exists($headerObjects->{$xHeader})) {
+            $xHeaderObject=getHeaderObject($xHeader);
+            $headerObjects->{$xHeader}=$xHeaderObject;
+        } else {
+            $xHeaderObject=$headerObjects->{$xHeader};
+        }
         my $xHeaderRegion=$xHeaderObject->{ region };
+        
         my $tmp_x_pixelSize = $x_pixelSize;
         $tmp_x_pixelSize = $header2pixelSize->{$xHeader} if(($scaleFragmentSizes) and (exists($header2pixelSize->{$xHeader})));
         
@@ -807,11 +825,12 @@ for($y=0;$y<$numYHeaders;$y++) {
             $brush_regionX -= $xOffset if($lastXRegion eq "NA");
             $brushX+=$contigSpacing if($lastXRegion ne "NA");
             $brushX+=ceil($contigSpacing/2) if($lastXRegion eq "NA");
-            $img->line($brush_regionX,($matrixStart_y-$yOffset),$brush_regionX,(($matrixStart_y-$yOffset)+$matrixHeight)-1,$colorPalette->{ B });
+            $img->line($brush_regionX,($matrixStart_y-$yOffset),$brush_regionX,(($matrixStart_y-$yOffset)+$matrixHeight)-1,$colorPalette->{ B }) if($y == ($numYHeaders-1));
         }
         
         #draw pixels
-        $img->filledRectangle(($brushX),($brushY),($brushX+$tmp_x_pixelSize),($brushY+$tmp_y_pixelSize),$color);
+        $img->setPixel($brushX,$brushY,$color) if($drawMode eq "pixel");
+        $img->filledRectangle(($brushX),($brushY),($brushX+$tmp_x_pixelSize),($brushY+$tmp_y_pixelSize),$color) if($drawMode eq "rectangle");
         
         # optional row/col highlight
         $img->filledRectangle(($brushX),($brushY),($brushX+$tmp_x_pixelSize),($brushY+$tmp_y_pixelSize),$colorPalette->{ HIGHLIGHT }) if( ((exists($highlightHeaders->{$yHeader})) or (exists($highlightHeaders->{$xHeader})) ) );
@@ -828,14 +847,7 @@ for($y=0;$y<$numYHeaders;$y++) {
         $lastXRegion=$xHeaderRegion;
         
         $brushX += $tmp_x_pixelSize+1;
-        
-    }
     
-    # draw region boundaries
-    if(($omitContigBorder == 0) and ($numContigs > 1)) {
-        my $brush_regionX = 0;
-        $brush_regionX = $brushX + floor($contigSpacing/2) - $xOffset;
-        $img->line($brush_regionX,($matrixStart_y-$yOffset),$brush_regionX,(($matrixStart_y-$yOffset)+$matrixHeight)-1,$colorPalette->{ B });
     }
     
     $img->string($labelFont,$brushX+$textOffset,($brushY+($tmp_y_pixelSize/2))-($labelFontHeight/2),$yHeader,$colorPalette->{ B }) if($drawLabel);

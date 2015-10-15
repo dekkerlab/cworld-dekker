@@ -1236,6 +1236,7 @@ sub parseHeaders($) {
             
             $noHeaderFlag = 1 if($yHead =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
             confess "non-unique y headers!" if(exists($tmpYHeaders{$yHead}));
+            $tmpYHeaders{$yHead}=1;
             
             $header2inc->{ y }->{$yHead}=$numYHeaders;
             $inc2header->{ y }->{$numYHeaders}=$yHead;

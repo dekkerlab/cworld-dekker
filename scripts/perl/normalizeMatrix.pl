@@ -79,7 +79,7 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--id", "[]", "FLAG, ignore diagonal bin during normalization");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ed", "[]", "FLAG, ignore diagonal bin during normalization");
     
     print STDERR "\n";
     

@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -1521,7 +1521,7 @@ sub getData($$;$$$$$$) {
     my $header2inc=$matrixObject->{ header2inc };
     
     my $subsetMode=0;
-    $subsetMode = 1 if((defined($maxDistance)) or ($excludeTrans) or ($excludeCis));
+    $subsetMode = 1 if(defined($maxDistance) or defined($minDistance) or ($excludeTrans) or ($excludeCis));
     $matrixObject->{ missingValue }="NA" if($subsetMode);
     
     my $symmetrical=$matrixObject->{ symmetrical };
@@ -1598,7 +1598,8 @@ sub getData($$;$$$$$$) {
                     my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,1);
                     next if(($interactionDistance == -1) and ($excludeTrans));
                     next if(($interactionDistance != -1) and ($excludeCis));
-                    next if((defined($maxDistance)) and ($interactionDistance != -1) and ($interactionDistance >= $maxDistance));
+                    next if((defined($maxDistance)) and ($interactionDistance != -1) and ($interactionDistance > $maxDistance));
+                    next if((defined($minDistance)) and ($interactionDistance != -1) and ($interactionDistance < $minDistance));
                 }
                 
                 # ensure symmetrical data

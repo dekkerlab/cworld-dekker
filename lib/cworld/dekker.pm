@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -1207,6 +1207,7 @@ sub parseHeaders($) {
                 my $xHead=$xHeaders[$x];
                 $noHeaderFlag = 1 if($xHead =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
                 confess "non-unique x headers!" if(exists($tmpYHeaders{$xHead}));
+                $xHead = "x".$numXHeaders if($noHeaderFlag);
                 $tmpXHeaders{$xHead}=1;
             }
             undef %tmpXHeaders;
@@ -1236,6 +1237,7 @@ sub parseHeaders($) {
             
             $noHeaderFlag = 1 if($yHead =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
             confess "non-unique y headers!" if(exists($tmpYHeaders{$yHead}));
+            $yHead = "y".$numYHeaders if($noHeaderFlag);
             $tmpYHeaders{$yHead}=1;
             
             $header2inc->{ y }->{$yHead}=$numYHeaders;

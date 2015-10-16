@@ -472,9 +472,7 @@ $output .= "--istart".$insulationSquareStart."--iend".$insulationSquareEnd."--is
 carp "insulation image size is < numHeaders ($numHeaders), visual artifacts are possible!" if($numHeaders > $imageWidth);
 
 #read Matrix
-print STDERR "reading in matrix ...\n" if($verbose);
 my ($matrix)=getData($inputMatrix,$matrixObject,$verbose,(($insulationSquareEnd)+$headerSizing));
-print STDERR "\tdone\n" if($verbose);
 
 # reset sparse value to NA
 $matrixObject->{ missingValue }="NA";

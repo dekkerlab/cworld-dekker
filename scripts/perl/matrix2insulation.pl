@@ -732,9 +732,7 @@ $output .= "--is".$insulationSquare_bpSize."--nt".$noiseThreshold."--ids".$insul
 carp "insulation image size is < numHeaders ($numHeaders), visual artifacts are possible!" if($numHeaders > $imageWidth);
 
 #read Matrix
-print STDERR "reading in matrix ...\n" if($verbose);
 my ($matrix)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,(($insulationSquare_bpSize*2)+$headerSizing));
-print STDERR "\tdone\n" if($verbose);
 
 # reset sparse value to NA
 $matrixObject->{ missingValue }="NA";

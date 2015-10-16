@@ -416,9 +416,7 @@ print STDERR "directionSize\t$directionSizeDistance bp\t$directionSize\n" if($ve
 $output .= "--dm".$directionMode;
 $output .= "--ds".$directionSizeDistance;
 
-print STDERR "reading in matrix ...\n" if($verbose);
 my ($matrix)=getData($inputMatrix,$matrixObject,$verbose);
-print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 

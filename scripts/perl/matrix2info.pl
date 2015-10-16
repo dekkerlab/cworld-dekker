@@ -133,7 +133,6 @@ my $equalHeaderFlag=$matrixObject->{ equalHeaderFlag };
 my $inputMatrixName=$matrixObject->{ inputMatrixName };
 $output=$matrixObject->{ output };
 
-print STDERR "reading in matrix ...\n" if($verbose);
 #read Matrix
 my ($matrix)=getData($inputMatrix,$matrixObject,$verbose);        
 

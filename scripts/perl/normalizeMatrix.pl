@@ -177,15 +177,33 @@ my $na_matrix={};
 
 if(@{$inputMatrixArray} > 1) {
     
+    # validate all files are the same
+    print STDERR "validating identical matrices ...\n" if($verbose);
+    for(my $i1=0;$i1<@{$inputMatrixArray};$i1++) {
+        my $inputMatrix_1 = $inputMatrixArray->[$i1];
+        for(my $i2=0;$i2<@{$inputMatrixArray};$i2++) {
+            my $inputMatrix_2 = $inputMatrixArray->[$i2];
+            
+            next if($inputMatrix_1 eq $inputMatrix_2);
+            
+            validateIdenticalMatrixStructure($inputMatrix_1,$inputMatrix_2);
+        }
+    }
+    print STDERR "\tdone\n" if($verbose);
+
+    print STDERR "\n" if($verbose);
+    
     # build the NA mask 
-    print STDERR "building NA mask\n" if($verbose);
+    print STDERR "building NA mask  ...\n" if($verbose);
+    
     for(my $i=0;$i<@{$inputMatrixArray};$i++) {
         my $inputMatrix = $inputMatrixArray->[$i];
+         
          
         croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
         # get matrix information
-        my $matrixObject=getMatrixObject($inputMatrix,$output,$verbose);
+        my $matrixObject=getMatrixObject($inputMatrix,$output);
         my $inc2header=$matrixObject->{ inc2header };
         my $header2inc=$matrixObject->{ header2inc };
         my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -196,17 +214,17 @@ if(@{$inputMatrixArray} > 1) {
         my $inputMatrixName=$matrixObject->{ inputMatrixName };
         $output=$matrixObject->{ output };
 
-        my $matrix={};
-        ($matrix)=getData($inputMatrix,$matrixObject);
+        print STDERR "\t$inputMatrixName\n" if($verbose);
+        my ($matrix)=getData($inputMatrix,$matrixObject);
         $na_matrix=getNAs($matrixObject,$matrix,$na_matrix);
         
     }
-
-    print STDERR "\n";
+    
+    print STDERR "\n" if($verbose);
 }
 
 #since all matrices are same size, use info from first
-my $matrixObject=getMatrixObject($inputMatrixArray->[0],$output,$verbose);
+my $matrixObject=getMatrixObject($inputMatrixArray->[0],$output);
 my $inc2header=$matrixObject->{ inc2header };
 my $header2inc=$matrixObject->{ header2inc };
 my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -223,15 +241,16 @@ if(@{$inputMatrixArray} > 1) {
 }
 
 if(@{$inputMatrixArray} > 1) {
+    
     # now apply the NA mask to all matrices
-    print STDERR "applying NA mask...\n" if($verbose);
+    print STDERR "applying NA mask ...\n" if($verbose);
     for(my $i=0;$i<@{$inputMatrixArray};$i++) {
         my $inputMatrix = $inputMatrixArray->[$i];
         
         croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
         # get matrix information
-        my $matrixObject=getMatrixObject($inputMatrix,"",0);
+        my $matrixObject=getMatrixObject($inputMatrix,"");
         my $inc2header=$matrixObject->{ inc2header };
         my $header2inc=$matrixObject->{ header2inc };
         my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -242,6 +261,8 @@ if(@{$inputMatrixArray} > 1) {
         my $inputMatrixName=$matrixObject->{ inputMatrixName };
         $output=$matrixObject->{ output };
 
+        print STDERR "\t$inputMatrixName\n" if($verbose);
+        
         my ($matrix)=getData($inputMatrix,$matrixObject);
         $matrix=applyNAMask($matrixObject,$matrix,$na_matrix);
 
@@ -255,27 +276,13 @@ if(@{$inputMatrixArray} > 1) {
     }
 
     print STDERR "\n" if($verbose);
-
-    # validate all files are the same
-    print STDERR "validating identical matrices...\n" if($verbose);
-    for(my $i1=0;$i1<@{$inputMatrixArray};$i1++) {
-        my $inputMatrix_1 = $inputMatrixArray->[$i1];
-        for(my $i2=0;$i2<@{$inputMatrixArray};$i2++) {
-            my $inputMatrix_2 = $inputMatrixArray->[$i2];
-            
-            next if($inputMatrix_1 eq $inputMatrix_2);
-            
-            validateIdenticalMatrixStructure($inputMatrix_1,$inputMatrix_2);
-        }
-    }
-    print STDERR "\tdone\n" if($verbose);
-
-    print STDERR "\n" if($verbose);
 }
 
-print STDERR "normalizing...\n" if($verbose);
+print STDERR "normalizing ... [".@{$inputMatrixArray}."]\n" if($verbose);
+
 my @normalizedMatrixArray=();
 for(my $i=0;$i<@{$inputMatrixArray};$i++) {
+    
     my $inputMatrix = $inputMatrixArray->[$i];
     
     croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
@@ -291,19 +298,29 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     my $equalHeaderFlag=$matrixObject->{ equalHeaderFlag };
     my $inputMatrixName=$matrixObject->{ inputMatrixName };
     $output=$matrixObject->{ output };
-
-    #read Matrix
-    my ($matrix)=getData($inputMatrix,$matrixObject,$verbose);
     
+    print STDERR "\n" if($verbose);
+    
+    print STDERR "\t$inputMatrixName\n" if($verbose);
+    
+    print STDERR "\t\treading matrix ...\n" if($verbose);
+    #read Matrix
+    my ($matrix)=getData($inputMatrix,$matrixObject,0);
+    print STDERR "\t\t\tdone\n" if($verbose);
+    
+    print STDERR "\t\tnormalizing matrix ...\n" if($verbose);
     #normalize the matrix
     $matrix=normalizeMatrix($matrixObject,$matrix,$excludeDiagonal);
+    print STDERR "\t\t\tdone\n" if($verbose);
     
     #write the normalized matrix
+    print STDERR "\t\twriting normalized matrix ...\n" if($verbose);
     my $normalizedMatrixFile=$output.".normalized.matrix.gz";
     writeMatrix($matrix,$inc2header,$normalizedMatrixFile,$missingValue,$commentLine);
+    print "\t\t\tdone\n" if($verbose);
     
     undef $matrix;
-    
+       
     push(@normalizedMatrixArray,$normalizedMatrixFile);
 
 }

@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -2967,12 +2967,11 @@ sub normalizeMatrix($$;$$) {
     my $sigDigits=4;
     $sigDigits=shift if @_;
     
-    
     my $inc2header=$matrixObject->{ inc2header };
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
     my $missingValue=$matrixObject->{ missingValue };
-    
+        
     my $matrixSum=getMatrixSum($matrixObject,$matrix,$excludeDiagonal);
     
     my $sumMatrix=0;
@@ -2985,13 +2984,13 @@ sub normalizeMatrix($$;$$) {
             next if( ($cScore eq $missingValue) or (($cScore ne "NA") and ($missingValue ne "NA") and ($cScore == $missingValue)) );
 
             my $normalized_cScore="NA";
-
             if($cScore ne "NA") {
                 $normalized_cScore = (($cScore/$matrixSum)*1000000);
-                $normalized_cScore = sprintf "%.".$sigDigits."f", $cScore;
             }
 
+            $normalized_cScore = sprintf "%.".$sigDigits."f", $normalized_cScore;
             $matrix->{$y}->{$x}=$normalized_cScore;
+            
         }
     }
     

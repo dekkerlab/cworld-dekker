@@ -129,7 +129,7 @@ our @EXPORT = qw(autoScale autoSize badFormat baseName
              initHeatmap inputWrapper intersectBED intersectHeaders isOverlapping
              isSymmetrical listStats loadBED logTransformMatrix matrix2distance
              matrix2inputlist matrix2listfile matrix2pairwise midpointBedFile
-             normalizeMatrix outputWrapper parseHeaders processMatrixFile
+             scaleMatrix outputWrapper parseHeaders processMatrixFile
              readLoessFile removeDiagonal removeFileExtension removeTmpDir round
              roundNearest splitCoordinate stitchMatrices stripChromosomeGroup 
              translateFlag transposeMatrix getInteractionDistance updateMatrixObject validateBED
@@ -2950,17 +2950,17 @@ sub isSymmetrical($) {
     
 }
 
-=head2 normalizeMatrix
+=head2 scaleMatrix
 
- Title     : normalizeMatrix
- Usage     : $matrix=normalizeMatrix(...)
+ Title     : scaleMatrix
+ Usage     : $matrix=scaleMatrix(...)
  Function  : normalize a matrix by read depth - scale by 10e6
  Returns   : matrix 2D hash
  Argument  : matrixObject hash, matrix 2D hash
  
 =cut
 
-sub normalizeMatrix($$;$$) {    
+sub scaleMatrix($$;$$) {    
     my $matrixObject=shift;
     my $matrix=shift;
     #optional

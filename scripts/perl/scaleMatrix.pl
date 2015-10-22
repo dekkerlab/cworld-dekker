@@ -74,7 +74,7 @@ sub intro() {
 sub help() {
     intro();
     
-    print STDERR "Usage: perl normalizeMatrix.pl [OPTIONS] -i <inputMatrix>\n";
+    print STDERR "Usage: perl scaleMatrix.pl [OPTIONS] -i <inputMatrix>\n";
     
     print STDERR "\n";
     
@@ -286,9 +286,9 @@ if(@{$inputMatrixArray} > 1) {
     print STDERR "\n" if($verbose);
 }
 
-print STDERR "normalizing [".$scaleTo."] ... [".@{$inputMatrixArray}."]\n" if($verbose);
+print STDERR "scaling [".$scaleTo."] ... [".@{$inputMatrixArray}."]\n" if($verbose);
 
-my @normalizedMatrixArray=();
+my @scaledMatrixArray=();
 for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     
     my $inputMatrix = $inputMatrixArray->[$i];
@@ -318,25 +318,25 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     
     print STDERR "\t\tnormalizing matrix ...\n" if($verbose);
     #normalize the matrix
-    $matrix=normalizeMatrix($matrixObject,$matrix,$excludeDiagonal,$scaleTo);
+    $matrix=scaleMatrix($matrixObject,$matrix,$excludeDiagonal,$scaleTo);
     print STDERR "\t\t\tdone\n" if($verbose);
     
-    #write the normalized matrix
-    print STDERR "\t\twriting normalized matrix ...\n" if($verbose);
-    my $normalizedMatrixFile=$output.".normalized.matrix.gz";
-    writeMatrix($matrix,$inc2header,$normalizedMatrixFile,$missingValue,$commentLine);
+    #write the scaled matrix
+    print STDERR "\t\twriting scaled matrix ...\n" if($verbose);
+    my $scaledMatrixFile=$output.".scaled-".$scaleTo.".matrix.gz";
+    writeMatrix($matrix,$inc2header,$scaledMatrixFile,$missingValue,$commentLine);
     print "\t\t\tdone\n" if($verbose);
     
     undef $matrix;
        
-    push(@normalizedMatrixArray,$normalizedMatrixFile);
+    push(@scaledMatrixArray,$scaledMatrixFile);
 
 }
 
 print STDERR "\n" if($verbose);
 
-for(my $i=0;$i<@normalizedMatrixArray;$i++) {
-    my $inputMatrix = $normalizedMatrixArray[$i];
+for(my $i=0;$i<@scaledMatrixArray;$i++) {
+    my $inputMatrix = $scaledMatrixArray[$i];
     
     croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 

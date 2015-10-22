@@ -127,7 +127,8 @@ sub combineMatrices($$$$;$) {
     
     my %combinedMatrix=();
     
-    my @pairwiseFileHandleArray=();
+    my @pairwise_fileHandle_array=();
+    my @pairwise_header2inc_array=();
     
     my $numLines=-1;
     my $lastNumLines=-1;
@@ -169,18 +170,13 @@ sub combineMatrices($$$$;$) {
         print STDERR "\n" if($verbose);
         
         open(my $tmpFileHandle,inputWrapper($sortedPairwiseFile)) or croak "Could not open file [$sortedPairwiseFile] - $!";
-        push(@pairwiseFileHandleArray,$tmpFileHandle);
+        push(@pairwise_fileHandle_array,$tmpFileHandle);
+        push(@pairwise_header2inc_array,$header2inc);
+        
         
         $lastNumLines=$numLines;
     }
     
-    #since all matrices are same size, use info from first
-    my $matrixObject=getMatrixObject($matrixFileArray[0]);
-    my $inc2header=$matrixObject->{ inc2header };
-    my $header2inc=$matrixObject->{ header2inc };
-    my $numYHeaders=$matrixObject->{ numYHeaders };
-    my $numXHeaders=$matrixObject->{ numXHeaders };
-
     my $combinedMatrixSum=0;
     
     my $progressBucketSize=ceil($numLines / 1000);
@@ -195,17 +191,20 @@ sub combineMatrices($$$$;$) {
         my $lastX="NA";
         my $NAFlag=0;
         
-        for(my $i=0;$i<@pairwiseFileHandleArray;$i++) {
-            my $tmpFileHandle=$pairwiseFileHandleArray[$i];
+        for(my $i=0;$i<@pairwise_fileHandle_array;$i++) {
+            my $tmpFileHandle=$pairwise_fileHandle_array[$i];
+            
             my $tmpLine=<$tmpFileHandle>;
             chomp($tmpLine);
             next if(($tmpLine eq "") or ($tmpLine =~ m/^#/));
             
             my @tmp=split(/\t/,$tmpLine);
             my $yHeader=$tmp[0];
-            my $y=$header2inc->{ y }->{$yHeader};
+            my $y=$pairwise_header2inc_array[$i]->{ y }->{$yHeader};
+            
             my $xHeader=$tmp[1];
-            my $x=$header2inc->{ x }->{$xHeader};
+            my $x=$pairwise_header2inc_array[$i]->{ x }->{$xHeader};
+            
             my $cScore=$tmp[2];
             
             push(@tmpScores,$cScore) if($cScore ne "NA");
@@ -233,9 +232,7 @@ sub combineMatrices($$$$;$) {
         print STDERR "\tWARNING - summing across non equal numbers per interaction!\n" if((($NAFlag) and ($combineMode eq "sum")) and ($combinedScore ne "NA"));
         
         $combinedMatrix{$lastY}{$lastX}=$combinedScore if($combinedScore ne "NA");
-        
-        $combinedMatrixSum += $combinedScore if($combinedScore ne "NA");
-        
+                
         if(($lineNum % $progressBucketSize) == 0) {
             $pcComplete = 100 if($lineNum >= $numLines);
             print STDERR "\e[A" if(($verbose) and ($lineNum != 0));
@@ -245,14 +242,14 @@ sub combineMatrices($$$$;$) {
         $lineNum++;
     }
     
-    for(my $i=0;$i<@pairwiseFileHandleArray;$i++) {
-        my $tmpFileHandle=$pairwiseFileHandleArray[$i];
+    for(my $i=0;$i<@pairwise_fileHandle_array;$i++) {
+        my $tmpFileHandle=$pairwise_fileHandle_array[$i];
         close($tmpFileHandle);
     }
     
     removeTmpDir($tmpDir);
     
-    return(\%combinedMatrix,$combinedMatrixSum);
+    return(\%combinedMatrix);
     
 }    
     
@@ -302,7 +299,7 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
 }
 
 print STDERR "combining matrices...\n" if($verbose);
-my ($combinedMatrix,$combinedMatrixSum)=combineMatrices($matrixString,$output,$combineMode,$tmpDir,$verbose);
+my ($combinedMatrix)=combineMatrices($matrixString,$output,$combineMode,$tmpDir,$verbose);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -322,9 +319,5 @@ my $combinedMatrixFile=$output.".".$combineMode.".matrix.gz";
 print STDERR "Writing matrix to file ($combinedMatrixFile)...\n" if($verbose);
 writeMatrix($combinedMatrix,$inc2header,$combinedMatrixFile,"NA",$commentLine);
 print STDERR "\tcomplete\n" if($verbose);
-
-print STDERR "\n" if($verbose);
-
-print STDERR "$combinedMatrixFile\t$combinedMatrixSum\n" if($verbose);
 
 print STDERR "\n" if($verbose);

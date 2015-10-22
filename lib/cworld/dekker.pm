@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -1544,7 +1544,7 @@ sub getData($$;$$$$$$) {
     my $progressBucketSize=ceil($nLines / 1000);
     my $pcComplete=0;
     
-    my $maxNonZeros = (15000*15000);
+    my $maxNonZeros = (20000*20000);
     my $nDataPoints=0;
     
     my %headerObjects=();
@@ -2966,6 +2966,8 @@ sub normalizeMatrix($$;$$) {
     #optional
     my $excludeDiagonal=0;
     $excludeDiagonal=shift if @_;
+    my $scaleTo=1000000;
+    $scaleTo=shift if @_;
     my $sigDigits=4;
     $sigDigits=shift if @_;
     
@@ -2987,7 +2989,7 @@ sub normalizeMatrix($$;$$) {
 
             my $normalized_cScore="NA";
             if($cScore ne "NA") {
-                $normalized_cScore = (($cScore/$matrixSum)*1000000);
+                $normalized_cScore = (($cScore/$matrixSum)*$scaleTo);
             }
 
             $normalized_cScore = sprintf "%.".$sigDigits."f", $normalized_cScore;

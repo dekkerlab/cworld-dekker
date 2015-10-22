@@ -17,7 +17,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrixArray,$verbose,$output,$excludeDiagonal);
+    my ($inputMatrixArray,$verbose,$output,$excludeDiagonal,$scaleTo);
     
     my $ret={};
     
@@ -46,12 +46,19 @@ sub check_options {
         $excludeDiagonal = 0;
     }
     
+     if( exists($opts->{ scaleTo }) ) {
+        $scaleTo = $opts->{ scaleTo };
+    } else {
+        $scaleTo = 1000000;
+    }
+    
     $ret->{ inputMatrixArray }=$inputMatrixArray;
     $ret->{ verbose }=$verbose;
     $ret->{ output }=$output;
     $ret->{ excludeDiagonal }=$excludeDiagonal;
+    $ret->{ scaleTo }=$scaleTo;
     
-    return($ret,$inputMatrixArray,$verbose,$output,$excludeDiagonal);
+    return($ret,$inputMatrixArray,$verbose,$output,$excludeDiagonal,$scaleTo);
 }
 
 sub intro() {
@@ -80,6 +87,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ed", "[]", "FLAG, ignore diagonal bin during normalization");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--st", "[10e6]", "scale to value");
     
     print STDERR "\n";
     
@@ -88,7 +96,7 @@ sub help() {
     This script normalizes the sum of a matrix.
     If the matrix is symmetrical, then only half of the matrix is summed (diagonal + x>y data)
     Each interaction is first translated into a percentage of the current sum.
-    Each value is then multipled by 1,000,000 so that the new sum is 10^6
+    Then each value is then multipled by <scaleTo> so that the new sum is <scaleTo>
     Matrix should have row/col headers in the standard my5C format.
     Matrix can be TXT or gzipped TXT.
     See website for matrix format details.\n";
@@ -160,8 +168,8 @@ sub applyNAMask($$$) {
 
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','excludeDiagonal|ed') or croak help();
-my ($ret,$inputMatrixArray,$verbose,$output,$excludeDiagonal)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','excludeDiagonal|ed','scaleTo|st=i') or croak help();
+my ($ret,$inputMatrixArray,$verbose,$output,$excludeDiagonal,$scaleTo)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -278,7 +286,7 @@ if(@{$inputMatrixArray} > 1) {
     print STDERR "\n" if($verbose);
 }
 
-print STDERR "normalizing ... [".@{$inputMatrixArray}."]\n" if($verbose);
+print STDERR "normalizing [".$scaleTo."] ... [".@{$inputMatrixArray}."]\n" if($verbose);
 
 my @normalizedMatrixArray=();
 for(my $i=0;$i<@{$inputMatrixArray};$i++) {
@@ -310,7 +318,7 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     
     print STDERR "\t\tnormalizing matrix ...\n" if($verbose);
     #normalize the matrix
-    $matrix=normalizeMatrix($matrixObject,$matrix,$excludeDiagonal);
+    $matrix=normalizeMatrix($matrixObject,$matrix,$excludeDiagonal,$scaleTo);
     print STDERR "\t\t\tdone\n" if($verbose);
     
     #write the normalized matrix

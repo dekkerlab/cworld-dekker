@@ -36,7 +36,7 @@ perl -I ../lib ../scripts/perl/matrix2scaling.pl -i ../sample-data/addMatrixHead
 perl -I ../lib ../scripts/perl/matrix2stacked.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr14__chr14__cis.matrix.gz --maxDist 5000000
 perl -I ../lib ../scripts/perl/matrix2symmetrical.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz
 perl -I ../lib ../scripts/perl/matrix2webplot.pl -i ../sample-data/matrix2symmetrical/K5-highlight.symmetrical.matrix.gz
-perl -I ../lib ../scripts/perl/normalizeMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -i ../sample-data/combineMatrices/GM.matrix.gz
+perl -I ../lib ../scripts/perl/scaleMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz -i ../sample-data/combineMatrices/GM.matrix.gz --st 1000
 perl -I ../lib ../scripts/perl/reOrderMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --xohl ../sample-data/reOrderMatrix/K5.rev --yohl ../sample-data/reOrderMatrix/K5.for
 perl -I ../lib ../scripts/perl/singletonRemoval.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz --it --ic --cta 2 --tta 2
 perl -I ../lib ../scripts/perl/subsetMatrix.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz -z chr14:20000000-40000000 --yz chr15:4000000-100000000 --xz chr16:20000000-100000000

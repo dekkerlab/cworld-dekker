@@ -128,9 +128,9 @@ scripts/perl/matrix2scaling.pl
 scripts/perl/matrix2stacked.pl
 scripts/perl/matrix2symmetrical.pl
 scripts/perl/matrix2webplot.pl
-scripts/perl/normalizeMatrix.pl
 scripts/perl/primer2plates.pl
 scripts/perl/reOrderMatrix.pl
+scripts/perl/scaleMatrix.pl
 scripts/perl/singletonRemoval.pl
 scripts/perl/subsetMatrix.pl
 scripts/perl/symmetrical2seperate.pl

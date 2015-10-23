@@ -242,6 +242,7 @@ sub drawAnchorPlots($$$$$$$$$$$$;$$$) {
         ($highlightMatrix)=getData($highlightMatrixFile,$highlightMatrixObject);
     }
     
+    my $init=1;
     my $pcComplete=0;    
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
@@ -254,11 +255,11 @@ sub drawAnchorPlots($$$$$$$$$$$$;$$$) {
         my $anchorSubName=$output."___".$yHeaderSubName;
         my $tmpAnchorPlotFile=$anchorPlotFolder.$anchorSubName.".3C";
         
-        if($pcComplete <= 100) {
-            print STDERR "\e[A"  if(($verbose) and ($y != 0));
-            printf STDERR "\tanchorPlot\t%.2f%% complete ($y/$numYHeaders)...\n", $pcComplete if($verbose);
-            $pcComplete = round((($y/$numYHeaders)*100),2);
-        }
+        print STDERR "\e[A"  if(($verbose) and ($init != 1));
+        printf STDERR "\tanchorPlot\t%.2f%% complete ($y/$numYHeaders)...\n", $pcComplete if($verbose);
+        $pcComplete = round((($y/$numYHeaders)*100),2);
+        
+        $init=0;
         
         # clean up any existing files
         system("rm '".$tmpAnchorPlotFile."'") if(-e($tmpAnchorPlotFile));
@@ -353,7 +354,7 @@ sub drawAnchorPlots($$$$$$$$$$$$;$$$) {
     
     }
     
-    print STDERR "\e[A" if($verbose);
+    print STDERR "\e[A" if(($verbose) and ($init != 1));
     printf STDERR "\tanchorPlot\t%.2f%% complete ($numYHeaders/$numYHeaders)...\n", 100 if($verbose);
     
     close(OUT);
@@ -395,9 +396,9 @@ $subsetList=processSubsetListFile($subsetListFile) if(($subsetListFile ne "") an
 
 #validating headers
 if($highlightMatrix ne "NA") {
-    print STDERR "validating matrices...\n";
+    print STDERR "validating matrices ...\n" if($verbose);
     validateIdenticalMatrixStructure($inputMatrix,$highlightMatrix);
-    print STDERR "\tdone\n\n";
+    print STDERR "\tdone\n\n" if($verbose);
 }
 
 my $excludeCis=0;
@@ -451,7 +452,7 @@ $loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFi
 # y axis is the anchor
 my $anchorPlotScriptPath=$scriptPath."/R/anchorPlot.R";
 
-print STDERR "plotting anchor plots...\n" if($verbose);
+print STDERR "plotting anchor plots ...\n" if($verbose);
 drawAnchorPlots($inputMatrix,$output,$includeCis,$minDistance,$maxDistance,$includeTrans,$loess,$anchorPlotFolder,$anchorPlotScriptPath,$subsetList,$yMin,$yMax,$cisApproximateFactor,$highlightMatrix,$verbose) if($includeCis);
 
 print STDERR "\n" if($verbose);
@@ -463,11 +464,11 @@ if( !(isSymmetrical($inputMatrix)) )  {
     
     my $transposedHighlightMatrix="NA";
     if($highlightMatrix ne "NA") {
-        my $transposedHighlightMatrix=transposeMatrix($highlightMatrix);
+        $transposedHighlightMatrix=transposeMatrix($highlightMatrix);
         croak "transposedHighlightMatrix [$transposedHighlightMatrix] does not exist" if(!(-e $transposedHighlightMatrix));
     }
     
-    print STDERR "plotting anchor plots...\n" if($verbose);
+    print STDERR "plotting anchor plots ...\n" if($verbose);
     drawAnchorPlots($transposedMatrix,$output,$includeCis,$minDistance,$maxDistance,$includeTrans,$loess,$anchorPlotFolder,$anchorPlotScriptPath,$subsetList,$yMin,$yMax,$cisApproximateFactor,$transposedHighlightMatrix,$verbose) if($includeCis);
     
     system("rm '$transposedMatrix'");

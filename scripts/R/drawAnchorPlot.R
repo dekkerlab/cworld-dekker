@@ -59,7 +59,7 @@ plot(allData.x,allData.y,ylim=c(allData.y.lim.bottom,allData.y.lim.top),xlab="Ge
 # draw anchor box
 rect(anchorStart, allData.y.lim.bottom, anchorEnd, allData.y.lim.top, col="orange", lwd=5, border="orange")
 
-peakData<-subset(anchorData,anchorData$highlight==1)
+highlightData<-subset(anchorData,anchorData$highlight==1)
 
 anchorData<-anchorData[with(anchorData, order(interactionMidpoint)), ]
 
@@ -74,21 +74,21 @@ lines(anchorData.downstream$interactionMidpoint,anchorData.downstream$cScore,col
 #draw final iteration points
 points(anchorData$interactionMidpoint,anchorData$cScore,col="black",pch=21,bg="red")		
 
-#draw peak points
-points(peakData$interactionMidpoint,peakData$cScore,col="black",bg=rgb(0,1,0,0.7),pch=21,cex=3)
+#draw highlight points
+points(highlightData$interactionMidpoint,highlightData$cScore,col="black",bg=rgb(0,1,0,0.7),pch=21,cex=3)
 
 xRange<-(region.bound.right-region.bound.left)
 yRange<-(allData.y.lim.top-allData.y.lim.bottom)
 
-if((nrow(peakData) > 0) & (nrow(peakData) < 20)) {
-	for (i in 1:nrow(peakData) ) {
-		tmpX<-peakData$interactionMidpoint[i]
-		tmpY<-peakData$cScore[i]
-		peakName<-peakData$xHeader[i]
-		tmpPeakNameList<-unlist(strsplit(peakName, "\\|"))
-		peakName<-tmpPeakNameList[1]
+if((nrow(highlightData) > 0) & (nrow(highlightData) < 50)) {
+	for (i in 1:nrow(highlightData) ) {
+		tmpX<-highlightData$interactionMidpoint[i]
+		tmpY<-highlightData$cScore[i]
+		highlightName<-highlightData$xHeader[i]
+		tmpPeakNameList<-unlist(strsplit(highlightName, "\\|"))
+		highlightName<-tmpPeakNameList[1]
 		
-		text((tmpX+(xRange/100)),(tmpY+(yRange/100)),labels=peakName,adj=0,xpd=TRUE,cex=0.80,srt=35)
+		text((tmpX+(xRange/100)),(tmpY+(yRange/100)),labels=highlightName,adj=0,xpd=TRUE,cex=0.80,srt=35)
 	}
 }
 

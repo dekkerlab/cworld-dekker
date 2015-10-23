@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 SYNOPSIS
 

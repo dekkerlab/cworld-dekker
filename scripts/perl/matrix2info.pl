@@ -80,7 +80,7 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--id", "[]", "FLAG, ignore diagonal bin during normalization");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ed", "[]", "FLAG, exclude diagonal bin during normalization");
     
     print STDERR "\n";
     
@@ -122,7 +122,7 @@ my $commentLine=getScriptOpts($ret,$tool);
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
 # get matrix information
-my $matrixObject=getMatrixObject($inputMatrix,$output,1);
+my $matrixObject=getMatrixObject($inputMatrix,$output,$verbose);
 my $inc2header=$matrixObject->{ inc2header };
 my $header2inc=$matrixObject->{ header2inc };
 my $numYHeaders=$matrixObject->{ numYHeaders };

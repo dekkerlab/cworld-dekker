@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 SYNOPSIS
 
@@ -5164,6 +5164,9 @@ sub combineBedFiles($;$) {
             next if($line =~ /^chrom/);
             
             my @tmp=split(/\t/,$line);
+        
+            $tmp[1] =~ s/,//g;
+            $tmp[2] =~ s/,//g;
             
             confess "ERROR-1: invalid BED format [$line]" if($line eq "");
             confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);
@@ -5217,6 +5220,9 @@ sub midpointBedFile($$) {
         
         my @tmp=split(/\t/,$line);
         
+        $tmp[1] =~ s/,//g;
+        $tmp[2] =~ s/,//g;
+        
         confess "ERROR-1: invalid BED format [$line]" if($line eq "");
         confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);
         confess "ERROR-3: invalid BED format [$line]" if($tmp[1] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
@@ -5269,6 +5275,9 @@ sub validateBED($) {
         
         my @tmp=split(/\t/,$line);
         
+        $tmp[1] =~ s/,//g;
+        $tmp[2] =~ s/,//g;
+        
         confess "ERROR-1: invalid BED format [$line]" if($line eq "");
         confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);
         confess "ERROR-3: invalid BED format [$line]" if($tmp[1] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
@@ -5317,6 +5326,9 @@ sub extendBED($;$) {
         next if($line =~ /^chrom/);
         
         my @tmp=split(/\t/,$line);
+        
+        $tmp[1] =~ s/,//g;
+        $tmp[2] =~ s/,//g;
         
         confess "ERROR-1: invalid BED format [$line]" if($line eq "");
         confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);
@@ -5425,6 +5437,9 @@ sub standardizeBED($) {
         
         my @tmp=split(/\t/,$line);
         
+        $tmp[1] =~ s/,//g;
+        $tmp[2] =~ s/,//g;
+        
         confess "ERROR-1: invalid BED format [$line]" if($line eq "");
         confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);
         confess "ERROR-3: invalid BED format [$line]" if($tmp[1] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
@@ -5472,6 +5487,9 @@ sub loadBED($) {
         next if($line =~ /^chrom/);
         
         my @tmp=split(/\t/,$line);
+        
+        $tmp[1] =~ s/,//g;
+        $tmp[2] =~ s/,//g;
         
         confess "ERROR-1: invalid BED format [$line]" if($line eq "");
         confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);

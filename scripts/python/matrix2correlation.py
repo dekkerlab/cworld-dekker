@@ -7,16 +7,29 @@
 """
 
 from __future__ import print_function
+from __future__ import division
 
-# Built in modules
-import argparse
-import os.path
+import numpy as np
+import scipy as sp
+import pdb
+import h5py
 import sys
+import argparse
+import logging
+import time
+import shutil
 import gzip
 import re
+import os
+import math
+import uuid
+import socket
 import itertools
-import time
-import gzip
+from collections import defaultdict
+from datetime import datetime
+
+import re
+import os
 
 from scipy.stats.stats import nanmean
 import numpy as np
@@ -27,27 +40,48 @@ from scipy import linalg as la
 from math import cos,log,sin,sqrt 
 from scipy import weave 
 
+verboseprint=lambda *a, **k: None
+__version__ = "1.0"
+
 def main():
     print("")
     
-    # Get input options
-    args = check_options()
+    parser=argparse.ArgumentParser   (description='covert a matrix into a correlation matrix',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    # Store the variables
-    inputMatrix = args.inputMatrix
-        
+    parser.add_argument('-i',dest='inputMatrix',type=str,required=True,help='interaction matrix hdf5 file',)
+    parser.add_argument('-v', '--verbose', dest='verbose',  action='count', help='Increase verbosity (specify multiple times for more)')
+    parser.add_argument('--fillnan',dest='fill_nan',action='store_true',help='fill all NAN with corr value')
+    
+    args=parser.parse_args()
+    
+    inputMatrix=args.inputMatrix
+    verbose=args.verbose
+    fill_nan=args.fill_nan
+
+    log_level = logging.WARNING
+    if verbose == 1:
+        log_level = logging.INFO
+    elif verbose >= 2:
+        log_level = logging.DEBUG
+    logging.basicConfig(level=log_level)
+    
+    global verboseprint
+    verboseprint = print if verbose else lambda *a, **k: None
+    
+    verboseprint("\n",end="")
+
     if not os.path.isfile(inputMatrix):
         sys.exit('invalid input file! (non-existant)')
     
-    print("inputMatrix",inputMatrix)
+    verboseprint("inputMatrix",inputMatrix)
     inputMatrixName=os.path.basename(inputMatrix)
     inputMatrixName=re.sub(".gz", "", inputMatrixName)    
     inputMatrixName=re.sub(".matrix", "", inputMatrixName)
-    print("inputMatrixName",inputMatrixName)
+    verboseprint("inputMatrixName",inputMatrixName)
     
-    print("")
+    verboseprint("")
     
-    print("loading matrix ... ",end="")
+    verboseprint("loading matrix ... ",end="")
     if inputMatrix.endswith('.gz'):
         infh=gzip.open(inputMatrix,'r')
     else:
@@ -55,17 +89,17 @@ def main():
     
     matrix,header_rows,header_cols = load_matrix((l for l in infh if not l.startswith('#')), hrows=1, hcols=1) # since this returns data, header_rows and header_cols
     infh.close()
-    print("done")
+    verboseprint("done")
     
-    print("")
+    verboseprint("")
     
     # get number of rows/col (assuming symmetrical)
     nrows=len(header_rows)
     ncols=len(header_cols)
     nmatrix_rows=matrix.shape[0]
     nmatrix_cols=matrix.shape[1]
-    print("rows:",nrows,nmatrix_rows)
-    print("cols:",ncols,nmatrix_cols)
+    verboseprint("rows:",nrows,nmatrix_rows)
+    verboseprint("cols:",ncols,nmatrix_cols)
     
     if(nrows != ncols):
         sys.exit('non-symmetrical matrix!')
@@ -90,35 +124,38 @@ def main():
                 sys.exit('assembly/genome is not constant!')
             assembly=genome
 
-    print("matrix assembly:",assembly)
+    verboseprint("matrix assembly:",assembly)
    
-    print("")
+    verboseprint("")
     
     # find nan rows
-    print("finding nan rows ... ",end="\n")
+    verboseprint("finding nan rows ... ",end="\n")
     nan_rows=np.sum(np.isnan(matrix),axis=0)==matrix.shape[0]
     nan_cols=np.sum(np.isnan(matrix),axis=1)==matrix.shape[1]
     nan_rowcols=nan_rows | nan_cols
     
     # convert all nan to 0
-    print("converting all nans to 0 ... ",end="")
+    verboseprint("converting all nans to 0 ... ",end="")
     matrix = np.nan_to_num(matrix)
-    print("done")
+    verboseprint("done")
     
     # calculate corrcoef matrix
-    print("calculating coorcoef ... ",end="")
+    verboseprint("calculating coorcoef ... ",end="")
     corrMatrix = np.corrcoef(matrix)
-    print("done")
+    verboseprint("done")
    
-    corrMatrix[nan_rows,:]=np.nan
-    corrMatrix[:,nan_cols]=np.nan
+    if not fill_nan:
+        verboseprint("replacing nan ... ",end="")
+        corrMatrix[nan_rows,:]=np.nan
+        corrMatrix[:,nan_cols]=np.nan
+        verboseprint("done")
     
     corrMatrixFile=inputMatrixName+'.correlation.matrix.gz'
-    print("writing corrcoef matrix ...",end="")
+    verboseprint("writing corrcoef matrix ...",end="")
     writeMatrix(header_rows,header_cols,corrMatrix,corrMatrixFile)
-    print("done")
+    verboseprint("done")
     
-    print("")
+    verboseprint("")
 
 
 def writeMatrix(header_rows,header_cols,matrix,matrixFile,precision=4):
@@ -272,21 +309,6 @@ def load_matrix(fh,hrows=0,hcols=0,np_dtype='float32',row_block_size=1000,numpy_
 
     
     return data
-
-def check_options():
-    ''' Checks the options to the program '''
-
-    # Create parser object
-    parser = argparse.ArgumentParser(add_help=True,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-
-    # Add arguments 
-    parser.add_argument('-i' , metavar='--inputMatrix'  , help="*Input matrix file", dest="inputMatrix", type=str, default="")
-    
-    # Parse command line with parse_args and store it in an object
-    args = parser.parse_args()
-
-    return args
 
 if __name__=="__main__":
       main()

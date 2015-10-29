@@ -22,7 +22,7 @@ use constant PI    => 4 * atan2(1, 1);
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrixArray,$verbose,$output,$logTransform,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    my ($inputMatrixArray,$verbose,$output,$outputSuffix,$logTransform,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
     
     my $ret={};
     
@@ -43,6 +43,12 @@ sub check_options {
         $output = $opts->{ output };
     } else {
         $output = "";
+    }
+    
+    if( exists($opts->{ outputSuffix }) ) {
+        $outputSuffix = $opts->{ outputSuffix };
+    } else {
+        $outputSuffix = "";
     }
     
     if( exists($opts->{ logTransform }) ) {
@@ -223,6 +229,7 @@ sub check_options {
     $ret->{ inputMatrixArray }=$inputMatrixArray;
     $ret->{ verbose }=$verbose;
     $ret->{ output }=$output;
+    $ret->{ outputSuffix }=$outputSuffix;
     $ret->{ imageSize }=$imageSize;
     $ret->{ pixelSize }=$pixelSize;
     $ret->{ y_pixelSize }=$y_pixelSize;
@@ -251,7 +258,7 @@ sub check_options {
     $ret->{ contigSpacing }=$contigSpacing;
     $ret->{ scaleMode }=$scaleMode;
     
-    return($ret,$inputMatrixArray,$verbose,$output,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    return($ret,$inputMatrixArray,$verbose,$output,$outputSuffix,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
 }
 
 sub intro() {
@@ -279,6 +286,7 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--os", "[]", "optional output suffix for heatmap image");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--sfs", "[]", "FLAG, scaleFragmentSizes, scale pixels by fragment/bin size");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--dt", "[]", "FLAG, drawTriangle, draw heatmap as triangle (only upper triangle)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--dd", "[]", "FLAG, drawDiamond, draw heatmap as diamond");
@@ -440,8 +448,8 @@ sub scaleByFragmentSize($$;$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','imageSize|is=i','pixelSize|ps=i','y_pixelSize|yps=i','x_pixelSize|xps=i','maxImageDim|maxdim=i','drawPixelBorder|dpb','omitContigBorder|ocb','drawLabel|dl','drawScores|ds','logTransform|lt=f','colorScaleStart|start=f','colorScaleEnd|end=f','colorScaleStartTile|startTile=f','colorScaleEndTile|endTile=f','posColorString|pc=s','negColorString|nc=s','missingColor|mc=s','highlightColor|hc=s','elementBedFile|ebf=s','imageQuality|iq=i','scaleFragmentSizes|sfs','drawTriangle|dt','drawDiamond|dd','transparentBGFlag|bg','embed_meta|em','contigSpacing|cs=f','scaleMode|sm=s') or croak help();
-my ($ret,$inputMatrixArray,$verbose,$output,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','outputSuffix|os=s','imageSize|is=i','pixelSize|ps=i','y_pixelSize|yps=i','x_pixelSize|xps=i','maxImageDim|maxdim=i','drawPixelBorder|dpb','omitContigBorder|ocb','drawLabel|dl','drawScores|ds','logTransform|lt=f','colorScaleStart|start=f','colorScaleEnd|end=f','colorScaleStartTile|startTile=f','colorScaleEndTile|endTile=f','posColorString|pc=s','negColorString|nc=s','missingColor|mc=s','highlightColor|hc=s','elementBedFile|ebf=s','imageQuality|iq=i','scaleFragmentSizes|sfs','drawTriangle|dt','drawDiamond|dd','transparentBGFlag|bg','embed_meta|em','contigSpacing|cs=f','scaleMode|sm=s') or croak help();
+my ($ret,$inputMatrixArray,$verbose,$output,$outputSuffix,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -463,6 +471,7 @@ if(@{$inputMatrixArray} == 2) {
     my ($inputMatrix_1,$inputMatrix_2)=@{$inputMatrixArray};
     
     $output="default" if($output eq "");
+    $output .= "__".$outputSuffix if($outputSuffix ne "");
     
     # validate all files are the same
     print STDERR "validating identical matrices...\n" if($verbose);
@@ -580,6 +589,8 @@ my $numXContigs=$matrixObject->{ numXContigs };
 my $numYContigs=$matrixObject->{ numYContigs };
 my $inputMatrixName=$matrixObject->{ inputMatrixName };
 $output=$matrixObject->{ output };
+
+$output .= "__".$outputSuffix if($outputSuffix ne "");
 
 if($logTransform > 0) {
     print STDERR "\nlog transformming matrix (lt=$logTransform)...\n" if($verbose);

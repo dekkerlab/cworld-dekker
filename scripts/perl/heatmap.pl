@@ -738,10 +738,6 @@ $brushY += 1 if($drawPixelBorder);
 my $matrixStart_y=$brushY;
 my $matrixStart_x=$brushX;
 
-# adjust x/y pixel size
-$y_pixelSize-=1;
-$x_pixelSize-=1;
-
 # x/y offset for pixel border
 my $yOffset=0;
 $yOffset=1 if($drawPixelBorder);

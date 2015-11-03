@@ -853,13 +853,13 @@ for($y=0;$y<$numYHeaders;$y++) {
         
         $lastXRegion=$xHeaderRegion;
         
-        $brushX += $tmp_x_pixelSize+1;
+        $brushX += $tmp_x_pixelSize;
     
     }
     
     $img->string($labelFont,$brushX+$textOffset,($brushY+($tmp_y_pixelSize/2))-($labelFontHeight/2),$yHeader,$colorPalette->{ B }) if($drawLabel);
     
-    $brushY += $tmp_y_pixelSize+1;
+    $brushY += $tmp_y_pixelSize;
     $brushY+=2 if($drawPixelBorder);
     
     $lastYRegion=$yHeaderRegion;

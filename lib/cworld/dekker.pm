@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 =head1 SYNOPSIS
 
@@ -3852,7 +3852,10 @@ sub splitCoordinate($) {
     $coordinateChromosome=$coordinateStart=$coordinateEnd=$coordinatePosition="NA";
     
     my $goodCoordinateFlag=0;
-    if(($coordinate ne "") and (validateZoomCoordinate($coordinate))) {
+    
+    confess "poorly formed ucsc coordinate! (".$coordinate.")" if not validateZoomCoordinate($coordinate);
+            
+    if(($coordinate ne "") and (validateZoomCoordinate($coordinate) == 1)) {
     
         ($coordinateChromosome,$coordinatePosition)=split(/:/,$coordinate);
         $coordinatePosition =~ s/,//g;

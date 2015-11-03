@@ -475,7 +475,7 @@ my $excludeCis=flipBool($includeCis);
 my $excludeTrans=flipBool($includeTrans);
 
 # get matrix data
-my ($matrix)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
+my ($matrix)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance);
 
 print STDERR "\n" if($verbose);
 
@@ -502,6 +502,7 @@ if(!validateLoessObject($loessObjectFile)) {
     ($inputDataCis,$inputDataTrans)=matrix2inputlist($matrixObject,$matrix,$includeCis,$includeTrans,$minDistance,$maxDistance,$excludeZero,$cisApproximateFactor);
     croak "$inputMatrixName - no avaible CIS data" if((scalar @{ $inputDataCis } <= 0) and ($includeCis) and ($includeTrans == 0));
     croak "$inputMatrixName - no avaible TRANS data" if((scalar @{ $inputDataTrans } <= 0) and ($includeTrans) and ($includeCis == 0));
+    print STDERR "\tdone\n" if($verbose);
     print STDERR "\n" if($verbose);
 }
 
@@ -578,6 +579,7 @@ print STDERR "calculating bounds...\n" if($verbose);
 my $tmpPosBound="NA";
 my $tmpNegBound="NA";
 ($tmpPosBound,$tmpNegBound)=calculateBounds($matrixObject,$rowcolData,$output,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
+print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 

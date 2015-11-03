@@ -445,7 +445,7 @@ sub filterMatrix($$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','manualOutlierFile|mof=i','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','factorMode|fm=s','includeCis|ic','includeTrans|it','trimAmount|ta=f','logTransform|lt=f','excludeZero|ez') or croak help();
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','manualOutlierFile|mof=s','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','factorMode|fm=s','includeCis|ic','includeTrans|it','trimAmount|ta=f','logTransform|lt=f','excludeZero|ez') or croak help();
 my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero) = check_options( \%options );
     
 intro() if($verbose);

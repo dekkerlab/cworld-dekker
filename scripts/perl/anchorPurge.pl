@@ -17,7 +17,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
     
-    my ($inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero);
+    my ($inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$iqrMultiplier,$logTransform,$excludeZero);
     
     my $ret={};
     
@@ -84,7 +84,7 @@ sub check_options {
     
     if( exists($opts->{ factorMode }) ) {
         $factorMode = $opts->{ factorMode };
-        croak "invalid factor mode (zScore,obsexp)" if(($factorMode ne "zScore") and ($factorMode ne "obsexp"));
+        croak "invalid factor mode (zScore,obsExp)" if(($factorMode ne "zScore") and ($factorMode ne "obsExp"));
     } else {
         $factorMode="zScore";
     }
@@ -101,10 +101,10 @@ sub check_options {
         $includeTrans=0;
     }
     
-    if( exists($opts->{ trimAmount }) ) {
-        $trimAmount = $opts->{ trimAmount };
+    if( exists($opts->{ iqrMultiplier }) ) {
+        $iqrMultiplier = $opts->{ iqrMultiplier };
     } else {
-        $trimAmount = 0.9;
+        $iqrMultiplier = 0.1;
     }    
     
     if( exists($opts->{ logTransform }) ) {
@@ -137,11 +137,11 @@ sub check_options {
     $ret->{ factorMode }=$factorMode;
     $ret->{ includeCis }=$includeCis;
     $ret->{ includeTrans }=$includeTrans;
-    $ret->{ trimAmount }=$trimAmount;
+    $ret->{ iqrMultiplier }=$iqrMultiplier;
     $ret->{ logTransform }=$logTransform;
     $ret->{ excludeZero }=$excludeZero;
     
-    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero);
+    return($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$iqrMultiplier,$logTransform,$excludeZero);
 }
 
 sub intro() {
@@ -170,7 +170,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--lof", "[]", "optional loess object file (pre-calculated loess)");   
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--ta", "[0.9]", "fraction of data to keep, 0.9 = trim 10% off");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--im", "[1.5]", "iqr multiplier for setting outlier bounds, q1-<N>*IQR & q3+<N>*IQR");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ic", "[]", "model CIS data to detect outlier row/cols");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--it", "[]", "model TRANS data to detect outlier row/cols");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--mof", "[]", "optional manual outlier file, 1 header per line to be filtered.");
@@ -222,17 +222,16 @@ sub processManualOutliers($) {
     return(\%manualOutliers);
 }
     
-sub writeOutliers($$$$) {
-    my $trimAmount=shift;
+sub writeOutliers($$$$$$) {
+    my $matrixObject=shift;
     my $rowcolData=shift;
     my $output=shift;
+    my $botCutoff=shift;
+    my $topCutoff=shift;
     my $commentLine=shift;
     
-    my $botCutoff=-$trimAmount;
-    my $topCutoff=$trimAmount;
-
-    my $time = getDate();
-
+    my $verbose=$matrixObject->{ verbose };
+    
     my $toRemoveFile=$output.".toRemove";
 
     open(OUT,outputWrapper($toRemoveFile,$commentLine)) or croak "Could not open file [$toRemoveFile] - $!";
@@ -244,62 +243,44 @@ sub writeOutliers($$$$) {
         my $meanFactor=$rowcolData->{$primerName}->{ factor };
         next if($meanFactor eq "NA");
         
-        my $scaledFactorZScore=$rowcolData->{$primerName}->{ scaledFactor };
-        if(($scaledFactorZScore < $botCutoff) or ($scaledFactorZScore > $topCutoff)) {
+        if(($meanFactor <= $botCutoff) or ($meanFactor >= $topCutoff)) {
             # log the outliers
-            $anchorOutliers{$primerName}=$scaledFactorZScore;
+            $anchorOutliers{$primerName}=$meanFactor;
             $nAnchorOutliers++;
-            print OUT "$primerName\t$meanFactor\t$scaledFactorZScore\n";
+            print OUT "$primerName\t$meanFactor\n";
+            print STDERR "\tremoving $primerName (".$meanFactor.")\n" if($verbose);
         }
     }
 
     close(OUT);
+   
+    print STDERR "\tremoved $nAnchorOutliers anchor outliers\n" if($verbose);
     
     return(\%anchorOutliers);
     
 }
 
-sub writePrimerFactors($$$$$$) {
+sub writePrimerFactors($$$$) {
     my $rowcolData=shift;
     my $output=shift;
-    my $tmpPosBound=shift;
-    my $tmpNegBound=shift;
     my $scriptPath=shift;
     my $commentLine=shift;
     
     # calculate and draw histogram 
     my $allFactorFile=$output.".factor";
-    my $rowcolDataFile=$output.".zScore.txt";
 
     # re-scale and output
     open(FACTOR,outputWrapper($allFactorFile,$commentLine)) or croak "Could not open file [$allFactorFile] - $!";
-    open(DATA,outputWrapper($rowcolDataFile,$commentLine)) or croak "Could not open file [$rowcolDataFile] - $!";
-
-    print DATA "primerName\tmean-zscoore\tscaled-mean-zscore\n";
 
     foreach my $primerName ( keys %$rowcolData ) {
         my $mean=$rowcolData->{$primerName}->{ factor };
         
-        my $scaledFactor="NA";
-        
-        if($mean ne "NA") {
-            $scaledFactor = ($mean / $tmpPosBound) if(($mean > 0) and ($tmpPosBound ne "NA"));
-            $scaledFactor = -($mean / $tmpNegBound) if(($mean < 0) and ($tmpNegBound ne "NA"));
-            $scaledFactor = 1 if($scaledFactor > 1); # cap at 1 
-            $scaledFactor = -1 if($scaledFactor < -1); # cap at 1
-        }
-        
-        $rowcolData->{$primerName}->{ scaledFactor }=$scaledFactor;
-        
         next if($mean eq "NA");
         
-        print FACTOR "$primerName\t$scaledFactor\n";
-        print DATA "$primerName\t$mean\t$scaledFactor\n";
+        print FACTOR "$primerName\t$mean\n";
     }
     close(FACTOR);
-    close(DATA);
-    
-    
+        
     my $cwd = getcwd();
     
     # plot re-scaled values
@@ -308,9 +289,10 @@ sub writePrimerFactors($$$$$$) {
 
 }
 
-sub calculateBounds($$$$$) {
+sub calculateBounds($$$$$$) {
     my $matrixObject=shift;
     my $rowcolData=shift;
+    my $iqrMultiplier=shift;
     my $output=shift;
     my $scriptPath=shift;
     my $commentLine=shift;
@@ -339,9 +321,9 @@ sub calculateBounds($$$$$) {
     
     # plot pos values
     system("Rscript '".$scriptPath."/R/factorHistogram.R' '".$cwd."' '".$allPrimerFactorFile."' '".$output."' > /dev/null");
-
+    
     # calculate bounds
-    my $tmpPosArrStats=listStats(\@tmpPos,0.20);
+    my $tmpPosArrStats=listStats(\@tmpPos,0.1);
     my $tmpPosBound=$tmpPosArrStats->{ max };
     my $tmpPosMax=$tmpPosArrStats->{ max };
     my $tmpPosMean=$tmpPosArrStats->{ mean };
@@ -353,7 +335,7 @@ sub calculateBounds($$$$$) {
     my $tmpPosIQR=$tmpPosArrStats->{ iqr };
     my $tmpPosMAD=$tmpPosArrStats->{ mad };
 
-    my $tmpNegArrStats=listStats(\@tmpNeg,0.20);
+    my $tmpNegArrStats=listStats(\@tmpNeg,0.1);
     my $tmpNegBound=$tmpNegArrStats->{ min };
     my $tmpNegMax=$tmpNegArrStats->{ max };
     my $tmpNegMean=$tmpNegArrStats->{ mean };
@@ -364,19 +346,21 @@ sub calculateBounds($$$$$) {
     my $tmpNegQ3=$tmpNegArrStats->{ q3 };
     my $tmpNegIQR=$tmpNegArrStats->{ iqr };
     my $tmpNegMAD=$tmpNegArrStats->{ mad };
-
-    $tmpPosBound=$tmpPosQ3+(1.5*$tmpPosIQR);
-    $tmpNegBound=$tmpNegQ1-(1.5*$tmpNegIQR);
-
+    print STDERR "\tneg\t$tmpNegMin\t$tmpNegQ1\t$tmpNegMedian\t$tmpNegQ3\t$tmpNegMax\t($tmpNegIQR)\t$tmpNegMean\t$tmpNegStdev\n" if($verbose);
+    print STDERR "\tpos\t$tmpPosMin\t$tmpPosQ1\t$tmpPosMedian\t$tmpPosQ3\t$tmpPosMax\t($tmpPosIQR)\t$tmpPosMean\t$tmpPosStdev\n" if($verbose);
+    
+    $tmpPosBound=$tmpPosQ3+($iqrMultiplier*$tmpPosIQR);
+    $tmpNegBound=$tmpNegQ1-($iqrMultiplier*$tmpNegIQR);
+    print STDERR "\tposBound\t$tmpPosBound\n" if($verbose);
+    print STDERR "\tnegBound\t$tmpNegBound\n" if($verbose);
     print STDERR "\tposMax\t$tmpPosMax\n" if($verbose);
     print STDERR "\tnegMin\t$tmpNegMin\n" if($verbose);
     $tmpPosBound = $tmpPosMax if($tmpPosBound > $tmpPosMax); 
     $tmpNegBound = $tmpNegMin if($tmpNegBound < $tmpNegMin); #override to min if outside of bounds
-    print STDERR "\n" if($verbose);
     print STDERR "\tposBound\t$tmpPosBound\n" if($verbose);
     print STDERR "\tnegBound\t$tmpNegBound\n" if($verbose);
-
-    my $scaledZScoreLogFile=$output.".Re-scaled-zScores.txt";
+    
+    my $scaledZScoreLogFile=$output.".re-scaled-zScores.txt";
     open(OUT,outputWrapper($scaledZScoreLogFile,$commentLine)) or croak "Could not open file [$scaledZScoreLogFile] - $!";
 
     print OUT "zScore bounds\n";
@@ -445,8 +429,8 @@ sub filterMatrix($$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','manualOutlierFile|mof=s','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','factorMode|fm=s','includeCis|ic','includeTrans|it','trimAmount|ta=f','logTransform|lt=f','excludeZero|ez') or croak help();
-my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$trimAmount,$logTransform,$excludeZero) = check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','manualOutlierFile|mof=s','minDistance|minDist=i','maxDistance|maxDist=i','cisAlpha|ca=f','disableIQRFilter|dif','cisApproximateFactor|caf=i','factorMode|fm=s','includeCis|ic','includeTrans|it','iqrMultiplier|im=f','logTransform|lt=f','excludeZero|ez') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$manualOutlierFile,$minDistance,$maxDistance,$cisAlpha,$disableIQRFilter,$cisApproximateFactor,$factorMode,$includeCis,$includeTrans,$iqrMultiplier,$logTransform,$excludeZero) = check_options( \%options );
     
 intro() if($verbose);
 
@@ -578,20 +562,20 @@ my $rowcolData=\%primerDataHash;
 print STDERR "calculating bounds...\n" if($verbose);
 my $tmpPosBound="NA";
 my $tmpNegBound="NA";
-($tmpPosBound,$tmpNegBound)=calculateBounds($matrixObject,$rowcolData,$output,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
+($tmpPosBound,$tmpNegBound)=calculateBounds($matrixObject,$rowcolData,$iqrMultiplier,$output,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
 # write primer factors
 print STDERR "writing primer factors\n" if($verbose);
-writePrimerFactors($rowcolData,$output,$tmpPosBound,$tmpNegBound,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
+writePrimerFactors($rowcolData,$output,$scriptPath,$commentLine) if(keys %{$rowcolData} > 0);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
 print STDERR "writing outliers...\n" if($verbose);
-my $anchorOutliers=writeOutliers($trimAmount,$rowcolData,$output,$commentLine) if(keys %{$rowcolData} > 0);
+my $anchorOutliers=writeOutliers($matrixObject,$rowcolData,$output,$tmpNegBound,$tmpPosBound,$commentLine) if(keys %{$rowcolData} > 0);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -609,7 +593,7 @@ my $filteredMatrix=filterMatrix($matrixObject,$matrix,$anchorOutliers,$manualOut
 
 print STDERR "\n" if($verbose);
 
-my $filteredMatrixFile=$output.".outlierFiltered.matrix.gz";
+my $filteredMatrixFile=$output.".anchorFiltered.matrix.gz";
 print STDERR "writing matrix to file ($filteredMatrixFile)...\n" if($verbose);
 writeMatrix($filteredMatrix,$inc2header,$filteredMatrixFile,$missingValue,$commentLine);
 print STDERR "\tcomplete\n" if($verbose);

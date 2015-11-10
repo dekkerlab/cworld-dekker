@@ -1,7 +1,7 @@
 perl -I ../lib ../scripts/perl/addMatrixHeaders.pl -i ../sample-data/addMatrixHeaders/5C.naked.matrix.gz --xhf ../sample-data/addMatrixHeaders/5C.xHeaders.gz --yhf ../sample-data/addMatrixHeaders/5C.yHeaders.gz
 perl -I ../lib ../scripts/perl/aggregateBED.pl -i ../sample-data/aggregrateBED/chrX.bed.gz --a mm9 --wsize 40000 --wstep 1 --wmode sum
 perl -I ../lib ../scripts/perl/elementPileUp.pl -i ../sample-data/elementPileUp/NPC_chrX.matrix.gz --ebf ../sample-data/elementPileUp/Xi-escapees.bed --ezs 50000000 --ez --maxDist 50000000 
-perl -I ../lib ../scripts/perl/anchorPurge.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --ic --ta 0.5
+perl -I ../lib ../scripts/perl/anchorPurge.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --ic --fm obsExp --im 1.5 
 perl -I ../lib ../scripts/perl/applyCorrection.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --ff ../sample-data/applyCorrection/K5.allPrimerFactors --ic
 perl -I ../lib ../scripts/perl/binMatrix.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --bsize 30000 --bstep 10 --bmode median
 perl -I ../lib ../scripts/perl/changeMatrixHeaders.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --hmf ../sample-data/changeMatrixHeaders/K5.headers.map 

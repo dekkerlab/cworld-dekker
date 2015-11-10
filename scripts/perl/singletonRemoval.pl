@@ -471,7 +471,7 @@ my $filteredMatrix=filterMatrix($matrixObject,$matrix,$outliers,$manualOutliers)
 
 print STDERR "\n" if($verbose);
 
-my $filteredMatrixFile=$output.".outlierFiltered.matrix.gz";
+my $filteredMatrixFile=$output.".singletonFiltered.matrix.gz";
 print STDERR "writing matrix to file ($filteredMatrixFile)...\n" if($verbose);
 writeMatrix($filteredMatrix,$inc2header,$filteredMatrixFile,$commentLine);
 print STDERR "\tcomplete\n" if($verbose);

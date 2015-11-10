@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.17';
+our $VERSION = '0.19';
 
 =head1 SYNOPSIS
 
@@ -1574,6 +1574,8 @@ sub getData($$;$$$$$$) {
             my $indexStart=1;
             my $indexEnd=$dsize;
             
+            confess "header and data size mismatch! [xHeaders = ".@xHeaders." || data = ".@data."]\n" if @data != @xHeaders;
+                                
             for(my $i=$indexStart;$i<$indexEnd;$i++) {
                 my $cScore=$data[$i];
                 
@@ -2275,7 +2277,7 @@ sub calculateTransExpected($$$$;$) {
  
 =cut
 
-sub getRowColFactor($$$$$$$$$$$$;$$) {
+sub getRowColFactor($$$$$$$$$$$$;$$$) {
     #required
     my $matrixObject=shift;
     my $inputMatrix=shift;
@@ -2294,6 +2296,8 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
+    my $trimAmount=0.10;
+    $trimAmount=shift if @_;
     
     my $verbose=$matrixObject->{ verbose };
     
@@ -2375,7 +2379,7 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
             my $tmpLoessStdev = "NA";
             
             if(@tmpFactorArr > 0) {
-                my $tmpFactorArrStats=listStats(\@tmpFactorArr,0.10);
+                my $tmpFactorArrStats=listStats(\@tmpFactorArr,$trimAmount);
                 $tmpFactor=$tmpFactorArrStats->{ iqrMean };
                 my $tmpLoessMeanArrStats=listStats(\@tmpLoessMeanArr);
                 $tmpLoessMean=$tmpLoessMeanArrStats->{ mean };
@@ -2383,8 +2387,6 @@ sub getRowColFactor($$$$$$$$$$$$;$$) {
                 $tmpLoessStdev=$tmpLoessStdevArrStats->{ mean };
             }
                         
-            $tmpFactor = 2**$tmpFactor if(($factorMode eq "obsExp") and ($tmpFactor ne "NA"));
-            $tmpFactor = sprintf "%.8f", $tmpFactor if($tmpFactor ne "NA");
             $rowcolData->{$yHeader}->{ factor }=$tmpFactor;    
             $rowcolData->{$yHeader}->{ loessMean }=$tmpLoessMean;    
             $rowcolData->{$yHeader}->{ loessStdev }=$tmpLoessStdev;    
@@ -2716,8 +2718,8 @@ sub matrix2inputlist($$$$$$$;$) {
             my $cScore=$matrixObject->{ missingValue };
             $cScore=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
             
-            next if(($excludeZero) and ($cScore == 0));
             next if(($cScore =~ /^NULL$/i) or ($cScore =~ /^NA$/i) or ($cScore =~ /inf$/i) or ($cScore =~ /^nan$/i));
+            next if(($excludeZero) and (($cScore ne "NA") and ($cScore == 0)));
             
             my $xHeader=$inc2header->{ x }->{$x};    
             my $xHeaderObject=getHeaderObject($xHeader);
@@ -3724,7 +3726,11 @@ sub correctMatrix($$$$$$$$$;$) {
             my $xHeaderObject=getHeaderObject($xHeader);
             
             my $yFactor=$rowcolData->{$yHeader}->{ factor };
+            $yFactor = 2**$yFactor if(($factorMode eq "obsExp") and ($yFactor ne "NA"));
+            $yFactor = sprintf "%.8f", $yFactor if($yFactor ne "NA");
             my $xFactor=$rowcolData->{$xHeader}->{ factor };
+            $xFactor = 2**$xFactor if(($factorMode eq "obsExp") and ($xFactor ne "NA"));
+            $xFactor = sprintf "%.8f", $xFactor if($xFactor ne "NA");
             
             my $yLoessMean=$rowcolData->{$yHeader}->{ loessMean };
             my $xLoessMean=$rowcolData->{$xHeader}->{ loessMean };

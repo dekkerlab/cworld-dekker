@@ -267,9 +267,11 @@ sub transposeFiles($$;$) {
     return($transposedFiles);
 }
 
-sub extractSubMatrices($$$$$$$$) {
+sub extractSubMatrices($$$$$$$$$$) {
+    my $matrixObject=shift;
     my $fileList=shift;
     my $dataFileName=shift;
+    my $symmetrical=shift;
     my $output=shift;
     my $extractBy=shift;
     my $extractCisOnly=shift;
@@ -277,18 +279,21 @@ sub extractSubMatrices($$$$$$$$) {
     my $goodZoomFlag=shift;
     my $commentLine=shift;
 
+    my $verbose=$matrixObject->{ verbose };
+    
     my @files=();
     
     foreach my $suffix ( keys %$fileList ) {    
         my $file=$fileList->{$suffix}->{ file };    
+        print STDERR "\t$suffix\t[".$file."]\n" if($verbose);
         my $blockMatrix=$fileList->{$suffix}->{ subMatrix };
         
         my $rowBlockFiles=extractRowBlocks($file,$dataFileName,$extractBy,$blockMatrix,$extractCisOnly,$zoomData,$goodZoomFlag,$commentLine);
-          
+                 
         foreach my $suffix ( keys %$rowBlockFiles ) {    
             
             my $tmp_matrix=$rowBlockFiles->{$suffix}->{ file };
-            my $subMatrix=$rowBlockFiles->{$suffix}->{ subMatrix };
+            my $subMatrix=$rowBlockFiles->{$suffix}->{ subMatrix };            
             my $tmp_transposedMatrix=transposeMatrix($tmp_matrix,$output."___".$suffix);
         }
         
@@ -448,7 +453,7 @@ print STDERR "\n" if($verbose);
 
 print STDERR "extracting sub matrices ...\n" if($verbose);
 # now re-extract row blocks to get sub matrices
-extractSubMatrices($transposedFiles,$tmpDirInputMatrixName,$output,$extractBy,$extractCisOnly,$zoomData,$goodZoomFlag,$commentLine);
+extractSubMatrices($matrixObject,$transposedFiles,$tmpDirInputMatrixName,$symmetrical,$output,$extractBy,$extractCisOnly,$zoomData,$goodZoomFlag,$commentLine);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

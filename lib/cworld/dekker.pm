@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.19';
+our $VERSION = '0.20;
 
 =head1 SYNOPSIS
 
@@ -3732,8 +3732,8 @@ sub correctMatrix($$$$$$$$$;$) {
             $xFactor = 2**$xFactor if(($factorMode eq "obsExp") and ($xFactor ne "NA"));
             $xFactor = sprintf "%.8f", $xFactor if($xFactor ne "NA");
             
-            my $yLoessMean=$rowcolData->{$yHeader}->{ loessMean };
             my $xLoessMean=$rowcolData->{$xHeader}->{ loessMean };
+            my $yLoessMean=$rowcolData->{$yHeader}->{ loessMean };
             my $yLoessStdev=$rowcolData->{$yHeader}->{ loessStdev };
             my $xLoessStdev=$rowcolData->{$xHeader}->{ loessStdev };
             

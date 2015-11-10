@@ -86,7 +86,7 @@ sub check_options {
         $factorMode = $opts->{ factorMode };
         croak "invalid factor mode (zScore,obsExp)" if(($factorMode ne "zScore") and ($factorMode ne "obsExp"));
     } else {
-        $factorMode="zScore";
+        $factorMode="obsExp";
     }
 
     if( exists($opts->{ includeCis }) ) {
@@ -104,7 +104,7 @@ sub check_options {
     if( exists($opts->{ iqrMultiplier }) ) {
         $iqrMultiplier = $opts->{ iqrMultiplier };
     } else {
-        $iqrMultiplier = 0.1;
+        $iqrMultiplier = 1.5;
     }    
     
     if( exists($opts->{ logTransform }) ) {
@@ -181,7 +181,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--caf", "[1000]", "cis approximate factor to speed up loess, genomic distance / -caffs");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--lt", "[]", "log transform input data into specified base");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ez", "[]", "FLAG, ignore 0s in all calculations");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--fm", "[]", "outlier detection mode - zScore,obsExp");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--fm", "[obsExp]", "outlier detection mode - (zScore,obsExp)");
     
     print STDERR "\n";
     

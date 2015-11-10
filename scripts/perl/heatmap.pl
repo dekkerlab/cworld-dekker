@@ -83,7 +83,6 @@ sub check_options {
     
     if( exists($opts->{ maxImageDim }) ) {
         $maxImageDim = $opts->{ maxImageDim };
-        $maxImageDim=32000 if($maxImageDim > 32000);
     } else {
         $maxImageDim = 32000;
     }
@@ -621,7 +620,7 @@ if(($colorScaleStart eq "NA") or ($colorScaleEnd eq "NA")) {
 my $textOffset=5;
 my $labelFont=GD::Font->Large;
 my ($labelFontWidth,$labelFontHeight) = ($labelFont->width, $labelFont->height);
-my $scoreFont=GD::Font->Large;
+my $scoreFont=GD::Font->Tiny;
 my ($scoreFontWidth,$scoreFontHeight) = ($scoreFont->width, $scoreFont->height);
 
 # setup image parameters
@@ -932,11 +931,13 @@ if($transparentBGFlag) {
 
 my $pngFile=$output.".png";
 print STDERR "Converting object to png ($inputMatrixName)...\n" if($verbose);
+
 open(OUT,">",$pngFile) or croak "Could not open file [$pngFile] - $!";
 chmod(0644, $pngFile);
 binmode OUT;
-print OUT $img->png($imageQuality);
+print OUT $img->png();
 close(OUT);
+
 print STDERR "\tcomplete\n\n" if($verbose);
 
 if($embed_meta) {

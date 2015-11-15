@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 =head1 SYNOPSIS
 
@@ -331,7 +331,7 @@ sub calculateZscore($$$;$$$) {
         }
         my $pcComplete = round((($y/($numYHeaders-1))*100),2);
         print STDERR "\e[A" if(($verbose) and ($y != 0));
-        printf STDERR "\t%.2f%% complete (".$y."/".($numYHeaders-1).")...\n", $pcComplete if($verbose);
+        printf STDERR "\t%.2f%% complete (".$y."/".($numYHeaders-1).")...\n", $pcComplete if($verbose); 
     }
     
     return($zScoreMatrix);
@@ -819,6 +819,7 @@ sub getHeaderObject($;$) {
     $region=$chromosome;
     
     my $primerType="NA";
+    my $fragmentNumber="NA";
     if($subName =~ /__/) {
         @tmp=split(/__/,$subName);
         $region=$tmp[0];
@@ -827,6 +828,7 @@ sub getHeaderObject($;$) {
         $tmpSize=scalar @tmp;
         $region=$tmp[1]."_".$tmp[2] if(($tmpSize == 5) and ($tmp[0] eq "5C"));
         $primerType=$tmp[3] if(($tmpSize == 5) and ($tmp[0] eq "5C"));
+        $fragmentNumber=$tmp[4] if(($tmpSize == 5) and ($tmp[0] eq "5C"));
     }
     
     my ($start,$end);
@@ -841,6 +843,7 @@ sub getHeaderObject($;$) {
         
     my %headerObject=();
     $headerObject{ subName }=$subName;
+    $headerObject{ fragmentNumber }=$fragmentNumber;
     $headerObject{ primerType }=$primerType;
     $headerObject{ assembly }=$assembly;
     $headerObject{ chromosome }=$chromosome;
@@ -903,12 +906,12 @@ sub getInteractionDistance($$$;$$) {
     my $dist=-1;
     if($equalHeaderFlag == 0) { # bins do not overlap
         if($midpoint_1 == $midpoint_2) { #self
-            $dist = 0;
+            $dist = 0; # self / same fragment
         } else {
             if($start_1 > $start_2) { 
-                $dist = abs($start_1-$end_2);
+                $dist = abs($start_1-$end_2)+1; # neighboring fragment
             } else { 
-                $dist = abs($start_2-$end_1);
+                $dist = abs($start_2-$end_1)+1; # neighboring fragment
             }
         }
     } else { # bins do overlap
@@ -1388,6 +1391,8 @@ sub updateMatrixObject($) {
     }
     
     my $numTotalHeaders=keys(%{$header2inc->{ xy }});
+    $matrixObject->{ numTotalHeaders }=$numTotalHeaders;
+
     
     $matrixObject->{ inc2header }=$inc2header;
     $matrixObject->{ header2inc }=$header2inc;
@@ -3024,9 +3029,7 @@ sub getMatrixSum($$;$) {
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
     my $missingValue=$matrixObject->{ missingValue };
-    my $numFrags=$numYHeaders=$numXHeaders;
-    
-    my $symmetrical=isSymmetrical($inc2header);    
+    my $symmetrical=$matrixObject->{ symmetrical };
     
     my $sumMatrix=0;
     for(my $y=0;$y<$numYHeaders;$y++) {
@@ -3040,7 +3043,7 @@ sub getMatrixSum($$;$) {
             
             my $cScore=$missingValue;
             $cScore=$matrix->{$y}->{$x} if(defined($matrix->{$y}->{$x}));
-                        
+            
             $sumMatrix += $cScore if($cScore ne "NA");
         }
     }
@@ -3291,7 +3294,7 @@ sub correlateMatrices($$$$$$;$$$) {
             my $interactionDistance=getInteractionDistance($matrixObject_1,$yHeaderObject,$xHeaderObject,1,$logTransform);
             
             print OUT "$interactionDistance\t$score_1\t$score_2\n";
-            $distHist{$interactionDistance}++ if($interactionDistance > 0);
+            $distHist{$interactionDistance}++ if($interactionDistance >= 0);
         }
     }
     
@@ -4231,10 +4234,18 @@ sub matrix2pairwise($$;$$$$$) {
     my $sigDigits=4;
     $sigDigits=shift if @_;
     
-    my $inputMatrixName=$matrixObject->{ inputMatrixName };
     my $verbose=$matrixObject->{ verbose };
+    my $inc2header=$matrixObject->{ inc2header };
+    my $header2inc=$matrixObject->{ header2inc };
+    my $numYHeaders=$matrixObject->{ numYHeaders };
+    my $numXHeaders=$matrixObject->{ numXHeaders };
+    my $numTotalHeaders=$matrixObject->{ numTotalHeaders };
+    my $missingValue=$matrixObject->{ missingValue };
+    my $symmetrical=$matrixObject->{ symmetrical };
+    my $equalHeaderFlag=$matrixObject->{ equalHeaderFlag };
+    my $inputMatrixName=$matrixObject->{ inputMatrixName };
     my $output=$matrixObject->{ output };
-    
+
     my $tmpDir=createTmpDir();
     
     my $includeCis=flipBool($excludeCis);
@@ -4262,11 +4273,13 @@ sub matrix2pairwise($$;$$$$$) {
             my $dsize=@data;
             my $yHeader=$data[0];
             my $yHeaderObject=getHeaderObject($yHeader);
+            my $yIndex=$header2inc->{ y }->{$yHeader};
             
             for(my $d=1;$d<$dsize;$d++) {
                 my $xHeader=$xHeaders[$d];
                 my $xHeaderObject=getHeaderObject($xHeader);
-
+                my $xIndex=$header2inc->{ x }->{$xHeader};
+                
                 my $cScore=$data[$d];
                 
                 $cScore = "NA" if($cScore !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
@@ -4355,6 +4368,14 @@ sub matrix2distance($$;$$$$$) {
     $sigDigits=shift if @_;
     
     my $verbose=$matrixObject->{ verbose };
+    my $inc2header=$matrixObject->{ inc2header };
+    my $header2inc=$matrixObject->{ header2inc };
+    my $numYHeaders=$matrixObject->{ numYHeaders };
+    my $numXHeaders=$matrixObject->{ numXHeaders };
+    my $numTotalHeaders=$matrixObject->{ numTotalHeaders };
+    my $missingValue=$matrixObject->{ missingValue };
+    my $symmetrical=$matrixObject->{ symmetrical };
+    my $equalHeaderFlag=$matrixObject->{ equalHeaderFlag };
     my $inputMatrixName=$matrixObject->{ inputMatrixName };
     my $output=$matrixObject->{ output };
     

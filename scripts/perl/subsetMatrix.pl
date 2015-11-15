@@ -18,7 +18,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension);
+    my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal);
 
     my $ret={};
         
@@ -112,6 +112,12 @@ sub check_options {
     } else {
         $elementExtension=0;
     }
+    
+    if( exists($opts->{ excludeDiagonal }) ) {
+        $excludeDiagonal = $opts->{ excludeDiagonal };
+    } else {
+        $excludeDiagonal=0;
+    }
         
     $ret->{ inputMatrix }=$inputMatrix;
     $ret->{ verbose }=$verbose;
@@ -128,8 +134,9 @@ sub check_options {
     $ret->{ y_zoomCoordinates }=$y_zoomCoordinates;
     $ret->{ x_zoomCoordinates }=$x_zoomCoordinates;
     $ret->{ elementExtension }=$elementExtension;
+    $ret->{ excludeDiagonal }=$excludeDiagonal;
     
-    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension);
+    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal);
 }
 
 
@@ -170,6 +177,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--xz@", "[]", "x axis zoom coordinate [UCSC]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--os", "[]", "outputSuffix, suffix for output file");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ee", "[]", "element extensnion, increase element size by N bp, (increase overlap)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ed", "[]", "exclude diagonal bin (same fragment in the case for 5C)");
     
     print STDERR "\n";
     
@@ -287,8 +295,8 @@ sub processElements($$$$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','excludeCis|ec','excludeTrans|et','elementBedFiles|ebf=s@','y_elementBedFiles|yebf=s@','x_elementBedFiles|xebf=s@','outputSuffix|os=s','zoomCoordinates|z=s@','y_zoomCoordinates|yz=s@','x_zoomCoordinates|xz=s@','elementExtension|ee=s') or croak help();
-my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','excludeCis|ec','excludeTrans|et','elementBedFiles|ebf=s@','y_elementBedFiles|yebf=s@','x_elementBedFiles|xebf=s@','outputSuffix|os=s','zoomCoordinates|z=s@','y_zoomCoordinates|yz=s@','x_zoomCoordinates|xz=s@','elementExtension|ee=s','excludeDiagonal|ed') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal)=check_options( \%options );
 
 intro() if($verbose);
 

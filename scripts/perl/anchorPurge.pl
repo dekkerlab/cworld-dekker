@@ -206,10 +206,15 @@ sub help() {
     exit;
 }
 
-sub processManualOutliers($) {
+sub processManualOutliers($$) {
+    my $matrixObject=shift;
     my $manualOutlierFile=shift;
     
+    my $verbose=$matrixObject->{ verbose };
+    
     my %manualOutliers=();
+    
+    my $n_manual_outliers=0;
     
     open(IN,inputWrapper($manualOutlierFile)) or croak "Could not open file [$manualOutlierFile] - $!";
     while(my $line = <IN>) {
@@ -217,8 +222,10 @@ sub processManualOutliers($) {
         next if(($line eq "") or ($line =~ m/^#/));
         
         $manualOutliers{$line}=1;
+        $n_manual_outliers++;
     }
     
+    print STDERR "\tremoved $n_manual_outliers manual outliers\n" if($verbose);
     return(\%manualOutliers);
 }
     
@@ -243,7 +250,7 @@ sub writeOutliers($$$$$$) {
         my $meanFactor=$rowcolData->{$primerName}->{ factor };
         next if($meanFactor eq "NA");
         
-        if(($meanFactor <= $botCutoff) or ($meanFactor >= $topCutoff)) {
+        if(($meanFactor < $botCutoff) or ($meanFactor > $topCutoff)) {
             # log the outliers
             $anchorOutliers{$primerName}=$meanFactor;
             $nAnchorOutliers++;
@@ -323,7 +330,7 @@ sub calculateBounds($$$$$$) {
     system("Rscript '".$scriptPath."/R/factorHistogram.R' '".$cwd."' '".$allPrimerFactorFile."' '".$output."' > /dev/null");
     
     # calculate bounds
-    my $tmpPosArrStats=listStats(\@tmpPos,0.1);
+    my $tmpPosArrStats=listStats(\@tmpPos,0.05);
     my $tmpPosBound=$tmpPosArrStats->{ max };
     my $tmpPosMax=$tmpPosArrStats->{ max };
     my $tmpPosMean=$tmpPosArrStats->{ mean };
@@ -335,7 +342,7 @@ sub calculateBounds($$$$$$) {
     my $tmpPosIQR=$tmpPosArrStats->{ iqr };
     my $tmpPosMAD=$tmpPosArrStats->{ mad };
 
-    my $tmpNegArrStats=listStats(\@tmpNeg,0.1);
+    my $tmpNegArrStats=listStats(\@tmpNeg,0.05);
     my $tmpNegBound=$tmpNegArrStats->{ min };
     my $tmpNegMax=$tmpNegArrStats->{ max };
     my $tmpNegMean=$tmpNegArrStats->{ mean };
@@ -346,11 +353,28 @@ sub calculateBounds($$$$$$) {
     my $tmpNegQ3=$tmpNegArrStats->{ q3 };
     my $tmpNegIQR=$tmpNegArrStats->{ iqr };
     my $tmpNegMAD=$tmpNegArrStats->{ mad };
+    
+    my $tmpAllArrStats=listStats(\@tmpAll,0.05);
+    my $tmpAllBound=$tmpAllArrStats->{ min };
+    my $tmpAllMax=$tmpAllArrStats->{ max };
+    my $tmpAllMean=$tmpAllArrStats->{ mean };
+    my $tmpAllMedian=$tmpAllArrStats->{ median };
+    my $tmpAllMin=$tmpAllArrStats->{ min };
+    my $tmpAllStdev=$tmpAllArrStats->{ stdev };
+    my $tmpAllQ1=$tmpAllArrStats->{ q1 };
+    my $tmpAllQ3=$tmpAllArrStats->{ q3 };
+    my $tmpAllIQR=$tmpAllArrStats->{ iqr };
+    my $tmpAllMAD=$tmpAllArrStats->{ mad };
+    
+    print STDERR "\tall\t$tmpAllMin\t$tmpAllQ1\t$tmpAllMedian\t$tmpAllQ3\t$tmpAllMax\t($tmpAllIQR)\t$tmpAllMean\t$tmpAllStdev\n" if($verbose);
     print STDERR "\tneg\t$tmpNegMin\t$tmpNegQ1\t$tmpNegMedian\t$tmpNegQ3\t$tmpNegMax\t($tmpNegIQR)\t$tmpNegMean\t$tmpNegStdev\n" if($verbose);
     print STDERR "\tpos\t$tmpPosMin\t$tmpPosQ1\t$tmpPosMedian\t$tmpPosQ3\t$tmpPosMax\t($tmpPosIQR)\t$tmpPosMean\t$tmpPosStdev\n" if($verbose);
+    #$tmpPosBound=$tmpPosQ3+($iqrMultiplier*$tmpPosIQR);
+    #$tmpNegBound=$tmpNegQ1-($iqrMultiplier*$tmpNegIQR);
     
-    $tmpPosBound=$tmpPosQ3+($iqrMultiplier*$tmpPosIQR);
-    $tmpNegBound=$tmpNegQ1-($iqrMultiplier*$tmpNegIQR);
+    $tmpPosBound=$tmpAllQ3+($iqrMultiplier*$tmpAllIQR);
+    $tmpNegBound=$tmpAllQ1-($iqrMultiplier*$tmpAllIQR);
+    
     print STDERR "\tposBound\t$tmpPosBound\n" if($verbose);
     print STDERR "\tnegBound\t$tmpNegBound\n" if($verbose);
     print STDERR "\tposMax\t$tmpPosMax\n" if($verbose);
@@ -583,8 +607,7 @@ print STDERR "\n" if($verbose);
 my $manualOutliers={};
 if($manualOutlierFile ne "") {
     print STDERR "reading in manual outlier file...\n" if($verbose);
-    $manualOutliers=processManualOutliers($manualOutlierFile);
-    print STDERR "\tdone\n" if($verbose);
+    $manualOutliers=processManualOutliers($matrixObject,$manualOutlierFile);
     print STDERR "\n" if($verbose);
 }
 

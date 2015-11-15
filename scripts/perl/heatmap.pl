@@ -671,6 +671,7 @@ if($scaleFragmentSizes) {
     croak "heatmap too large! [beyond maxImageDimxmaxImageDim PNG limit]" if(($imageHeight > $maxImageDim) or ($imageWidth > $maxImageDim));
     
     print STDERR "\n" if($verbose);
+    $output .= ".fragmentScaled" if($scaleFragmentSizes);
 }
 
 $contigSpacing += 1 if( ($contigSpacing != 0) and (($contigSpacing % 2) == 0) and ($omitContigBorder == 0) and ($numContigs > 1) );
@@ -908,7 +909,6 @@ if( (($drawTriangle) or ($drawDiamond)) and (!$symmetrical)) {
     
     $newImageHeight += 1 if(($newImageHeight % 2));
     $newImageWidth += 1 if(($newImageWidth % 2));
-    GD::Image->trueColor(1);
     my $newImg = new GD::Image($newImageWidth,$newImageHeight);
     
     $newImg->fill(0,0,$colorPalette->{ BG });
@@ -935,7 +935,7 @@ print STDERR "Converting object to png ($inputMatrixName)...\n" if($verbose);
 open(OUT,">",$pngFile) or croak "Could not open file [$pngFile] - $!";
 chmod(0644, $pngFile);
 binmode OUT;
-print OUT $img->png();
+print OUT $img->png($imageQuality);
 close(OUT);
 
 print STDERR "\tcomplete\n\n" if($verbose);

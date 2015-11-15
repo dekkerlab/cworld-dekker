@@ -202,27 +202,38 @@ sub help() {
     exit;
 }
 
-sub processManualOutliers($) {
+sub processManualOutliers($$) {
+    my $matrixObject=shift;
     my $manualOutlierFile=shift;
+   
+    my $verbose=$matrixObject->{ verbose };
     
     my %manualOutliers=();
+    
+    my $n_manual_outliers=0;
     
     open(IN,inputWrapper($manualOutlierFile)) or croak "Could not open file [$manualOutlierFile] - $!";
     while(my $line = <IN>) {
         chomp($line);
         next if(($line eq "") or ($line =~ m/^#/));
         
+        # 5C_6343_2MbHindIIITal1_FOR_60|hg19|chr1:47000826-47004542___5C_6344_2MbHindIIILmo2_LREV_205|hg19|chr11:33683054-33685096
         $manualOutliers{$line}=1;
+        $n_manual_outliers++;
     }
+    
+    print STDERR "\tloaded in $n_manual_outliers manual outliers\n" if($verbose);
     
     return(\%manualOutliers);
 }
 
-sub detectOutliers($$$$$) {
+sub detectOutliers($$$$$$$) {
     my $matrixFile=shift;
     my $output=shift;
     my $cisTrimAmount=shift;
     my $transTrimAmount=shift;
+    my $includeCis=shift;
+    my $includeTrans=shift;
     my $verbose=shift;
     
     my $cwd = getcwd();
@@ -241,9 +252,12 @@ sub detectOutliers($$$$$) {
 
     #read Matrix
     my $matrix={};
-    ($matrix)=getData($matrixFile,$matrixObject,$verbose);
+    ($matrix)=getData($matrixFile,$matrixObject);
     
     my %outliers=();
+    
+    my $n_cis_outliers=0;
+    my $n_trans_outliers=0;
     
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
@@ -266,11 +280,19 @@ sub detectOutliers($$$$$) {
             my $key = $yHeader."___".$xHeader;
             my $type="cis";
             $type="trans" if($interactionDistance == -1);
+                        
+            next if(($type eq "cis") and ($includeCis == 0));
+            next if(($type eq "trans") and ($includeTrans == 0));
             
             $outliers{$key}{ score }=$cScore;
             $outliers{$key}{ type }=$type;
+            $n_cis_outliers++;
+            $n_trans_outliers++;
         }
     }
+    
+    print STDERR "\tauto detected $n_cis_outliers cis outliers\n" if($verbose);
+    print STDERR "\tauto detected $n_trans_outliers trans outliers\n" if($verbose);
     
     return(\%outliers);
         
@@ -358,7 +380,7 @@ sub writeOutliers($$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','includeCis|ic','includeTrans|it','manualOutlierFile|mof=i','cisAlpha|ca=f','disableIQRFilter|dif','minDistance|minDist=i','maxDistance|maxDist=i','cisApproximateFactor|caf=i','cisTrimAmount|cta=f','transTrimAmount|tta=f','logTransform|lt=f','excludeZero|ez') or croak help();
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','loessObjectFile|lof=s','includeCis|ic','includeTrans|it','manualOutlierFile|mof=s','cisAlpha|ca=f','disableIQRFilter|dif','minDistance|minDist=i','maxDistance|maxDist=i','cisApproximateFactor|caf=i','cisTrimAmount|cta=f','transTrimAmount|tta=f','logTransform|lt=f','excludeZero|ez') or croak help();
 my ($ret,$inputMatrix,$verbose,$output,$loessObjectFile,$includeCis,$includeTrans,$manualOutlierFile,$cisAlpha,$disableIQRFilter,$minDistance,$maxDistance,$cisApproximateFactor,$cisTrimAmount,$transTrimAmount,$logTransform,$excludeZero)=check_options( \%options );
 
 intro() if($verbose);
@@ -389,7 +411,7 @@ my $excludeCis=flipBool($includeCis);
 my $excludeTrans=flipBool($includeTrans);
 
 # get matrix data
-my ($matrix)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
+my ($matrix)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance);
 
 print STDERR "\n" if($verbose);
 
@@ -398,8 +420,8 @@ print STDERR "\n" if($verbose);
 croak "loessObjectFile [$loessObjectFile] does not exist" if( ($loessObjectFile ne "") and (!(-e $loessObjectFile)) );
 
 my $loessMeta="";
-$loessMeta .= "--ic" if($includeCis);
-$loessMeta .= "--it" if($includeTrans);
+$loessMeta .= "--ic";
+$loessMeta .= "--it";
 $loessMeta .= "--maxDist".$maxDistance if(defined($maxDistance));
 $loessMeta .= "--ez" if($excludeZero);
 $loessMeta .= "--caf".$cisApproximateFactor;
@@ -414,8 +436,8 @@ if(!validateLoessObject($loessObjectFile)) {
     # dump matrix data into input lists (CIS + TRANS)
     print STDERR "seperating cis/trans data...\n" if($verbose);
     ($inputDataCis,$inputDataTrans)=matrix2inputlist($matrixObject,$matrix,$includeCis,$includeTrans,$minDistance,$maxDistance,$excludeZero,$cisApproximateFactor);
-    croak "$inputMatrixName - no avaible CIS data" if((scalar @{ $inputDataCis } <= 0) and ($includeCis) and ($includeTrans == 0));
-    croak "$inputMatrixName - no avaible TRANS data" if((scalar @{ $inputDataTrans } <= 0) and ($includeTrans) and ($includeCis == 0));
+    croak "$inputMatrixName - no avaible CIS data" if(scalar @{ $inputDataCis } <= 0);
+    croak "$inputMatrixName - no avaible TRANS data" if(scalar @{ $inputDataTrans } <= 0);
     print STDERR "\n" if($verbose);
 }
 
@@ -446,7 +468,7 @@ print STDERR "\tcomplete\n" if($verbose);
 print STDERR "\n" if($verbose);
 
 print STDERR "detecting outliers ...\n" if($verbose);
-my $outliers=detectOutliers($zScoreFile,$output,$cisTrimAmount,$transTrimAmount,$verbose);
+my $outliers=detectOutliers($zScoreFile,$output,$cisTrimAmount,$transTrimAmount,$includeCis,$includeTrans,$verbose);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);
@@ -454,7 +476,7 @@ print STDERR "\n" if($verbose);
 my $manualOutliers={};
 if($manualOutlierFile ne "") {
     print STDERR "reading in manual outlier file...\n" if($verbose);
-    $manualOutliers=processManualOutliers($manualOutlierFile);
+    $manualOutliers=processManualOutliers($matrixObject,$manualOutlierFile);
     print STDERR "\tdone\n" if($verbose);
     print STDERR "\n" if($verbose);
 }

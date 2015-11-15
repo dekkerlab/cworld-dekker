@@ -368,9 +368,7 @@ sub addMissingPrimers($$) {
         $tmp_inc2header->{ xy }->{$numHeaders}=$header;
         $tmp_header2inc->{ xy }->{$header}=$numHeaders;
         $numHeaders++;
-                
-        print "h=$header\n";
-        
+               
         next if($h >= ($numTotalHeaders-1));
        
         my $next_header=$inc2header->{ xy }->{($h+1)};
@@ -396,9 +394,7 @@ sub addMissingPrimers($$) {
             
             my $header="5C_".$region."_GAP_".$gapFragmentNumber."|".$assembly."|".$chromosome.":".$gapStart."-".$gapEnd;
             $gapIndex++;
-            
-            print "g=$header\n";
-            
+                        
             $tmp_inc2header->{ x }->{$numHeaders}=$header;
             $tmp_header2inc->{ x }->{$header}=$numHeaders;
             $tmp_inc2header->{ y }->{$numHeaders}=$header;

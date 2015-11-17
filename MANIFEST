@@ -178,6 +178,10 @@ scripts/R/stouffersMethod.R
 scripts/R/tickPlot.R
 scripts/R/tTest.R
 scripts/R/zscore2pval.R
+scripts/util/chrBounds/ce6_chromosome_coordinates.bed
+scripts/util/chrBounds/hg18_chromosome_coordinates.bed
+scripts/util/chrBounds/hg19_chromosome_coordinates.bed
+scripts/util/chrBounds/mm9_chromosome_coordinates.bed
 scripts/util/geneDensity/ce10.refseq.txt
 scripts/util/geneDensity/galGal4.refseq.txt
 scripts/util/geneDensity/hg18.refseq.txt

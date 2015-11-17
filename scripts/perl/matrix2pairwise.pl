@@ -112,7 +112,7 @@ sub help() {
     
     print STDERR "Notes:";
     print STDERR "
-    This script calculates a lowess smoothing of the data per distance.
+    This script transforms a matrix into a 3 column txt (tsv) file.
     Matrix can be TXT or gzipped TXT.
     See website for matrix format details.\n";
     

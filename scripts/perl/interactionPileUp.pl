@@ -17,7 +17,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
+    my ($inputMatrix,$verbose,$output,$elementBedFiles,$interactionBedFile,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
     
     my $ret={};
     
@@ -43,8 +43,13 @@ sub check_options {
     if( exists($opts->{ elementBedFiles }) ) {
         $elementBedFiles = $opts->{ elementBedFiles };
     } else {
-        print STDERR "\nERROR: Option elementBedFiles|abf is required.\n";
-        help();
+        $elementBedFiles=[];
+    }
+    
+       if( exists($opts->{ interactionBedFile }) ) {
+        $interactionBedFile = $opts->{ interactionBedFile };
+    } else {
+        $interactionBedFile="";
     }
     
     if( exists($opts->{ elementName }) ) {
@@ -123,6 +128,7 @@ sub check_options {
     $ret->{ verbose }=$verbose;
     $ret->{ output }=$output;
     $ret->{ elementBedFiles }=$elementBedFiles;
+    $ret->{ interactionBedFile }=$interactionBedFile;
     $ret->{ elementName }=$elementName;
     $ret->{ elementZoneSize }=$elementZoneSize;
     $ret->{ minDistance }=$minDistance;
@@ -136,7 +142,7 @@ sub check_options {
     $ret->{ excludeTrans }=$excludeTrans;
     $ret->{ debugMode }=$debugMode;
     
-    return($ret,$inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
+    return($ret,$inputMatrix,$verbose,$output,$elementBedFiles,$interactionBedFile,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode);
 }
 
 sub intro() {
@@ -159,6 +165,7 @@ sub help() {
     print STDERR "Required:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-i", "[]", "input matrix file");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ebf@", "[]", "element bed file (can accept multiple files)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--ibf@", "[]", "interaction file, 7 column, 2 x bed3 + name");
     
     print STDERR "\n";
     
@@ -184,7 +191,7 @@ sub help() {
     print STDERR "
     This script aggregrates cData surrounding a list of 'elements'.
     Input Matrix can be TXT or gzipped TXT.
-    AnchorListFile must be BED5+ format.
+    AnchorListFile must be Bed5+ format.
     See website for matrix format details.\n";
     
     print STDERR "\n";
@@ -199,11 +206,12 @@ sub help() {
     exit;
 }
 
-sub interactionPileUp($$$$$$$$$$$$$$$$$) {
+sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
     my $matrixObject=shift;
     my $matrix=shift;
     my $elementFileName=shift;
     my $elements=shift;
+    my $interactions=shift;
     my $elementZoneSize=shift;
     my $minDistance=shift;
     my $maxDistance=shift;
@@ -265,6 +273,7 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$) {
     
     my $numAnchors=@{$elements};
     my $numInteractions=(($numAnchors*$numAnchors)-$numAnchors);
+    $numInteractions=keys %{$interactions} if( keys %{$interactions} != 0);
     my $interactionCounter=0;
     my $initFlag=1;
     my $pcComplete=0;
@@ -287,11 +296,15 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$) {
             # exclude self:self interactions
             next if($a1 == $a2);
             
+            
             my $element_2=$elements->[$a2]->{ name };
             my $element_2_name=$elements->[$a2]->{ name2 };
             my $elementObject_2=getHeaderObject($element_2,1);
             my $element2_chromosome=$elementObject_2->{ chromosome };
         
+            my $key=$element_1_name."___".$element_2_name;
+            next if(!exists($interactions->{$key}));
+            
             my $elementIndex_2=-1;
             $elementIndex_2=$header2inc->{ xy }->{$element_2} if(exists($header2inc->{ xy }->{$element_2}));
             croak "non-existant header [$element_2]" if($elementIndex_2 == -1);
@@ -478,10 +491,78 @@ sub writePileUpMatrixFile($$$$$$$) {
     
     print STDERR "\n" if($verbose);
 }
+
+sub buildElements($;$) {
+    my $interactionBedFile=shift;
+    # optional
+    my $bedName="";
+    $bedName=shift if @_;
     
+    $bedName = "__".$bedName if($bedName ne "");
+    my $combinedBedFile=$bedName."__".getSmallUniqueString().".bed";
+    
+    my %interactions=();
+    
+    open(OUT,outputWrapper($combinedBedFile)) or confess "Could not open file [$combinedBedFile] - $!";
+    
+    open(IN,inputWrapper($interactionBedFile)) or confess "Could not open file [$interactionBedFile] - $!";
+    while(my $line = <IN>) {
+        chomp($line);
+        next if(($line eq "") or ($line =~ m/^#/));
+        
+        # skip possible BED headers
+        next if(($line eq "") or ($line =~ m/^#/));
+        next if($line =~ /^#/);
+        next if($line =~ /^track/);
+        next if($line =~ /^chrom/);
+        
+        my @tmp=split(/\t/,$line);
+        
+        confess "bad itx format - expected 7 columns, bed3 + bed3 + name\n\t@tmp\n\t$line\n" if(@tmp != 7);
+        
+        $tmp[1] =~ s/,//g;
+        $tmp[2] =~ s/,//g;
+        $tmp[4] =~ s/,//g;
+        $tmp[5] =~ s/,//g;
+        
+        confess "ERROR-1: invalid BED format [$line]" if($line eq "");
+        confess "ERROR-2: invalid BED format [$line]" if($tmp[0] !~ /^chr/);
+        confess "ERROR-2: invalid BED format [$line]" if($tmp[3] !~ /^chr/);
+        
+        confess "ERROR-3: invalid BED format [$line]" if($tmp[1] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
+        confess "ERROR-3: invalid BED format [$line]" if($tmp[4] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
+        
+        confess "ERROR-4: invalid BED format [$line]" if($tmp[2] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
+        confess "ERROR-4: invalid BED format [$line]" if($tmp[5] !~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
+        
+        my $midpoint_1=(($tmp[1]+$tmp[2])/2);
+        my $midpoint_2=(($tmp[4]+$tmp[5])/2);
+        
+        $tmp[1]=floor($midpoint_1);
+        $tmp[2]=ceil($midpoint_1);
+        
+        $tmp[4]=floor($midpoint_2);
+        $tmp[5]=ceil($midpoint_2);
+        
+        my $name_1 = $tmp[6]."_1";
+        my $name_2 = $tmp[6]."_2";
+        
+        my $key=$name_1."___".$name_2;
+        $interactions{$key}=1;
+        
+        print OUT "$tmp[0]\t$tmp[1]\t$tmp[2]\t$name_1\n";
+        print OUT "$tmp[3]\t$tmp[4]\t$tmp[5]\t$name_2\n";
+    }
+    
+    close(IN);
+    close(OUT);
+    
+    return($combinedBedFile,\%interactions);
+}
+        
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','elementBedFiles|ebf=s@','elementName|en=s','elementZoneSize|ezs=i','minDistance|minDist=i','maxDistance|maxDist=i','minElementDistance|minED=i','maxElementDistance|maxED=i','aggregrateMode|am=s','excludeZero|ez','includeDiagonal|id','excludeCis|ec','excludeTrans|et','debugMode|d') or croak help();
-my ($ret,$inputMatrix,$verbose,$output,$elementBedFiles,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','elementBedFiles|ebf=s@','interactionBedFile|ibf=s','elementName|en=s','elementZoneSize|ezs=i','minDistance|minDist=i','maxDistance|maxDist=i','minElementDistance|minED=i','maxElementDistance|maxED=i','aggregrateMode|am=s','excludeZero|ez','includeDiagonal|id','excludeCis|ec','excludeTrans|et','debugMode|d') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$elementBedFiles,$interactionBedFile,$elementName,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$debugMode)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -494,6 +575,9 @@ my $scriptPath=join("/",@fullScriptPathArr);
 my $commentLine=getScriptOpts($ret,$tool);
 
 croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
+
+croak "must supply valid elementBedFile or interactionBedFile!" if((@{$elementBedFiles} == 0) and !(-e $interactionBedFile));
+croak "must supply valid elementBedFile or interactionBedFile!" if((@{$elementBedFiles} != 0) and (-e $interactionBedFile));
 
 # get matrix information
 my $matrixObject=getMatrixObject($inputMatrix,$output,$verbose);
@@ -512,43 +596,62 @@ croak "matrix must be symmetrical / equal sized intervals" if(($symmetrical == 0
 for(my $i=0;$i<@{$elementBedFiles};$i++) {
     my $elementBedFile = $elementBedFiles->[$i];
     print STDERR "validating $elementBedFile ...\n" if($verbose);
-    validateBED($elementBedFile);
+    validateBed($elementBedFile);
 }
 
 print STDERR "\n" if($verbose);
 
-my $elementBedFile=$elementBedFiles->[0] if(@{$elementBedFiles});
-my $elementFileName=getFileName($elementBedFile);
-$elementFileName=$elementName if($elementName ne "");
+my $elementBedFile="";
+my $elementFileName="";
+my $interactions={};
+
 if(@{$elementBedFiles} > 1) {
+ 
+    print STDERR "using element file\n" if($verbose);
+    print STDERR "\n" if($verbose);
+    
+    $elementBedFile=$elementBedFiles->[0] if(@{$elementBedFiles});
+    $elementFileName=getFileName($elementBedFile);
+    $elementFileName=$elementName if($elementName ne "");
     print STDERR "combining bed files ...\n" if($verbose);
     $elementBedFile=combineBedFiles($elementBedFiles,$elementName);
     print STDERR "\tdone\n" if($verbose);
     print STDERR "\n" if($verbose);
+
+    # set all elements to midpoint of element
+    print STDERR "translating interval bed to midpoint bed ...\n" if($verbose);
+    $elementBedFile=midpointBedFile($elementBedFile,$elementName);
+    print STDERR "\tdone\n" if($verbose);
+
+    print STDERR "\n" if($verbose);
+
+} else {
+
+    print STDERR "building elements from itx file\n" if($verbose);
+    print STDERR "\n" if($verbose);
+    
+    $elementFileName=getFileName($interactionBedFile);
+    $elementFileName=$elementName if($elementName ne "");
+    
+    ($elementBedFile,$interactions)=buildElements($interactionBedFile,$elementName);
+    
 }
 
-# set all elements to midpoint of element
-print STDERR "translating interval bed to midpoint bed ...\n" if($verbose);
-$elementBedFile=midpointBedFile($elementBedFile,$elementName);
-print STDERR "\tdone\n" if($verbose);
-
-print STDERR "\n" if($verbose);
-
 print STDERR "running headers2bed ...\n" if($verbose);
-my $headerBEDFile=headers2bed($matrixObject);
-print STDERR "\t$headerBEDFile\n" if($verbose);
+my $headerBedFile=headers2bed($matrixObject);
+print STDERR "\t$headerBedFile\n" if($verbose);
 
 print STDERR "\n" if($verbose);
 
-print STDERR "intersecting BED files ...\n" if($verbose);
-my $bedOverlapFile=intersectBED($headerBEDFile,$elementBedFile);
+print STDERR "intersecting Bed files ...\n" if($verbose);
+my $bedOverlapFile=intersectBED($headerBedFile,$elementBedFile);
 print STDERR "\t$bedOverlapFile\n" if($verbose);
-system("rm '".$headerBEDFile."'");
-system("rm '".$elementBedFile."'");
+system("rm '".$headerBedFile."'") if(-e $headerBedFile);
+system("rm '".$elementBedFile."'") if(-e $elementBedFile);
 
 print STDERR "\n" if($verbose);
 
-print STDERR "loading BED file ...\n" if($verbose);
+print STDERR "loading Bed file ...\n" if($verbose);
 my ($elements)=loadBED($bedOverlapFile);
 print STDERR "\tfound ".@{$elements}." elements\n" if($verbose);
 system("rm '".$bedOverlapFile."'");
@@ -563,4 +666,4 @@ print STDERR "\n" if($verbose);
 
 # calculate the boundaryReach index for each bin and store in a new data struct.
 print STDERR "piling up data ...\n" if($verbose);
-interactionPileUp($matrixObject,$matrix,$elementFileName,$elements,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$commentLine,$debugMode,$verbose);
+interactionPileUp($matrixObject,$matrix,$elementFileName,$elements,$interactions,$elementZoneSize,$minDistance,$maxDistance,$minElementDistance,$maxElementDistance,$aggregrateMode,$excludeZero,$includeDiagonal,$excludeCis,$excludeTrans,$commentLine,$debugMode,$verbose);

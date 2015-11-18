@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 =head1 SYNOPSIS
 
@@ -3219,7 +3219,7 @@ sub compareMatrices($$$$$;$) {
             } else {
                 confess "invalid compareMode [$compareMode]"
             }
-        
+            
             next if($compareScore eq "NA");
             $compareMatrix{$y}{$x}=$compareScore;
         }

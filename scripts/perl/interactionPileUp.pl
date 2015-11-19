@@ -273,7 +273,9 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
     
     my $numAnchors=@{$elements};
     my $numInteractions=(($numAnchors*$numAnchors)-$numAnchors);
-    $numInteractions=keys %{$interactions} if( keys %{$interactions} != 0);
+    my $nItx=keys %{$interactions};
+    $numInteractions=keys %{$interactions} if($nItx != 0);
+    
     my $interactionCounter=0;
     my $initFlag=1;
     my $pcComplete=0;

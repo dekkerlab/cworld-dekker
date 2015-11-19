@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 =head1 SYNOPSIS
 
@@ -2999,7 +2999,7 @@ sub scaleMatrix($$;$$) {
                 $normalized_cScore = (($cScore/$matrixSum)*$scaleTo);
             }
 
-            $normalized_cScore = sprintf "%.".$sigDigits."f", $normalized_cScore;
+            $normalized_cScore = sprintf "%.".$sigDigits."f", $normalized_cScore if($normalized_cScore ne "NA");
             $matrix->{$y}->{$x}=$normalized_cScore;
             
         }

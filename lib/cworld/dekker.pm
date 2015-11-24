@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 =head1 SYNOPSIS
 
@@ -288,6 +288,7 @@ sub calculateZscore($$$;$$$) {
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
+    my $inc2headerObject=$matrixObject->{ inc2headerObject };
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
     my $missingValue=$matrixObject->{ missingValue };
@@ -295,14 +296,14 @@ sub calculateZscore($$$;$$$) {
     my $output=$matrixObject->{ output };
 
     my $zScoreMatrix={};
-    
-    my ($y,$x);
+            
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
-        my $yHeaderObject=getHeaderObject($yHeader);
+        my $yHeaderObject=$inc2headerObject->{ y }->{$y};
+        
         for(my $x=0;$x<$numXHeaders;$x++) {
-            my $xHeader=$inc2header->{ x }->{$x};    
-            my $xHeaderObject=getHeaderObject($xHeader);
+            my $xHeader=$inc2header->{ x }->{$x};
+            my $xHeaderObject=$inc2headerObject->{ x }->{$x};
             
             my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,$cisApproximateFactor);
         
@@ -362,6 +363,7 @@ sub calculateLog2Ratio($$$;$$$) {
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
+    my $inc2headerObject=$matrixObject->{ inc2headerObject };
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
     my $missingValue=$matrixObject->{ missingValue };
@@ -372,10 +374,10 @@ sub calculateLog2Ratio($$$;$$$) {
     my ($y,$x);
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
-        my $yHeaderObject=getHeaderObject($yHeader);
+        my $yHeaderObject=$inc2headerObject->{ y }->{$y};
         for(my $x=0;$x<$numXHeaders;$x++) {
             my $xHeader=$inc2header->{ x }->{$x};    
-            my $xHeaderObject=getHeaderObject($xHeader);
+            my $xHeaderObject=$inc2headerObject->{ x }->{$x};
             
             my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,$cisApproximateFactor);
         
@@ -435,6 +437,7 @@ sub calculateObsMinusExp($$$;$$$) {
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
+    my $inc2headerObject=$matrixObject->{ inc2headerObject };
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
     my $missingValue=$matrixObject->{ missingValue };
@@ -445,10 +448,10 @@ sub calculateObsMinusExp($$$;$$$) {
     my ($y,$x);
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
-        my $yHeaderObject=getHeaderObject($yHeader);
+        my $yHeaderObject=$inc2headerObject->{ y }->{$y};
         for(my $x=0;$x<$numXHeaders;$x++) {
             my $xHeader=$inc2header->{ x }->{$x};    
-            my $xHeaderObject=getHeaderObject($xHeader);
+            my $xHeaderObject=$inc2headerObject->{ x }->{$x};
             
             my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,$cisApproximateFactor);
         
@@ -773,7 +776,7 @@ sub round($;$) {
     if(($num != 0) and ($digs_to_cut == 0)) {
         $roundedNum = int($num + $num/abs($num*2));
     } else {
-        $roundedNum = sprintf("%.".($digs_to_cut)."f", $num) if($num =~ /\d+\.(\d){$digs_to_cut,}/);
+        $roundedNum = sprintf("%.".($digs_to_cut)."f", $num) if(($num ne "NA") and ($num =~ /\d+\.(\d){$digs_to_cut,}/));
     }
     
     return($roundedNum);
@@ -1320,6 +1323,42 @@ sub parseHeaders($) {
         
 }
 
+
+=head2 buildHeaderObjects
+
+ Title     : buildHeaderObjects
+ Usage     : $inc2headerObject=buildHeaderObjects($inc2header)
+ Function  : cache all header objects
+ Returns   : inc2headerObject hash
+ Argument  : inc2header hash
+ 
+=cut
+
+sub buildHeaderObjects($) {
+    #required
+    my $inc2header=shift;
+    
+    my $numYHeaders=keys(%{$inc2header->{ y }});
+    my $numXHeaders=keys(%{$inc2header->{ x }});
+    my $numTotalHeaders=keys(%{$inc2header->{ xy }});
+    
+    my $inc2headerObject={};
+    
+    for(my $y=0;$y<$numYHeaders;$y++) {
+        my $yHeader=$inc2header->{ y }->{$y};
+        my $yHeaderObject=getHeaderObject($yHeader);    
+        $inc2headerObject->{ y }->{$y}=$yHeaderObject;
+    }
+    
+    for(my $x=0;$x<$numXHeaders;$x++) {
+        my $xHeader=$inc2header->{ x }->{$x};
+        my $xHeaderObject=getHeaderObject($xHeader);    
+        $inc2headerObject->{ x }->{$x}=$xHeaderObject;
+    }
+    
+    return($inc2headerObject);
+}
+            
 =head2 updateMatrixObject
 
  Title     : updateMatrixObject
@@ -1334,6 +1373,7 @@ sub updateMatrixObject($) {
     my $matrixObject=shift;
     
     my $inc2header=$matrixObject->{ inc2header };
+    my $inc2headerObject=$matrixObject->{ inc2headerObject };
     my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=keys(%{$header2inc->{ y }});
     my $numXHeaders=keys(%{$header2inc->{ x }});
@@ -1397,6 +1437,9 @@ sub updateMatrixObject($) {
     $matrixObject->{ inc2header }=$inc2header;
     $matrixObject->{ header2inc }=$header2inc;
     
+    $inc2headerObject=buildHeaderObjects($inc2header);
+    $matrixObject->{ inc2headerObject }=$inc2headerObject;
+    
     my $yMaxHeaderLength=getMaxHeaderLength($inc2header->{ y });
     my $xMaxHeaderLength=getMaxHeaderLength($inc2header->{ x });
     
@@ -1444,7 +1487,7 @@ sub getNARows($) {
             my $naCount=0;
             for(my $d=1;$d<$dsize;$d++) {
                 my $score=$data[$d];
-                last if($score ne "NA");
+                last if(($score ne "NA") and ($score ne "nan") and ($score =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/)));
                 $naCount++;
             }
             
@@ -1537,6 +1580,7 @@ sub getData($$;$$$$$$) {
     my $headerSpacing=$matrixObject->{ headerSpacing };
     my $missingValue=$matrixObject->{ missingValue };
     my $headerFlag=$matrixObject->{ headerFlag };
+    my $NArowcols=$matrixObject->{ NArowcols };
     
     my (%matrix);
     
@@ -1559,22 +1603,26 @@ sub getData($$;$$$$$$) {
         chomp($line);
         next if(($line eq "") or ($line =~ m/^#/));
         
-        if($lineNum == 0) {
+        $lineNum++;
+        
+        if($lineNum == 1) {
             @xHeaders=split(/\t/,$line);
         } else {
             my @data=split(/\t/,$line);
             my $dsize=@data;
             
             my $yHeader=$data[0];
-            my $yHeaderObject={};
-            $yHeaderObject=getHeaderObject($yHeader) if(($subsetMode) and (!exists($headerObjects{$yHeader})));
-            $yHeaderObject=$headerObjects{$yHeader} if(($subsetMode) and (exists($headerObjects{$yHeader})));
-            $headerObjects{$yHeader}=$yHeaderObject if(($subsetMode) and (!exists($headerObjects{$yHeader})));
+            
+            next if($missingValue eq "NA") and (exists($NArowcols->{$yHeader}));
             
             my $yIndex=-1;
             $yIndex = $header2inc->{ y }->{$yHeader} if(defined($header2inc->{ y }->{$yHeader}));
-            
             next if($yIndex == -1);
+            
+            my $yHeaderObject={};
+            $yHeaderObject=$headerObjects{$yHeader} if(($subsetMode) and (exists($headerObjects{$yHeader})));
+            $yHeaderObject=getHeaderObject($yHeader) if(($subsetMode) and (!exists($headerObjects{$yHeader})));
+            $headerObjects{$yHeader}=$yHeaderObject if(($subsetMode) and (!exists($headerObjects{$yHeader})));
             
             my $indexStart=1;
             my $indexEnd=$dsize;
@@ -1594,14 +1642,14 @@ sub getData($$;$$$$$$) {
                 $cScore = sprintf "%.".$sigDigits."f", $cScore if(($cScore ne "NA") and ($cScore !~ /^[+-]?\d+$/));
                 
                 my $xHeader=$xHeaders[$i];
-                my $xHeaderObject={};
-                $xHeaderObject=getHeaderObject($xHeader) if(($subsetMode) and (!exists($headerObjects{$xHeader})));
-                $xHeaderObject=$headerObjects{$xHeader} if(($subsetMode) and (exists($headerObjects{$xHeader})));
-                $headerObjects{$xHeader}=$xHeaderObject if(($subsetMode) and (!exists($headerObjects{$xHeader})));
-                
                 my $xIndex=-1;
                 $xIndex = $header2inc->{ x }->{$xHeader} if(defined($header2inc->{ x }->{$xHeader}));
                 next if($xIndex == -1);
+                                
+                my $xHeaderObject={};
+                $xHeaderObject=$headerObjects{$xHeader} if(($subsetMode) and (exists($headerObjects{$xHeader})));
+                $xHeaderObject=getHeaderObject($xHeader) if(($subsetMode) and (!exists($headerObjects{$xHeader})));
+                $headerObjects{$xHeader}=$xHeaderObject if(($subsetMode) and (!exists($headerObjects{$xHeader})));
                                 
                 if($subsetMode) {
                     my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,1);
@@ -1624,11 +1672,10 @@ sub getData($$;$$$$$$) {
             }
         }
                 
-        $pcComplete = 100 if($lineNum == ($nLines));
-        print STDERR "\e[A" if(($verbose) and ($lineNum != 0));
+        $pcComplete = 100 if(($lineNum-1) == ($nLines));
+        print STDERR "\e[A" if(($verbose) and ($lineNum-1 != 0));
         printf STDERR "\t%.2f%% complete ($lineNum/".($nLines).")...\n", $pcComplete if($verbose);
-        $pcComplete = round((($lineNum/$nLines)*100),2) if($nLines != 0);
-        $lineNum++;
+        $pcComplete = round(((($lineNum-1)/$nLines)*100),2) if($nLines != 0);
     }
     close(IN);
     
@@ -1751,6 +1798,8 @@ sub calculateLoess($$$$$$$;$) {
     my $debug=0;
     $debug=shift if @_;
 
+    my $inc2header=$matrixObject->{ inc2header };
+    my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=$matrixObject->{ numYHeaders };
     my $numXHeaders=$matrixObject->{ numXHeaders };
     my $numInteractions=$matrixObject->{ numInteractions };    
@@ -1822,7 +1871,9 @@ sub calculateLoess($$$$$$$;$) {
         my $anchorX=$inputData[$i][3];
         
         my $anchorInteraction=$inputData[$i][2];
-        my ($yHeader,$xHeader)=split(/___/,$anchorInteraction);
+        my ($yIndex,$xIndex)=split(/___/,$anchorInteraction);
+        my $yHeader=$inc2header->{ y }->{$yIndex};
+        my $xHeader=$inc2header->{ x }->{$xIndex};
         
         # only calculate for NEW distances (x valuess)
         if(!exists($loess{$anchorApproximateX})) {
@@ -2741,7 +2792,7 @@ sub matrix2inputlist($$$$$$$;$) {
                 $iTrans++;
             } else { 
                 my $realInteractionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,1);
-                $inputDataCis[$iCis]=[$interactionDistance,$cScore,$yHeader."___".$xHeader,$realInteractionDistance];
+                $inputDataCis[$iCis]=[$interactionDistance,$cScore,$y."___".$x,$realInteractionDistance];
                 $iCis++;
             }
         }
@@ -3503,7 +3554,7 @@ sub getMatrixObject($;$$$) {
     my $output=$tmpOutput;
     $output=getFileName($inputMatrix) if($output eq "");
     
-    print STDERR "building matrix object [$mode]...\n" if($verbose);
+    print STDERR "building matrix object [$mode]\n" if($verbose);
     
     my %matrixObject=();
     
@@ -3514,58 +3565,76 @@ sub getMatrixObject($;$$$) {
     confess "bad input file supplied (not normal matrix file) [$inputMatrix]" if(!(validateMatrixFile($inputMatrix)));
     
     # get matrix headers
+    print STDERR "\tchecking headers ... " if($verbose);
     my ($headerFlag)=checkHeaders($inputMatrix);
+    print STDERR "[valid]\n" if($verbose);
     
+    print STDERR "\tparsing headers ... " if($verbose);
     my ($inc2header,$header2inc)=parseHeaders($inputMatrix);
     my $numYHeaders=keys(%{$header2inc->{ y }});
     my $numXHeaders=keys(%{$header2inc->{ x }});
     my $numTotalHeaders=keys(%{$header2inc->{ xy }});
+    print STDERR "[y=$numYHeaders, x=$numXHeaders, xy=$numTotalHeaders]\n" if($verbose);
     
-    # get matrix headers
+    print STDERR "\tbuilding headers objects ... " if($verbose);
+    my ($inc2headerObject)=buildHeaderObjects($inc2header);
+    print STDERR "[done]\n" if($verbose);
+    
+    print STDERR "\tparsing contigs ... " if($verbose);
     my ($header2contig,$index2contig,$contig2index,$contigList,$assembly)=parseContigs($inputMatrix,$inc2header,$header2inc);
     my $numXContigs=keys(%{$contig2index->{ x }});
     my $numYContigs=keys(%{$contig2index->{ y }});
     my $numContigs=keys(%{$contig2index->{ xy }});
+    print STDERR "[y=$numYContigs, x=$numXContigs, xy=$numContigs]\n" if($verbose);
     
     my $yMaxHeaderLength=getMaxHeaderLength($inc2header->{ y });
     my $xMaxHeaderLength=getMaxHeaderLength($inc2header->{ x });
 
     # get header spacing/sizing/overlap etc.
+    print STDERR "\tcalculating header overlap ... " if($verbose);
     my ($headerSizing,$headerSpacing,$binningStep,$equalSizingFlag,$equalSpacingFlag,$equalHeaderFlag)=getHeaderStats($inc2header);
+    print STDERR "[done]\n" if($verbose);
     
     # check for matrix symmetry
+    print STDERR "\tchecking symmetry ... " if($verbose);
     my $symmetrical=isSymmetrical($inc2header);
+    print STDERR "[".translateFlag($symmetrical)."]\n" if($verbose);
     
     # get NA row/cols
+    print STDERR "\tidentifying NA rowcols ... " if($verbose);
     my $NA_rowcols;
-    if(($numTotalHeaders < 10000) and ($symmetrical) and ($mode ne "lite")) {
+    if(($symmetrical) and ($mode ne "lite")) {
         my ($NA_rows)=getNARows($inputMatrix);
         my $NA_cols=$NA_rows;
         if($symmetrical == 0) {
-            #print STDERR "transposing...\n";
-            #my $transposedMatrix=transposeMatrix($inputMatrix);
-            #($NA_cols)=getNARows($transposedMatrix);
-            #system("rm '$transposedMatrix'");
+            my $transposedMatrix=transposeMatrix($inputMatrix);
+            ($NA_cols)=getNARows($transposedMatrix);
+            system("rm '$transposedMatrix'");
         }
     
         my %NA_rowcols_hash=(%$NA_rows,%$NA_cols);
         $NA_rowcols=\%NA_rowcols_hash;
     }
     my $numNArowcols=keys %{$NA_rowcols};
+    print STDERR "[$numNArowcols]\n" if($verbose);
     
     # calculate number of interactions
     my $numInteractions=($numYHeaders*$numXHeaders);
     confess "numInteractions [$numYHeaders x $numXHeaders] [$numInteractions] == 0!" if($numInteractions == 0);
     
+    print STDERR "\tcalculating optimal sparsity ... " if($verbose);
     my $num_zeros="NA";
     my $num_nans="NA";
     my $num_nonzero_nonnan="NA";
     my $missingValue=0;
     ($num_zeros,$num_nans,$missingValue)=chooseOptimalMissingValue($inputMatrix) if(($numTotalHeaders < 20000) and ($mode ne "lite"));
     $num_nonzero_nonnan=($numInteractions-$num_zeros-$num_nans) if(($numTotalHeaders < 20000) and ($mode ne "lite"));
+    print STDERR "[$missingValue]\n" if($verbose);
     
     my $inputMatrixName=getFileName($inputMatrix);
     my $inputMatrixPath=getFilePath($inputMatrix);
+    
+    print STDERR "\n" if($verbose);
     
     if($verbose) {
         my $inputMatrixName_display=$inputMatrixName;
@@ -3587,8 +3656,8 @@ sub getMatrixObject($;$$$) {
         print STDERR "\tnumNArowcols\t".commify($numNArowcols)."\n";
         print STDERR "\tsymmetrical\t$symmetrical\n";
         print STDERR "\tnumInteractions\t".commify($numInteractions)."\n";
-        print STDERR "\tclosest distance mode\n" if($equalHeaderFlag == 0);
-        print STDERR "\tmidpoint distance mode\n" if($equalHeaderFlag);
+        print STDERR "\t[closest distance mode]\n" if($equalHeaderFlag == 0);
+        print STDERR "\t[midpoint distance mode]\n" if($equalHeaderFlag);
         print STDERR "\tnum_zeros\t".commify($num_zeros)."\n";
         print STDERR "\tnum_nan\t".commify($num_nans)."\n";
         print STDERR "\tnum_nonzero_nonnan\t".commify($num_nonzero_nonnan)."\n";
@@ -3611,6 +3680,7 @@ sub getMatrixObject($;$$$) {
     $matrixObject{ numContigs }=$numContigs;
     $matrixObject{ headerFlag }=$headerFlag;
     $matrixObject{ inc2header }=$inc2header;
+    $matrixObject{ inc2headerObject }=$inc2headerObject;
     $matrixObject{ header2inc }=$header2inc;
     $matrixObject{ numYHeaders }=$numYHeaders;
     $matrixObject{ numXHeaders }=$numXHeaders;
@@ -4169,8 +4239,8 @@ sub getComputeResource() {
 sub translateFlag($) {
     my $flag=shift;
     
-    my $response="off";
-    $response="on" if($flag);    
+    my $response="no";
+    $response="yes" if($flag);    
     return($response);
 }
 

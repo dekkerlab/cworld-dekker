@@ -208,6 +208,7 @@ sub calculateExpected($$$$$$;$) {
     my $cisApproximateFactor=shift;
     
     my $inc2header=$matrixObject->{ inc2header };
+    my $inc2headerObject=$matrixObject->{ inc2headerObject };
     my $missingValue=$matrixObject->{ missingValue };  
     my $verbose=$matrixObject->{ verbose };
     my $output=$matrixObject->{ output };
@@ -218,10 +219,10 @@ sub calculateExpected($$$$$$;$) {
     my ($y,$x);
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
-        my $yHeaderObject=getHeaderObject($yHeader);
+        my $yHeaderObject=$inc2headerObject->{ y }->{$y};
         for(my $x=0;$x<$numXHeaders;$x++) {
             my $xHeader=$inc2header->{ x }->{$x};    
-            my $xHeaderObject=getHeaderObject($xHeader);
+            my $xHeaderObject=$inc2headerObject->{ x }->{$x};
             
             my $interactionDistance=getInteractionDistance($matrixObject,$yHeaderObject,$xHeaderObject,$cisApproximateFactor);
             my $loessStdev="NA";
@@ -319,12 +320,13 @@ my $loess={};
 
 # calculate cis-expected
 $loess=calculateLoess($matrixObject,$inputDataCis,$loessFile,$loessObjectFile,$cisAlpha,$disableIQRFilter,$excludeZero);
-
 # plot cis-expected
 system("Rscript '".$scriptPath."/R/plotLoess.R' '".$cwd."' '".$loessFile."' > /dev/null") if(scalar @{ $inputDataCis } > 0);
+undef @{$inputDataCis};
 
 # calculate cis-expected
 $loess=calculateTransExpected($inputDataTrans,$excludeZero,$loess,$loessObjectFile,$verbose);
+undef @{$inputDataTrans};
 
 #get zScore matrix
 print STDERR "calculating z-score matrix...\n" if($verbose);
@@ -332,6 +334,7 @@ my $zScoreMatrix=calculateZscore($matrixObject,$matrix,$loess,$cisApproximateFac
 my $zScoreFile=$output.".zScore.matrix.gz";
 writeMatrix($zScoreMatrix,$inc2header,$zScoreFile,"NA",$commentLine);
 undef $zScoreMatrix;
+
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

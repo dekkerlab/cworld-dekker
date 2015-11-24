@@ -598,7 +598,7 @@ croak "matrix must be symmetrical / equal sized intervals" if(($symmetrical == 0
 for(my $i=0;$i<@{$elementBedFiles};$i++) {
     my $elementBedFile = $elementBedFiles->[$i];
     print STDERR "validating $elementBedFile ...\n" if($verbose);
-    validateBed($elementBedFile);
+    validateBED($elementBedFile);
 }
 
 print STDERR "\n" if($verbose);
@@ -607,7 +607,7 @@ my $elementBedFile="";
 my $elementFileName="";
 my $interactions={};
 
-if(@{$elementBedFiles} > 1) {
+if(@{$elementBedFiles} >= 1) {
  
     print STDERR "using element file\n" if($verbose);
     print STDERR "\n" if($verbose);

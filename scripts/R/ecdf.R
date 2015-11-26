@@ -2,18 +2,26 @@ options(bitmapType='cairo')
 
 ks.boot <- function(x, y, ...,
 		alternative = c("two.sided", "less", "greater"),
-		exact = NULL, nboots = 50){
+		exact = NULL, nboots = 50) {
+		
+	# create progress bar
+	pb <- txtProgressBar(min = 0, max = nboots, title="ks.boot", style = 3)
+	
 	alt <- match.arg(alternative)
 	n <- length(x)
 	D <- numeric(nboots)
 	p <- numeric(nboots)
 	 for(i in seq_len(nboots)){
+		setTxtProgressBar(pb, i)
 		idx <- sample(n, n, replace = TRUE)
 		ks <- ks.test(x[idx], y, ..., alternative = alt, exact = exact)
 		D[i] <- ks$statistic
 		p[i] <- ks$p.value
 	}
 	list(D = mean(D), p.value = mean(p), nboots = nboots)
+	
+	close(pb)
+
 }
 
 args <- commandArgs(TRUE)
@@ -83,23 +91,24 @@ for (i1 in 1:nFiles) {
 		y2<-myData[[i2]]
 		name2<-nameData[[i2]]
 		
-		
-		
 		kstest<-ks.test(y1,y2,alternative="two.sided",exact=TRUE)
 		kstest.pval<-kstest$p.value
 		
-		ksboot<-ks.boot(y1,y2,alternative="two.sided",nboots=1000,exact=TRUE)
+		ksboot<-ks.boot(y1,y2,alternative="two.sided",nboots=100,exact=TRUE)
 		ksboot.pval<-ksboot$p.value
 		
 		wilcox<-wilcox.test(y1,y2,paired=FALSE,alternative= "two.sided",exact=TRUE)
 		wilcox.pval<-wilcox$p.value
 		
-		#cat(paste("\tks.test\t",kstest.pval,"\n",sep=""))
+		cat(paste("\tks.test\t",kstest.pval,"\n",sep=""))
 		cat(paste("\n",i1,"\t",name1,"\n",i2,"\t",name2,"\n",sep=""))
+		#cat(paste("\tks.test\t",kstest.pval,"\twilcox\t",wilcox.pval,"\n",sep=""))
+		
 		cat(paste("\tks.test\t",kstest.pval,"\tks.boot\t",ksboot.pval,"\twilcox\t",wilcox.pval,"\n",sep=""))
+		
 	}
 }
-		
+
 # png file
 
 pngfile<-paste(name,".png",sep='')

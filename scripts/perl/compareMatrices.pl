@@ -17,7 +17,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode);
+    my ($inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode,$mixRatio);
     
     my $ret={};
     
@@ -50,16 +50,24 @@ sub check_options {
     if( exists($opts->{ compareMode }) ) {
         $compareMode = $opts->{ compareMode };
     } else {
-        $compareMode = "log2ratio";
+        $compareMode = "log2mixRatio";
     }
+    
+    if( exists($opts->{ mixRatio }) ) {
+        $mixRatio = $opts->{ mixRatio };
+    } else {
+        $mixRatio = 0;
+    }
+    
     
     $ret->{ inputMatrix_1 }=$inputMatrix_1;
     $ret->{ inputMatrix_2 }=$inputMatrix_2;
     $ret->{ verbose }=$verbose;
     $ret->{ output }=$output;
     $ret->{ compareMode }=$compareMode;
+    $ret->{ mixRatio }=$mixRatio;
     
-    return($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode);
+    return($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode,$mixRatio);
 }
 
 sub intro() {
@@ -88,7 +96,8 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--cm", "[]", "optional, compare mode [log2ratio,add,sum,mean,subtract,divide,multiply,min,max]");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--cm", "[]", "optional, compare mode [log2mixRatio,add,sum,mean,subtract,divide,multiply,min,max,deconvolve]");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--mx", "[0]", "optional, mix ratio used for deconvolve");
 
     print STDERR "\n";
     
@@ -112,8 +121,8 @@ sub help() {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix_1|1=s','inputMatrix_2|2=s','verbose|v','output|o=s','compareMode|cm=s') or croak help();
-my ($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix_1|1=s','inputMatrix_2|2=s','verbose|v','output|o=s','compareMode|cm=s','mixRatio|mr=f') or croak help();
+my ($ret,$inputMatrix_1,$inputMatrix_2,$verbose,$output,$compareMode,$mixRatio)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -171,7 +180,7 @@ my $header2inc=$header2inc_1;
 
 # do user specified compare mode
 print STDERR "calculating ($compareMode) of matrices...\n" if($verbose);
-my $compareMatrix=compareMatrices($matrixObject_1,$matrixObject_2,$matrix_1,$matrix_2,$inc2header,$compareMode);
+my $compareMatrix=compareMatrices($matrixObject_1,$matrixObject_2,$matrix_1,$matrix_2,$inc2header,$compareMode,$mixRatio);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

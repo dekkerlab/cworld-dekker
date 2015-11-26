@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -
 
 package cworld::dekker;
 
@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 =head1 SYNOPSIS
 
@@ -3216,7 +3216,7 @@ sub removeFileExtension($) {
  
 =cut
 
-sub compareMatrices($$$$$;$) {
+sub compareMatrices($$$$$;$$) {
     #required
     my $matrixObject_1=shift;
     my $matrixObject_2=shift;
@@ -3226,6 +3226,11 @@ sub compareMatrices($$$$$;$) {
     # optional
     my $compareMode="log2ratio";
     $compareMode=shift if @_;
+    my $ratio=1;
+    $ratio = shift if @_;
+    
+    # since identical, use matrixObject_1
+    my $inc2headerObject=$matrixObject_1->{ inc2headerObject };
     
     my $numYHeaders=keys(%{$inc2header->{ y }});
     my $numXHeaders=keys(%{$inc2header->{ x }});
@@ -3235,10 +3240,10 @@ sub compareMatrices($$$$$;$) {
     my ($y,$x);
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
-        my $yHeaderObject=getHeaderObject($yHeader);
+        my $yHeaderObject=$inc2headerObject->{ y }->{$yHeader};
         for(my $x=0;$x<$numXHeaders;$x++) {
             my $xHeader=$inc2header->{ x }->{$x};    
-            my $xHeaderObject=getHeaderObject($xHeader);
+            my $xHeaderObject=$inc2headerObject->{ x }->{$xHeader};
         
             my $score_1=$matrixObject_1->{ missingValue };
             $score_1=$matrix_1->{$y}->{$x} if(defined($matrix_1->{$y}->{$x}));
@@ -3267,6 +3272,11 @@ sub compareMatrices($$$$$;$) {
                 $compareScore=min($score_1,$score_2);
             } elsif($compareMode eq "max") {
                 $compareScore=max($score_1*$score_2);
+            } elsif($compareMode eq "deconvolve") {
+                #S1 = (M-(1-P)*S2)/P
+                $compareScore=(($score_1-((1-$ratio)*$score_2))/$ratio);
+                $compareScore = "NA" if($compareScore < 0);
+                
             } else {
                 confess "invalid compareMode [$compareMode]"
             }

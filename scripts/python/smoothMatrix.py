@@ -129,12 +129,10 @@ def main():
     
     # calculate corrcoef matrix
     print("calculating smoothed matrix [",smoothsize,"] ... ",end="")
+    print(matrix.shape)
     smoothedMatrix=blur_image(matrix, smoothsize)
     print("done")
    
-    smoothedMatrix[nan_rows,:]=np.nan
-    smoothedMatrix[:,nan_cols]=np.nan
-    
     good_rows=np.zeros(nrows,dtype='bool')
     good_cols=np.zeros(ncols,dtype='bool')
     good_rows[smoothsize:nrows-smoothsize]=True
@@ -145,6 +143,9 @@ def main():
     expanded_smoothedMatrix=np.zeros([nrows,ncols])
     expanded_smoothedMatrix.fill(np.nan)
     expanded_smoothedMatrix[np.where(good_rows&good_cols)]=smoothedMatrix.flatten()
+    
+    expanded_smoothedMatrix[nan_rows,:]=np.nan
+    expanded_smoothedMatrix[:,nan_cols]=np.nan
     
     expanded_smoothedMatrixFile=inputMatrixName+'_s'+str(smoothsize)+'.smoothed.matrix.gz'
     print("writing smoothed matrix ...",end="")

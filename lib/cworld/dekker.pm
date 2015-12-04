@@ -5792,7 +5792,7 @@ sub outputWrapper($;$$$) {
         $tmpOutputFile = "| gzip -c > '".$outputFile."'" if($outputCompressed);
         $tmpOutputFile = ">".$outputFile if(!$outputCompressed);
     }
-    
+        
     # disable comment(s)if (UCSC format file)
     $suppressComments = 1 if($outputFile =~ /\.bed$/);
     $suppressComments = 1 if($outputFile =~ /\.bedGraph$/);
@@ -5800,7 +5800,7 @@ sub outputWrapper($;$$$) {
     $suppressComments = 1 if($outputFile =~ /\.bedGraph\.gz$/);
     $suppressComments = 1 if($outputFile =~ /\.wig$/);
     $suppressComments = 1 if($outputFile =~ /\.wig\.gz$/);
-    
+        
     if(!$suppressComments) {
         open(OUT,$tmpOutputFile) or confess "Could not open file [$tmpOutputFile] - $!";
         print OUT "## cworld::dekker\n";
@@ -5817,10 +5817,12 @@ sub outputWrapper($;$$$) {
         print OUT "$commentLine\n##\n" if($commentLine ne "");
         
         close(OUT);
+        
+        $tmpOutputFile = "| gzip -c >> '".$outputFile."'" if($outputCompressed);
+        $tmpOutputFile = ">>".$outputFile if(!$outputCompressed);
     }
     
-    $outputFile = "| gzip -c >> '".$outputFile."'" if($outputCompressed);
-    $outputFile = ">>".$outputFile if(!$outputCompressed);
+    $outputFile=$tmpOutputFile;
     
     return($outputFile);
 }

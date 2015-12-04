@@ -308,12 +308,9 @@ while(my $line = <IN>) {
     my $endPos=$tmp[$header2index{ chromEnd }];
     
     my $score="NA";
-    my $output="NA";
     if(@tmp == 4) {
         $score = $tmp[3] if((defined($tmp[3])) and ($tmp[3] ne "") and ($tmp[3] =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
-    }
-    if(@tmp > 4) {
-        $output = $tmp[3] if((defined($tmp[3])) and ($tmp[3] ne ""));
+    } elsif(@tmp > 4) {
         $score = $tmp[4] if((defined($tmp[4])) and ($tmp[4] ne "") and ($tmp[4] =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
     }
     
@@ -411,13 +408,17 @@ my $bedFile=$fileName.".bed";
 my $bedGraphFile=$fileName.".bedGraph";        
 my $trackName = $fileName;
 
-open(BED,outputWrapper($bedFile)) or croak "Could not open file [$bedFile] - $!" if($cisMode == 0);
-open(BEDGRAPH,outputWrapper($bedGraphFile)) or croak "Could not open file [$bedGraphFile] - $!" if($cisMode == 0);
-print BED "track name='".$trackName."' description='smoothed BED file (".$windowSize."__".$windowStep."__".$windowMode."__".$missingScore.")'\n" if($cisMode == 0);
-my $viewOptions="autoScale=on ";
-$viewOptions="autoScale=off viewLimits=-".$yBound.":".$yBound if(($cisMode == 0) and (($yBound ne "") and ($negativeFlag)));
-$viewOptions="autoScale=off viewLimits=0:".$yBound if(($cisMode == 0) and (($yBound ne "") and ($negativeFlag == 0)));
-print BEDGRAPH "track type=bedGraph name='".$trackName."' description='smoothed BED file (".$windowSize."__".$windowStep."__".$windowMode."__".$missingScore.")' visibility=full ".$viewOptions." maxHeightPixels=128:64:32 color=0,0,0 altColor=100,100,100\n" if($cisMode == 0);
+
+if($cisMode == 0) {
+    open(BED,outputWrapper($bedFile)) or croak "Could not open file [$bedFile] - $!" if($cisMode == 0);
+    open(BEDGRAPH,outputWrapper($bedGraphFile)) or croak "Could not open file [$bedGraphFile] - $!" if($cisMode == 0);
+
+    print BED "track name='".$trackName."' description='smoothed BED file (".$windowSize."__".$windowStep."__".$windowMode."__".$missingScore.")'\n" if($cisMode == 0);
+    my $viewOptions="autoScale=on ";
+    $viewOptions="autoScale=off viewLimits=-".$yBound.":".$yBound if(($cisMode == 0) and (($yBound ne "") and ($negativeFlag)));
+    $viewOptions="autoScale=off viewLimits=0:".$yBound if(($cisMode == 0) and (($yBound ne "") and ($negativeFlag == 0)));
+    print BEDGRAPH "track type=bedGraph name='".$trackName."' description='smoothed BED file (".$windowSize."__".$windowStep."__".$windowMode."__".$missingScore.")' visibility=full ".$viewOptions." maxHeightPixels=128:64:32 color=0,0,0 altColor=100,100,100\n" if($cisMode == 0);
+}
 
 foreach my $chromosome ( sort keys %{$windowSizes} ) {
     my $min="NA";
@@ -429,12 +430,14 @@ foreach my $chromosome ( sort keys %{$windowSizes} ) {
     $regionStart=$contigInfo->{$chromosome}->{ start } if(exists($contigInfo->{$chromosome}->{ start }));
     $regionEnd=$contigInfo->{$chromosome}->{ end } if(exists($contigInfo->{$chromosome}->{ end }));
     
+    print STDERR "\t$chromosome\t$regionStart\t$regionEnd [$cisMode]\n" if($verbose);
+    
     if($cisMode) {
         $fileName=$output."__".$chromosome."__".$windowSize."__".$windowStep."__".$windowMode;
         $trackName = $output."__".$chromosome;
         $bedFile=$fileName.".bed";
         $bedGraphFile=$fileName.".bedGraph";
-        
+                
         open(BED,outputWrapper($bedFile)) or croak "Could not open file [$bedFile] - $!";
         open(BEDGRAPH,outputWrapper($bedGraphFile)) or croak "Could not open file [$bedGraphFile] - $!";
         
@@ -463,12 +466,15 @@ foreach my $chromosome ( sort keys %{$windowSizes} ) {
     if($cisMode) {
         my $plotTitle = $fileName;
         $plotTitle =~ s/(...\n{1,30})/$1/gs;
-
-        my $plotBedScriptPath=$scriptPath."plotBED.R";
+    
+        my $plotBedScriptPath=$scriptPath."/R/plotBED.R";
         system("Rscript '".$plotBedScriptPath."' '".$cwd."' '".$bedFile."' '".$plotTitle."' ".$yBound." > /dev/null");
     }
     
 }
+
+close(BED) if($cisMode == 0);
+close(BEDGRAPH) if($cisMode == 0);
 
 print STDERR "\tdone\n" if($verbose);
 

@@ -8,7 +8,7 @@ yLimit<-as.numeric(args[4])
 
 setwd(cwd)
 
-data<-read.table(inputFile,header=F,sep="\t")
+data<-read.table(inputFile,header=F,skip=1,sep="\t")
 
 x<-data[,2]
 y<-data[,5]

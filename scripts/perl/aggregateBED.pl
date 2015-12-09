@@ -144,7 +144,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ms", "[NA]", "suplment missing scores with supplied value. (NA,0)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--cis", "[]", "enable cis mode - seperate track for each contig");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ez", "[]", "FLAG, ignore 0s in all calculations");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--yl", "[-1]", "optional ylimit for plot, by default, plots are autoScaled");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--yl", "[-1]", "optional ylim for plot, by default, plots are autoScaled");
     
     print STDERR "\n";
     
@@ -216,7 +216,7 @@ sub loadContigBoundFile($$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputBedFile|i=s','verbose|v','output|o=s','contigBoundFile|cbf=s','assembly|a=s','windowSize|wsize=i','windowStep|wstep=i','windowMode|wmode=s','missingScore|ms=s','cisMode|cis','excludeZero|ez','yBound|yb=f') or croak help();
+my $results = GetOptions( \%options,'inputBedFile|i=s','verbose|v','output|o=s','contigBoundFile|cbf=s','assembly|a=s','windowSize|wsize=i','windowStep|wstep=i','windowMode|wmode=s','missingScore|ms=s','cisMode|cis','excludeZero|ez','yBound|yl=f') or croak help();
 my ($ret,$inputBedFile,$verbose,$output,$contigBoundFile,$assembly,$windowSize,$windowStep,$windowMode,$missingScore,$cisMode,$excludeZero,$yBound)=check_options( \%options );
 
 intro() if($verbose);

@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 =head1 SYNOPSIS
 
@@ -4839,10 +4839,10 @@ sub initHeatmap($$$;$$$) {
     my $verbose=0;
     $verbose=shift if @_;
     
-    #GD::Image->trueColor(1);
+    GD::Image->trueColor(1);
     my $img = new GD::Image($imageWidth,$imageHeight);
     
-    #$img->saveAlpha(1);
+    $img->saveAlpha(1);
     
     my $colorPalette={};
     my ($availableColors,$transparency)=getAvailableColors();

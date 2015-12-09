@@ -20,6 +20,9 @@ xEnd<-max(x)
 ymin<-min(y,na.rm=TRUE)
 ymax<-max(y,na.rm=TRUE)
 ybound<-max(abs(ymin),abs(ymax))
+if(!is.na(yLimit) && (yLimit != "NA")) {
+	ybound<-yLimit
+}
 
 pngfile<-paste(inputFile,".png",sep='')
 

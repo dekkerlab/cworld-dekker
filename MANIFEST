@@ -145,6 +145,7 @@ scripts/python/smoothImage.py
 scripts/python/smoothMatrix.py
 scripts/R/anchorIterativeCorrectionPlot.R
 scripts/R/anchorPlot.R
+scripts/R/barPlots.R
 scripts/R/boxPlots.R
 scripts/R/cisTrans.R
 scripts/R/compareHistograms.R

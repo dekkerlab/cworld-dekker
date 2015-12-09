@@ -149,7 +149,6 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--maxDist", "[]", "maximum allowed interaction distance, exclude > N distance (in BP)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--lt", "[]", "optional, log transform data (2,10)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ez", "[]", "FLAG, exclude zeros from all calculations");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--ed", "[]", "FLAG, exclude diagonal bin (y=x) from all calculations");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--sn", "[]", "FLAG, skip NAs in calculation");
     print STDERR "\n";
     

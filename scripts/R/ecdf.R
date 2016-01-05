@@ -37,15 +37,21 @@ nFiles=length(fileArray)
 cat("found ",nFiles," files.\n")
 for (i in 1:nFiles) {
 	arg<-fileArray[i]
-	cat("\t",i,"\t",arg,"\n")
+	cat("\t",i,"\t",LETTERS[i],"\t",arg,"\n")
 }
+
+cat("\n")
 
 allX <- vector()
 myData <- list()
 nameData <- list()
 for (i in 1:nFiles) {
 	tmpFile<-fileArray[i]
+	tmpName<-basename(tmpFile)
+	tmpName<-unlist(strsplit(tmpName, ".", fixed = TRUE))[1]
 	
+	cat(paste("loading ",tmpName," ... ",sep=""))
+
 	tmpData<-read.table(tmpFile,skip=skip,header=F,sep="\t",stringsAsFactors=FALSE,comment.char="#")
 	dataVector=tmpData[,eval(dataColumn)]
 	dataVector<-subset(dataVector,dataVector!="NaN")
@@ -59,14 +65,15 @@ for (i in 1:nFiles) {
 	allX<-c(allX,dataVector)
 	myData[[i]]<-dataVector
 	
-	tmpName<-basename(tmpFile)
 	nameData[i]<-paste("(",length(dataVector),") ",tmpName,sep="")
-	
-	
+	cat(paste("done","\n",sep=""))
 }
 
+# sorting
+cat(paste("sorting ... ",sep=""))
 allX.length<-length(allX)
 allX.sorted<-sort(allX)
+cat(paste("done","\n",sep=""))
 
 x.tmp.min<-floor(allX.sorted[ceiling(allX.length*0.001)])
 x.tmp.max<-ceiling(allX.sorted[floor(allX.length*0.999)])
@@ -77,7 +84,6 @@ if(is.na(minX)) {
 if(is.na(maxX)) {
 	maxX<-x.tmp.max
 }
-
 
 for (i1 in 1:nFiles) {
 	y1<-myData[[i1]]
@@ -108,6 +114,10 @@ for (i1 in 1:nFiles) {
 		
 	}
 }
+
+cat("\n")
+
+cat(paste("plotting","\n",sep=""))
 
 # png file
 

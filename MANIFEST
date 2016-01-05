@@ -136,6 +136,7 @@ scripts/perl/subsetMatrix.pl
 scripts/perl/symmetrical2seperate.pl
 scripts/perl/tickPlot.pl
 scripts/python/boundary2tad.py
+scripts/python/compareBED.py
 scripts/python/findTADs.py
 scripts/python/getEigenVectors.py
 scripts/python/matrix2correlation.py
@@ -162,6 +163,7 @@ scripts/R/ksTest.R
 scripts/R/loess.R
 scripts/R/matrix2direction.R
 scripts/R/matrix2insulation.R
+scripts/R/multiDensity.R
 scripts/R/multiHistogram.R
 scripts/R/plotBED.R
 scripts/R/plotDistance.R

@@ -81,8 +81,11 @@ cat(paste("plotting","\n",sep=""))
 # png file
 png(file=paste(name,".png",sep=""),height=600,width=900)
 ggplot(allData.df, aes(x = signal, fill = label)) + geom_density(alpha=0.25) + xlim(minX,maxX) + theme_bw() + theme(legend.position="bottom",legend.direction="vertical")+ geom_vline(xintercept = 0, colour="black", linetype = "longdash") +  ggtitle("Multi-Density Plot")
+dev.off()
 
-
+# pdf file
+pdffile<-paste(name,".pdf",sep='')
+ggplot(allData.df, aes(x = signal, fill = label)) + geom_density(alpha=0.25) + xlim(minX,maxX) + theme_bw() + theme(legend.position="bottom",legend.direction="vertical")+ geom_vline(xintercept = 0, colour="black", linetype = "longdash") +  ggtitle("Multi-Density Plot")
 dev.off()
 
 #ggsave()

@@ -18,7 +18,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal);
+    my ($inputMatrix,$verbose,$output,$minDistance,$maxDistance,$lowerScore,$upperScore,$scoreSubsetMode,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal);
 
     my $ret={};
         
@@ -51,6 +51,25 @@ sub check_options {
         $maxDistance = $opts->{ maxDistance };
     } else {
         $maxDistance = undef;
+    }
+    
+    if( exists($opts->{ lowerScore }) ) {
+        $lowerScore = $opts->{ lowerScore };
+    } else {
+        $lowerScore=undef;
+    }
+    
+    if( exists($opts->{ upperScore }) ) {
+        $upperScore = $opts->{ upperScore };
+    } else {
+        $upperScore = undef;
+    }
+    
+    if( exists($opts->{ scoreSubsetMode }) ) {
+        $scoreSubsetMode = $opts->{ scoreSubsetMode };
+        $scoreSubsetMode = "outer" if(($scoreSubsetMode ne "outer") and ($scoreSubsetMode ne "inner"));
+    } else {
+        $scoreSubsetMode = "outer";
     }
     
     if( exists($opts->{ excludeCis }) ) {
@@ -124,6 +143,8 @@ sub check_options {
     $ret->{ output }=$output;
     $ret->{ minDistance }=$minDistance;
     $ret->{ maxDistance }=$maxDistance;
+    $ret->{ lowerScore }=$lowerScore;
+    $ret->{ upperScore }=$upperScore;
     $ret->{ excludeCis }=$excludeCis;
     $ret->{ excludeTrans }=$excludeTrans;
     $ret->{ elementBedFiles }=$elementBedFiles;
@@ -136,7 +157,7 @@ sub check_options {
     $ret->{ elementExtension }=$elementExtension;
     $ret->{ excludeDiagonal }=$excludeDiagonal;
     
-    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal);
+    return($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$lowerScore,$upperScore,$scoreSubsetMode,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal);
 }
 
 
@@ -167,6 +188,9 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--minDist", "[]", "minimum allowed interaction distance, exclude < N distance (in BP)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--maxDist", "[]", "maximum allowed interaction distance, exclude > N distance (in BP)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--lowerScore", "[]", "minimum score allowed, exclude < lowerScore values");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--upperScore", "[]", "maximum score allowed, exclude > upperScore values");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--scoreSubsetMode", "[outer]", "score subset mode, inner = l>x<u, outer = x<l & x>u");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ec", "[]", "FLAG, exclude CIS data");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--et", "[]", "FLAG, exclude TRANS data");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ebf@", "[]", "x/y axis element bed file");
@@ -295,8 +319,8 @@ sub processElements($$$$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','excludeCis|ec','excludeTrans|et','elementBedFiles|ebf=s@','y_elementBedFiles|yebf=s@','x_elementBedFiles|xebf=s@','outputSuffix|os=s','zoomCoordinates|z=s@','y_zoomCoordinates|yz=s@','x_zoomCoordinates|xz=s@','elementExtension|ee=s','excludeDiagonal|ed') or croak help();
-my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','minDistance|minDist=i','maxDistance|maxDist=i','lowerScore=f','upperScore=f','scoreSubsetMode|ssm=s','excludeCis|ec','excludeTrans|et','elementBedFiles|ebf=s@','y_elementBedFiles|yebf=s@','x_elementBedFiles|xebf=s@','outputSuffix|os=s','zoomCoordinates|z=s@','y_zoomCoordinates|yz=s@','x_zoomCoordinates|xz=s@','elementExtension|ee=s','excludeDiagonal|ed') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$minDistance,$maxDistance,$lowerScore,$upperScore,$scoreSubsetMode,$excludeCis,$excludeTrans,$elementBedFiles,$y_elementBedFiles,$x_elementBedFiles,$outputSuffix,$zoomCoordinates,$y_zoomCoordinates,$x_zoomCoordinates,$elementExtension,$excludeDiagonal)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -410,7 +434,7 @@ $output .= "__".$outputSuffix if(($inputMatrixName eq $output) and ($outputSuffi
 
 #read Matrix
 my $matrix={};
-($matrix,$matrixObject)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans);
+($matrix,$matrixObject)=getData($inputMatrix,$matrixObject,$verbose,$minDistance,$maxDistance,$excludeCis,$excludeTrans,$lowerScore,$upperScore,$scoreSubsetMode);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

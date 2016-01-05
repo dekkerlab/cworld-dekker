@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.30';
+our $VERSION = '0.32';
 
 =head1 SYNOPSIS
 
@@ -1548,21 +1548,27 @@ sub logTransformMatrix($$$) {
  
 =cut
 
-sub getData($$;$$$$$$) {
+sub getData($$;$$$$$$$$) {
     # required
     my $inputMatrix=shift;
     my $matrixObject=shift;
     # optional
     my $verbose=0;
     $verbose=shift if @_;
-    my $minDistance = undef;
+    my $minDistance=undef;
     $minDistance=shift if @_;
-    my $maxDistance = undef;
+    my $maxDistance=undef;
     $maxDistance=shift if @_;
     my $excludeCis=0;
     $excludeCis=shift if @_;
     my $excludeTrans=0;
     $excludeTrans=shift if @_;
+    my $lowerScore=undef;
+    $lowerScore=shift if @_;
+    my $upperScore=undef;
+    $upperScore=shift if @_;
+    my $scoreSubsetMode="outer";
+    $scoreSubsetMode= shift if @_;
     my $sigDigits=4;
     $sigDigits=shift if @_;
     
@@ -1640,6 +1646,18 @@ sub getData($$;$$$$$$) {
                 
                 # truncate numbers to minimal digits
                 $cScore = sprintf "%.".$sigDigits."f", $cScore if(($cScore ne "NA") and ($cScore !~ /^[+-]?\d+$/));
+                
+                # threshold by value
+                if(defined($lowerScore) and defined($upperScore)) {
+                    next if( ($cScore ne "NA") and ($scoreSubsetMode eq "outer") and (($cScore > $lowerScore) and ($cScore < $upperScore)) ); # exclude l<x<u, keep tails
+                    next if( ($cScore ne "NA") and ($scoreSubsetMode eq "inner") and (($cScore < $lowerScore) or ($cScore > $upperScore)) ); # exclude tails x<l & x>u, keep inside
+                } else {
+                    next if( ($cScore ne "NA") and defined($lowerScore) and ($scoreSubsetMode eq "outer") and ($cScore > $lowerScore) ); # exclue, keep tails
+                    next if( ($cScore ne "NA") and defined($lowerScore) and ($scoreSubsetMode eq "inner") and ($cScore < $lowerScore) );
+                    
+                    next if( ($cScore ne "NA") and defined($upperScore) and ($scoreSubsetMode eq "outer") and ($cScore < $upperScore) );
+                    next if( ($cScore ne "NA") and defined($upperScore) and ($scoreSubsetMode eq "inner") and ($cScore > $upperScore) );
+                }
                 
                 my $xHeader=$xHeaders[$i];
                 my $xIndex=-1;

@@ -165,8 +165,8 @@ sub matrix2bed12($$$$$$) {
             my $score=$matrixObject->{ missingValue };
             $score=$matrix->{$y}->{$x} if(exists($matrix->{$y}->{$x}));
             
-            next if($score == 0);
             next if($score eq "NA");
+            next if($score == 0);
             
             my $scaleIndex = -1;
             $scaleIndex=getColorIndex($score,$scaleStart,$scaleEnd,$nColorShades,$scaleBucketSize) if($score ne "NA");

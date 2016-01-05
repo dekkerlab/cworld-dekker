@@ -117,7 +117,7 @@ sub help() {
     
     print STDERR "Notes:";
     print STDERR "
-    This script can calculate the directionality log2[(eft/right) for each locus.
+    This script can calculate the directionality log2[(left/right) for each locus.
     Matrix can be TXT or gzipped TXT.
     See website for matrix format details.\n";
     

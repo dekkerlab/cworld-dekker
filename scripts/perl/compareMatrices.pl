@@ -50,7 +50,7 @@ sub check_options {
     if( exists($opts->{ compareMode }) ) {
         $compareMode = $opts->{ compareMode };
     } else {
-        $compareMode = "log2mixRatio";
+        $compareMode = "log2ratio";
     }
     
     if( exists($opts->{ mixRatio }) ) {
@@ -96,7 +96,7 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--cm", "[]", "optional, compare mode [log2mixRatio,add,sum,mean,subtract,divide,multiply,min,max,deconvolve]");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--cm", "[]", "optional, compare mode [log2ratio,add,sum,mean,subtract,divide,multiply,min,max,deconvolve]");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--mx", "[0]", "optional, mix ratio used for deconvolve");
 
     print STDERR "\n";

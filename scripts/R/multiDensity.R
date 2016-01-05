@@ -28,7 +28,9 @@ for (i in 1:nFiles) {
 	
 	tmpFile<-fileArray[i]
 	tmpName<-basename(tmpFile)
-	cat(paste("loading ",LETTERS[i]," ... ",sep=""))
+	tmpName<-unlist(strsplit(tmpName, ".", fixed = TRUE))[1]
+	
+	cat(paste("loading ",tmpName," ... ",sep=""))
 	
 	tmpData<-read.table(tmpFile,skip=skip,header=F,sep="\t",stringsAsFactors=FALSE,comment.char="#")
 	dataVector=tmpData[,eval(dataColumn)]
@@ -40,7 +42,7 @@ for (i in 1:nFiles) {
 	
 	dataVector<-sort(dataVector)
 	
-	dat.df <- data.frame(dens = dataVector,label = rep(LETTERS[i], length(dataVector)))
+	dat.df <- data.frame(signal = dataVector,label = rep(tmpName, length(dataVector)))
 	
 	allX<-c(allX,dataVector)
 	myData[[i]]<-dat.df
@@ -77,5 +79,10 @@ cat("\n")
 cat(paste("plotting","\n",sep=""))
 
 # png file
-ggplot(allData.df, aes(x = dens, fill = label)) + geom_density(alpha=0.25) + xlim(minX,maxX) + theme_bw() + theme(legend.position="bottom")
-ggsave(file=paste(name,".png",sep=""))
+png(file=paste(name,".png",sep=""),height=600,width=900)
+ggplot(allData.df, aes(x = signal, fill = label)) + geom_density(alpha=0.25) + xlim(minX,maxX) + theme_bw() + theme(legend.position="bottom",legend.direction="vertical")+ geom_vline(xintercept = 0, colour="black", linetype = "longdash") +  ggtitle("Multi-Density Plot")
+
+
+dev.off()
+
+#ggsave()

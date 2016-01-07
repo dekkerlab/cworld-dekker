@@ -136,7 +136,6 @@ for (i in 1:nFiles) {
 	
 	lines(ecdf(x),col=tmpColor,lwd=1,lty=1,verticals="true")
 }
-#lines(ecdf(myData[[1]]),col=rgb(0,0,0),lwd=4,lty=1,verticals="true")
 
 
 legend("topleft", inset=0.01, legend=paste(nameData,sep=""), text.col=lineColors,cex=0.8)
@@ -157,9 +156,14 @@ for (i in 1:nFiles) {
 	tmpName<-nameData[[i]]
 	tmpColor=lineColors[i]
 	
-	lines(ecdf(x),col=tmpColor,lwd=1,lty=1,verticals="true")
+	ecdf.d <- ecdf(x)
+	
+	## Construct a "linear interpolator" using approxfun:
+	poly.ecdf <- with(environment(ecdf.d), approxfun(x,y))
+
+	## 'test' it graphically, using curve():
+	curve(poly.ecdf(x), add = TRUE, col=tmpColor,lwd=1,lty=1)
 }
-#lines(ecdf(myData[[1]]),col=rgb(0,0,0),lwd=4,lty=1,verticals="true")
 
 legend("topleft", inset=0.01, legend=paste(nameData,sep=""), text.col=lineColors,cex=0.8)
 

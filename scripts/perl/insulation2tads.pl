@@ -89,7 +89,7 @@ sub intro() {
 sub help() {
     intro();
     
-    print STDERR "Usage: perl insulation2tads.pl [OPTIONS] -i <inputMatrix> -b <boundaryFile>\n";
+    print STDERR "Usage: perl insulation2tads.pl [OPTIONS] -i <insulationFile> -b <boundaryFile>\n";
     
     print STDERR "\n";
     

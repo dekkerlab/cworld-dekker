@@ -223,7 +223,7 @@ sub writeMatrix($$$;$$$) {
     $missingValue=shift if @_;
     my $commentLine="";
     $commentLine=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $numYHeaders=keys(%{$inc2header->{ y }});
@@ -284,7 +284,7 @@ sub calculateZscore($$$;$$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -359,7 +359,7 @@ sub calculateLog2Ratio($$$;$$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -433,7 +433,7 @@ sub calculateObsMinusExp($$$;$$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -1569,7 +1569,7 @@ sub getData($$;$$$$$$$$) {
     $upperScore=shift if @_;
     my $scoreSubsetMode="outer";
     $scoreSubsetMode= shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     print STDERR "loading matrix data ...\n" if($verbose);
@@ -2602,7 +2602,7 @@ sub matrix2listfile($$;$$$$$$$) {
     my $excludeTrans=0;
     $excludeTrans=shift if @_;
     my $includeTrans=flipBool($excludeTrans);
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     print STDERR "\tmatrix2listfile\n\n" if($verbose);
@@ -3044,7 +3044,7 @@ sub scaleMatrix($$;$$) {
     $excludeDiagonal=shift if @_;
     my $scaleTo=1000000;
     $scaleTo=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -4329,7 +4329,7 @@ sub matrix2pairwise($$;$$$$$) {
     $skipNAs=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $verbose=$matrixObject->{ verbose };
@@ -4462,7 +4462,7 @@ sub matrix2distance($$;$$$$$) {
     $skipNAs=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=12;
+    my $sigDigits=8;
     $sigDigits=shift if @_;
     
     my $verbose=$matrixObject->{ verbose };

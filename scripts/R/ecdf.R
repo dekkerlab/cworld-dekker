@@ -97,20 +97,17 @@ for (i1 in 1:nFiles) {
 		y2<-myData[[i2]]
 		name2<-nameData[[i2]]
 		
-		#kstest<-ks.test(y1,y2,alternative="two.sided",exact=TRUE)
-		#kstest.pval<-kstest$p.value
+		kstest<-ks.test(y1,y2,alternative="two.sided",exact=TRUE)
+		kstest.pval<-kstest$p.value
 		
-		#ksboot<-ks.boot(y1,y2,alternative="two.sided",nboots=100,exact=TRUE)
-		#ksboot.pval<-ksboot$p.value
+		ksboot<-ks.boot(y1,y2,alternative="two.sided",nboots=100,exact=TRUE)
+		ksboot.pval<-ksboot$p.value
 		
-		#wilcox<-wilcox.test(y1,y2,paired=FALSE,alternative= "two.sided",exact=TRUE)
-		#wilcox.pval<-wilcox$p.value
+		wilcox<-wilcox.test(y1,y2,paired=FALSE,alternative= "two.sided",exact=TRUE)
+		wilcox.pval<-wilcox$p.value
 		
-		#cat(paste("\tks.test\t",kstest.pval,"\n",sep=""))
-		#cat(paste("\n",i1,"\t",name1,"\n",i2,"\t",name2,"\n",sep=""))
-		#cat(paste("\tks.test\t",kstest.pval,"\twilcox\t",wilcox.pval,"\n",sep=""))
-		
-		#cat(paste("\tks.test\t",kstest.pval,"\tks.boot\t",ksboot.pval,"\twilcox\t",wilcox.pval,"\n",sep=""))
+		cat(paste("\n",i1,"\t",name1,"\n",i2,"\t",name2,"\n",sep=""))
+		cat(paste("\tks.test\t",kstest.pval,"\tks.boot\t",ksboot.pval,"\twilcox\t",wilcox.pval,"\n",sep=""))
 		
 	}
 }

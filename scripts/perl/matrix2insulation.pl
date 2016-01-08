@@ -413,7 +413,7 @@ sub outputInsulationBoundaries($$$$) {
     my $headerSpacing=$matrixObject->{ headerSpacing };
 
     open(OUT,outputWrapper($insulationFile,$commentLine)) or croak "Could not open file [$insulationFile] - $!";
-    print OUT "header\tstart\tend\tbinStart\tbinEnd\tbinMidpoint\tboundaryHeader\tboundaryStrength\tboundaryDirectionality\n";
+    print OUT "header\tstart\tend\tbinStart\tbinEnd\tbinMidpoint\tboundaryHeader\tboundaryStrength\tboundaryDirectionality\tboundaryInsulation\n";
     
     open(BED,outputWrapper($insulationFile.".bed")) or croak "Could not open file [$insulationFile] - $!";
     
@@ -429,6 +429,7 @@ sub outputInsulationBoundaries($$$$) {
         next if($boundaryHeader eq "NA");
         
         my $boundaryStrength=$tadBoundaries->{$yHead}->{ strength };
+        my $boundaryInsulation=$tadBoundaries->{$yHead}->{ insulation };
         my $boundaryDirectionality=$tadBoundaries->{$yHead}->{ directionality };
         
         my $boundaryObject=getHeaderObject($boundaryHeader);
@@ -443,7 +444,7 @@ sub outputInsulationBoundaries($$$$) {
         my $binEnd = round($boundaryEnd/$headerSpacing);
         my $binMidpoint=(($binStart+$binEnd)/2);
         
-        print OUT "$boundaryHeader\t$boundaryStart\t$boundaryEnd\t$binStart\t$binEnd\t$binMidpoint\t$yHead\t$boundaryStrength\t$boundaryDirectionality\n";
+        print OUT "$boundaryHeader\t$boundaryStart\t$boundaryEnd\t$binStart\t$binEnd\t$binMidpoint\t$yHead\t$boundaryStrength\t$boundaryDirectionality\t$boundaryInsulation\n";
         
     }
     
@@ -475,12 +476,6 @@ sub detectInsulationBoundaries($$$$$$$) {
     for(my $y=0;$y<$numHeaders;$y++) {
         # dump insulation data to file
         my $yHead=$inc2header->{ y }->{$y};
-        
-        my $insulation="NA";
-        $insulation=$matrixInsulation->{$yHead}{ insulation } if(exists($matrixInsulation->{$yHead}{ insulation }));
-        
-        my $smoothed_insulation="NA";
-        $smoothed_insulation=$matrixInsulation->{$yHead}{ smoothed_insulation } if(exists($matrixInsulation->{$yHead}{ smoothed_insulation }));
         
         my $normalized_insulation="NA";
         $normalized_insulation=$matrixInsulation->{$yHead}{ normalized_insulation } if(exists($matrixInsulation->{$yHead}{ normalized_insulation }));
@@ -562,6 +557,7 @@ sub detectInsulationBoundaries($$$$$$$) {
     # for all valleys
     my @boundaryStrengthArr=();
     my @boundaryDirectionalityArr=();
+    my $boundary_num=0;
     for(my $i=0;$i<@preLimBoundaries;$i++) {
         my $yHead=$preLimBoundaries[$i]{ header };
         my $yIndex=$header2inc->{ y }->{$yHead};
@@ -611,14 +607,19 @@ sub detectInsulationBoundaries($$$$$$$) {
         $boundaryStart -= ($boundaryMarginOfError*$headerSpacing);
         $boundaryEnd += ($boundaryMarginOfError*$headerSpacing);
         
-        my $boundaryHeader="boundary.".$i."|".$boundaryAssembly."|".$boundaryChromosome.":".$boundaryStart."-".$boundaryEnd;
+        my $normalized_insulation="NA";
+        $normalized_insulation=$matrixInsulation->{$yHead}{ normalized_insulation } if(exists($matrixInsulation->{$yHead}{ normalized_insulation }));
+        
+        my $boundaryHeader="boundary.".$boundary_num."|".$boundaryAssembly."|".$boundaryChromosome.":".$boundaryStart."-".$boundaryEnd;
         $tadBoundaries{$yHead}{ header }=$boundaryHeader;
         $tadBoundaries{$yHead}{ strength }=$valleyDeltaStrength;
+        $tadBoundaries{$yHead}{ insulation }=$normalized_insulation;
         $tadBoundaries{$yHead}{ directionality }=$valleyDirectionality;
+        
         
         push(@boundaryStrengthArr,$valleyDeltaStrength) if($valleyDeltaStrength ne "NA");
         push(@boundaryDirectionalityArr,$valleyDirectionality) if($valleyDirectionality ne "NA");
-    
+        $boundary_num++;
     }
     
     # log file

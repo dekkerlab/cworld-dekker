@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.33';
+our $VERSION = '0.34';
 
 =head1 SYNOPSIS
 
@@ -223,7 +223,7 @@ sub writeMatrix($$$;$$$) {
     $missingValue=shift if @_;
     my $commentLine="";
     $commentLine=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $numYHeaders=keys(%{$inc2header->{ y }});
@@ -284,7 +284,7 @@ sub calculateZscore($$$;$$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -359,7 +359,7 @@ sub calculateLog2Ratio($$$;$$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -433,7 +433,7 @@ sub calculateObsMinusExp($$$;$$$) {
     $cisApproximateFactor=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -1212,8 +1212,8 @@ sub parseHeaders($) {
             for(my $x=0;$x<$xhsize;$x++) {
                 my $xHead=$xHeaders[$x];
                 $noHeaderFlag = 1 if($xHead =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
-                confess "non-unique x headers!" if(exists($tmpYHeaders{$xHead}));
                 $xHead = "x".$numXHeaders if($noHeaderFlag);
+                confess "non-unique x headers! [$xHead]" if(exists($tmpYHeaders{$xHead}));
                 $tmpXHeaders{$xHead}=1;
             }
             undef %tmpXHeaders;
@@ -1242,8 +1242,8 @@ sub parseHeaders($) {
             }
             
             $noHeaderFlag = 1 if($yHead =~ (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/));
-            confess "non-unique y headers!" if(exists($tmpYHeaders{$yHead}));
             $yHead = "y".$numYHeaders if($noHeaderFlag);
+            confess "non-unique y headers! [$yHead]" if(exists($tmpYHeaders{$yHead}));
             $tmpYHeaders{$yHead}=1;
             
             $header2inc->{ y }->{$yHead}=$numYHeaders;
@@ -1527,7 +1527,7 @@ sub logTransformMatrix($$$) {
             
             if($logTransform > 0) {
                 my $tmp_cScore = "NA";
-                $tmp_cScore = (log($cScore)/log($logTransform)) if($cScore > 0);
+                $tmp_cScore = (log($cScore)/log($logTransform)) if(($cScore ne "NA") and ($cScore > 0));
                 $cScore=$tmp_cScore;
             }
             
@@ -1569,7 +1569,7 @@ sub getData($$;$$$$$$$$) {
     $upperScore=shift if @_;
     my $scoreSubsetMode="outer";
     $scoreSubsetMode= shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     print STDERR "loading matrix data ...\n" if($verbose);
@@ -2602,7 +2602,7 @@ sub matrix2listfile($$;$$$$$$$) {
     my $excludeTrans=0;
     $excludeTrans=shift if @_;
     my $includeTrans=flipBool($excludeTrans);
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     print STDERR "\tmatrix2listfile\n\n" if($verbose);
@@ -3044,7 +3044,7 @@ sub scaleMatrix($$;$$) {
     $excludeDiagonal=shift if @_;
     my $scaleTo=1000000;
     $scaleTo=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
@@ -4329,7 +4329,7 @@ sub matrix2pairwise($$;$$$$$) {
     $skipNAs=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $verbose=$matrixObject->{ verbose };
@@ -4462,7 +4462,7 @@ sub matrix2distance($$;$$$$$) {
     $skipNAs=shift if @_;
     my $excludeZero=0;
     $excludeZero=shift if @_;
-    my $sigDigits=4;
+    my $sigDigits=12;
     $sigDigits=shift if @_;
     
     my $verbose=$matrixObject->{ verbose };
@@ -4769,9 +4769,10 @@ sub getAvailableColorScales() {
 
 =cut
 
-sub getAvailableColors() {
-    
+sub getAvailableColors(;$) {
     my $transparency=0;
+    $transparency=shift if @_;
+    
     my %availableColors=();
     
     # image background
@@ -4831,7 +4832,7 @@ sub getAvailableColors() {
     @{$availableColors{ jmb_lightBlue }} = (128,128,255,$transparency);
     @{$availableColors{ jmb_darkBlue }} = (0,0,128,$transparency);
 
-    return(\%availableColors,$transparency);
+    return(\%availableColors);
 }
 
 =head2 initHeatmap
@@ -4844,7 +4845,7 @@ sub getAvailableColors() {
 
 =cut
 
-sub initHeatmap($$$;$$$) {
+sub initHeatmap($$$;$$$$) {
     # required
     my $imageHeight=shift;
     my $imageWidth=shift;
@@ -4854,6 +4855,8 @@ sub initHeatmap($$$;$$$) {
     $missingColor=shift if @_;
     my $highlightColor="cyan";
     $highlightColor=shift if @_;
+    my $transparency=0;
+    $transparency=shift if @_;
     my $verbose=0;
     $verbose=shift if @_;
     
@@ -4863,11 +4866,11 @@ sub initHeatmap($$$;$$$) {
     $img->saveAlpha(1);
     
     my $colorPalette={};
-    my ($availableColors,$transparency)=getAvailableColors();
+    my ($availableColors)=getAvailableColors($transparency);
     my ($availableColorScales)=getAvailableColorScales();
     
     # first color becomes images background
-    $colorPalette->{ BG } = $img->colorAllocate(200,200,200);
+    $colorPalette->{ BG } = $img->colorAllocateAlpha(200,200,200,$transparency);
     
     $img->fill(0,0,$colorPalette->{ BG });
     

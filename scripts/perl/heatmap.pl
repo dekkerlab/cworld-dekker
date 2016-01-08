@@ -22,7 +22,7 @@ use constant PI    => 4 * atan2(1, 1);
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrixArray,$verbose,$output,$outputSuffix,$logTransform,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    my ($inputMatrixArray,$verbose,$output,$outputSuffix,$logTransform,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode,$transparency);
     
     my $ret={};
     
@@ -218,6 +218,13 @@ sub check_options {
         $scaleMode="combined";
     }
     
+    if( exists($opts->{ transparency }) ) {
+        $transparency = $opts->{ transparency };
+        $transparency = 0 if(($transparency < 0) || ($transparency > 255));
+    } else {
+        $transparency=0;
+    }
+    
     if(($drawTriangle) and ($drawDiamond)) {
         $drawTriangle=0;
         $drawDiamond=0;
@@ -256,8 +263,9 @@ sub check_options {
     $ret->{ embed_meta }=$embed_meta;
     $ret->{ contigSpacing }=$contigSpacing;
     $ret->{ scaleMode }=$scaleMode;
+    $ret->{ transparency }=$transparency;
     
-    return($ret,$inputMatrixArray,$verbose,$output,$outputSuffix,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode);
+    return($ret,$inputMatrixArray,$verbose,$output,$outputSuffix,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode,$transparency);
 }
 
 sub intro() {
@@ -314,6 +322,8 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--mc", "[null]", "missing data color");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--hc", "[cyan]", "highlight row/col data color");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--cs", "[]", "contig spacing, pixel size for spacing between contigs (contig border)");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--t", "[]", "transparency setting for all colors [0-255] 0=none / 255=full");
+    
     
     print STDERR "\n";
     
@@ -447,8 +457,8 @@ sub scaleByFragmentSize($$;$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','outputSuffix|os=s','imageSize|is=i','pixelSize|ps=i','y_pixelSize|yps=i','x_pixelSize|xps=i','maxImageDim|maxdim=i','drawPixelBorder|dpb','omitContigBorder|ocb','drawLabel|dl','drawScores|ds','logTransform|lt=f','colorScaleStart|start=f','colorScaleEnd|end=f','colorScaleStartTile|startTile=f','colorScaleEndTile|endTile=f','posColorString|pc=s','negColorString|nc=s','missingColor|mc=s','highlightColor|hc=s','elementBedFile|ebf=s','imageQuality|iq=i','scaleFragmentSizes|sfs','drawTriangle|dt','drawDiamond|dd','transparentBGFlag|bg','embed_meta|em','contigSpacing|cs=f','scaleMode|sm=s') or croak help();
-my ($ret,$inputMatrixArray,$verbose,$output,$outputSuffix,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrixArray|i=s@','verbose|v','output|o=s','outputSuffix|os=s','imageSize|is=i','pixelSize|ps=i','y_pixelSize|yps=i','x_pixelSize|xps=i','maxImageDim|maxdim=i','drawPixelBorder|dpb','omitContigBorder|ocb','drawLabel|dl','drawScores|ds','logTransform|lt=f','colorScaleStart|start=f','colorScaleEnd|end=f','colorScaleStartTile|startTile=f','colorScaleEndTile|endTile=f','posColorString|pc=s','negColorString|nc=s','missingColor|mc=s','highlightColor|hc=s','elementBedFile|ebf=s','imageQuality|iq=i','scaleFragmentSizes|sfs','drawTriangle|dt','drawDiamond|dd','transparentBGFlag|bg','embed_meta|em','contigSpacing|cs=f','scaleMode|sm=s','transparency|t=i') or croak help();
+my ($ret,$inputMatrixArray,$verbose,$output,$outputSuffix,$imageSize,$pixelSize,$y_pixelSize,$x_pixelSize,$maxImageDim,$drawPixelBorder,$omitContigBorder,$drawLabel,$drawScores,$logTransform,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile,$posColorString,$negColorString,$missingColor,$highlightColor,$elementBedFile,$imageQuality,$scaleFragmentSizes,$drawTriangle,$drawDiamond,$transparentBGFlag,$embed_meta,$contigSpacing,$scaleMode,$transparency)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -592,8 +602,12 @@ $output=$matrixObject->{ output };
 $output .= "__".$outputSuffix if($outputSuffix ne "");
 
 if($logTransform > 0) {
-    print STDERR "\nlog transformming matrix (lt=$logTransform)...\n" if($verbose);
+    print STDERR "log transformming matrix (lt=$logTransform)...\n" if($verbose);
     $matrix=logTransformMatrix($matrix,$matrixObject,$logTransform);
+    print STDERR "\tdone\n" if($verbose);
+    
+    print STDERR "\n" if($verbose);
+
 }
 
 # calculate the color scale
@@ -713,7 +727,7 @@ if(-e($elementBedFile)) {
 
 # create the perl gd object
 print STDERR "Calculating Color Information...\n" if($verbose);
-my ($img,$colorPalette,$nColorShades,$availableColors)=initHeatmap($imageHeight,$imageWidth,$colorString,$missingColor,$highlightColor,$verbose);
+my ($img,$colorPalette,$nColorShades,$availableColors)=initHeatmap($imageHeight,$imageWidth,$colorString,$missingColor,$highlightColor,$transparency,$verbose);
 
 # calculate color distances
 my ($colorDistance,$colorBucketSize,$cisColorDistance,$cisColorBucketSize,$transColorDistance,$transColorBucketSize);

@@ -85,9 +85,10 @@ par(mfrow= c(4, 1))
 par(cex=1.1)
 
 plotGeneDensity(x,data$geneDensity,data$eigen1,paste(jobName,"geneDensity",sep="\n"))
-plotEigen(x,data$eigen1,paste("prinicple component #1",sep="\n"))
-plotEigen(x,data$eigen2,paste("prinicple component #2",sep="\n"))
-plotEigen(x,data$eigen3,paste("prinicple component #3",sep="\n"))
+
+plotEigen(x,data$eigen1,paste("prinicple component #1 - evr [",(mean(data$eigen1evr)*100),"%]",sep=""))
+plotEigen(x,data$eigen2,paste("prinicple component #2 - evr [",(mean(data$eigen2evr)*100),"%]",sep=""))
+plotEigen(x,data$eigen3,paste("prinicple component #3 - evr [",(mean(data$eigen3evr)*100),"%]",sep=""))
 
 dev.off()
 

@@ -5,6 +5,7 @@ PCA on supplied matrix.  Extract PC1, PC2, PC3.  Works best on distance normaliz
 """
 
 from __future__ import print_function
+from __future__ import division
 
 # Built in modules
 import argparse
@@ -21,6 +22,8 @@ import itertools
 
 from collections import *
 from math import cos,log,sin,sqrt 
+from sklearn.decomposition import PCA
+from sklearn import decomposition
 
 # For eigenvectors and eigenvalues
 #from scipy.stats.stats import nanmean
@@ -120,15 +123,23 @@ def main():
     corrMatrix = np.corrcoef(matrix)
     verboseprint("done",file=sys.stderr)
     
+    verboseprint("")
+    
     # do eigenvector analysis
     verboseprint("running PCA ... ",end="",file=sys.stderr)
-    egv_data = calculate_eigen(corrMatrix, 3)
+    pca_score,pca_v = calculate_eigen(corrMatrix, 3)
     verboseprint("done",file=sys.stderr)
     
-    eig1=egv_data[0][0]
-    eig2=egv_data[0][1]
-    eig3=egv_data[0][2]
- 
+    verboseprint("\teigen1","{:.12%}".format(pca_score[0]))
+    verboseprint("\teigen2","{:.12%}".format(pca_score[1]))
+    verboseprint("\teigen3","{:.12%}".format(pca_score[2]))
+    
+    verboseprint("")
+    
+    eig1=pca_v[0]
+    eig2=pca_v[1]
+    eig3=pca_v[2]
+    
     # pre-populate with nan
     egv1=np.nan*np.ones(nrows)
     egv2=np.nan*np.ones(nrows)
@@ -141,7 +152,9 @@ def main():
     geneDensity=np.nan*np.ones(nrows)
     
     compartmentFile=inputMatrix_name+".compartments"    
-    writeCompartmentFile(egv1,egv2,egv3,geneDensity,header_rows,compartmentFile,verbose)
+    writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,compartmentFile,verbose)
+    
+    verboseprint("")
     
     verboseprint("intersecing compartments with ref seq ... ",end="",file=sys.stderr)
     compartmentRefSeqFile=compartmentFile+".refSeq.txt"
@@ -151,16 +164,18 @@ def main():
     eigenMultiplier,geneDensity = detectActiveCompartment(compartmentRefSeqFile,verbose)
     os.system("rm "+compartmentRefSeqFile)
 
-    verboseprint("flipping vectors by",eigenMultiplier," ... ",end="",file=sys.stderr)
+    verboseprint("\tflipping vectors by",eigenMultiplier," ... ",end="",file=sys.stderr)
     egv1 *= eigenMultiplier
     egv2 *= eigenMultiplier
     egv3 *= eigenMultiplier
     verboseprint("done",file=sys.stderr)
     
-    writeCompartmentFile(egv1,egv2,egv3,geneDensity,header_rows,compartmentFile,verbose)
+    verboseprint("")
+    
+    writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,compartmentFile,verbose)
     
     eig1BedGraphFile=inputMatrix_name+".eigen1.bedGraph"    
-    writeBedGraphFile(egv1,header_rows,inputMatrix_name,eig1BedGraphFile,verbose)
+    writeBedGraphFile(egv1,pca_score[0],header_rows,inputMatrix_name,eig1BedGraphFile,verbose)
     
     verboseprint("drawing plot (",inputMatrix_name,") ... ",end="",file=sys.stderr)
     drawPlot = scriptPath+"/R/plotEigen.R"
@@ -186,7 +201,7 @@ def main():
     
     verboseprint("",file=sys.stderr)
 
-def writeBedGraphFile(egv1,header_rows,name,outfile,verbose=0):
+def writeBedGraphFile(egv1,evr,header_rows,name,outfile,verbose=0):
     "write the compartment file"
     
     verboseprint = print if verbose else lambda *a, **k: None
@@ -198,7 +213,7 @@ def writeBedGraphFile(egv1,header_rows,name,outfile,verbose=0):
     yBound=round(yBound,5)
     
     out_fh=open(outfile,"w")
-    print("track type=bedGraph name='"+name+"' description='"+name+"' maxHeightPixels=128:64:32 visibility=full autoScale=off viewLimits="+str(-yBound)+":"+str(yBound)+" color=0,255,0 altColor=255,0,0",end="\n",file=out_fh)
+    print("track type=bedGraph name='"+name+"-evr:"+str(evr)+"%' description='"+name+"-evr:"+str(evr)+"%' maxHeightPixels=128:64:32 visibility=full autoScale=off viewLimits="+str(-yBound)+":"+str(yBound)+" color=0,255,0 altColor=255,0,0",end="\n",file=out_fh)
 
     for i,header in enumerate(header_rows):
         m=re.search(r'(\S+)\|(\S+)\|(\S+):(\d+)-(\d+)',header)
@@ -216,7 +231,7 @@ def writeBedGraphFile(egv1,header_rows,name,outfile,verbose=0):
     out_fh.close()
     verboseprint("done",file=sys.stderr)
     
-def writeCompartmentFile(egv1,egv2,egv3,geneDensity,header_rows,outfile,verbose=0):
+def writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,outfile,verbose=0):
     "write the compartment file"
     
     verboseprint = print if verbose else lambda *a, **k: None
@@ -227,9 +242,9 @@ def writeCompartmentFile(egv1,egv2,egv3,geneDensity,header_rows,outfile,verbose=
     verboseprint("writing eigenvector file (",outfile,") ... ",end="",file=sys.stderr)
     
     if len(geneDensity)==nan_geneDensity:
-        print("#chr\tstart\tend\tname\tindex\teigen1\teigen2\teigen3",end="\n",file=out_fh)
+        print("#chr\tstart\tend\tname\tindex\teigen1\teigen1evr\teigen2\teigen2evr\teigen3\teigen3evr",end="\n",file=out_fh)
     else:
-        print("#chr\tstart\tend\tname\tindex\teigen1\teigen2\teigen3\tgeneDensity",end="\n",file=out_fh)
+        print("#chr\tstart\tend\tname\tindex\teigen1\teigen1evr\teigen2\teigen2evr\teigen3\teigen3evr\tgeneDensity",end="\n",file=out_fh)
         
     for i,header in enumerate(header_rows):
         m=re.search(r'(\S+)\|(\S+)\|(\S+):(\d+)-(\d+)',header)
@@ -243,10 +258,10 @@ def writeCompartmentFile(egv1,egv2,egv3,geneDensity,header_rows,outfile,verbose=
         eigen3=egv3[i]
         
         if len(geneDensity)==nan_geneDensity:
-            print(str(chr_id)+"\t"+str(bin_start)+"\t"+str(bin_end)+"\t"+str(header)+"\t"+str(i)+"\t"+str(eigen1)+"\t"+str(eigen2)+"\t"+str(eigen3),end="\n",file=out_fh)
+            print(str(chr_id)+"\t"+str(bin_start)+"\t"+str(bin_end)+"\t"+str(header)+"\t"+str(i)+"\t"+str(eigen1)+"\t"+str(pca_score[0])+"\t"+str(eigen2)+"\t"+str(pca_score[1])+"\t"+str(eigen3)+"\t"+str(pca_score[2]),end="\n",file=out_fh)
         else:
             nGenes=geneDensity[i]
-            print(str(chr_id)+"\t"+str(bin_start)+"\t"+str(bin_end)+"\t"+str(header)+"\t"+str(i)+"\t"+str(eigen1)+"\t"+str(eigen2)+"\t"+str(eigen3)+"\t",str(nGenes),end="\n",file=out_fh)
+            print(str(chr_id)+"\t"+str(bin_start)+"\t"+str(bin_end)+"\t"+str(header)+"\t"+str(i)+"\t"+str(eigen1)+"\t"+str(pca_score[0])+"\t"+str(eigen2)+"\t"+str(pca_score[1])+"\t"+str(eigen3)+"\t"+str(pca_score[2])+"\t"+str(nGenes),end="\n",file=out_fh)
     
     out_fh.close()
     
@@ -272,7 +287,7 @@ def detectActiveCompartment(file,verbose=0):
     for i,x in enumerate(infh):
         a=x.rstrip("\n").split("\t")
         
-        nGenes=float(a[8])
+        nGenes=float(a[11])
         geneDensity.append(nGenes)
         
         if a[5] == 'nan':
@@ -309,12 +324,35 @@ def calculate_eigen(A, numPCs = 3):
     """performs eigen vector analysis, and returns 3 best principal components
     result[0] is the first PC, etc"""    
     
-    A = np.array(A,float)
-    M = (A-np.mean(A.T,axis=1)).T 
-    covM = np.dot(M,M.T)
-    [latent,coeff] =  scipy.sparse.linalg.eigsh(covM,numPCs)
+    #A = np.array(A,float)
+    #M = (A-np.mean(A.T,axis=1)).T 
+    #covM = np.dot(M,M.T)
+    #[latent,coeff] =  scipy.sparse.linalg.eigsh(covM,numPCs)
+    #return (np.transpose(coeff[:,::-1]),latent[::-1])
     
-    return (np.transpose(coeff[:,::-1]),latent[::-1])
+    #egv_data = calculate_eigen(corrMatrix, 3)
+    
+    #eig1=egv_data[0][0]
+    #eig2=egv_data[0][1]
+    #eig3=egv_data[0][2]
+ 
+    # pre-populate with nan
+    #egv1=np.nan*np.ones(nrows)
+    #egv2=np.nan*np.ones(nrows)
+    #egv3=np.nan*np.ones(nrows)
+    
+    #egv1[~nan_rowcols]=eig1
+    #egv2[~nan_rowcols]=eig2
+    #egv3[~nan_rowcols]=eig3
+    
+    pca = decomposition.PCA(n_components=3)
+    pca.fit(A)
+    PCA(copy=True, n_components=3, whiten=False)
+    pca_score=pca.explained_variance_ratio_
+    pca_v = pca.components_
+    
+    return(pca_score,pca_v)
+    
 
 def load_matrix(fh,hrows=0,hcols=0,np_dtype='float32',row_block_size=1000,numpy_mode=True,max_rows=None,verbose=False,return_all=False,pad=None):
     """

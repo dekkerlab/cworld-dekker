@@ -46,8 +46,8 @@ plotGeneDensity <- function(x,y,eigen1,plotTitle) {
 	} else {
 		ybounds<-c(0,ybound)
 	}
-	
-	plot(x,y,type="n",main=plotTitle,ylab="gene density",xlab="genomic coordinates (bp)",ylim=ybounds)
+	    
+    plot(x,y,type="n",main=plotTitle,ylab="gene density",xlab="genomic coordinates (bp)",ylim=ybounds)
 	
 	for (i in 1:(length(x)-1) ) {
 		tmpX<-x[i]
@@ -75,7 +75,6 @@ jobName<-args[3]
 setwd(cwd)
 
 data<-read.table(inputFile,header=T,sep="\t",comment.char="")
-
 x<-data$index
 
 pngfile<-paste(inputFile,".png",sep='')

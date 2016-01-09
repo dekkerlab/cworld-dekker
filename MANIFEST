@@ -168,6 +168,7 @@ scripts/R/multiHistogram.R
 scripts/R/plotBED.R
 scripts/R/plotDistance.R
 scripts/R/plotEigen.R
+scripts/R/plotEVR.R
 scripts/R/plotIQR.R
 scripts/R/plotLoess.R
 scripts/R/plotScaling.R

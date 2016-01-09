@@ -7,13 +7,20 @@ PCA on supplied matrix.  Extract PC1, PC2, PC3.  Works best on distance normaliz
 from __future__ import print_function
 from __future__ import division
 
-# Built in modules
-import argparse
-import os.path
 import sys
+import argparse
+import subprocess
+import shlex
+import logging
+import itertools
+import time
 import gzip
 import re
-import logging
+import os
+import math
+import uuid
+import socket
+from datetime import datetime
 
 import numpy as np
 import scipy as sp
@@ -29,6 +36,10 @@ from sklearn import decomposition
 #from scipy.stats.stats import nanmean
 #from scipy import linalg as la
 #from scipy import weave 
+
+verboseprint=lambda *a, **k: None
+__version__ = "1.0"
+debug = None
 
 def main():
     
@@ -52,6 +63,7 @@ def main():
         log_level = logging.DEBUG
     logging.basicConfig(level=log_level)
     
+    global verboseprint
     verboseprint = print if verbose else lambda *a, **k: None
     
     if not os.path.isfile(inputMatrix):
@@ -67,10 +79,7 @@ def main():
     verboseprint("",file=sys.stderr)
     
     verboseprint("loading matrix ... ",end="",file=sys.stderr)
-    if inputMatrix.endswith('.gz'):
-        infh=gzip.open(inputMatrix,'r')
-    else:
-        infh=open(inputMatrix,'r')
+    infh=input_wrapper(inputMatrix)
     
     matrix,header_rows,header_cols = load_matrix((l for l in infh if not l.startswith('#')), hrows=1, hcols=1) # since this returns data, header_rows and header_cols
     infh.close()
@@ -95,7 +104,7 @@ def main():
             assembly=genome
             
     try:
-        with open(refSeqFile) as rsfh:
+        with input_wrapper(refSeqFile) as rsfh:
             pass
     except IOError as e:
         sys.exit("invalid refSeq file! ("+refSeqFile+")")
@@ -152,7 +161,7 @@ def main():
     geneDensity=np.nan*np.ones(nrows)
     
     compartmentFile=inputMatrix_name+".compartments"    
-    writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,compartmentFile,verbose)
+    writeCompartmentFile(egv1,egv2,egv3,pca_score[0:3],geneDensity,header_rows,compartmentFile)
     
     verboseprint("")
     
@@ -161,8 +170,8 @@ def main():
     os.system("bedtools intersect -a "+compartmentFile+" -b "+refSeqFile+" -c > "+compartmentRefSeqFile)
     verboseprint("done",file=sys.stderr)
     
-    eigenMultiplier,geneDensity = detectActiveCompartment(compartmentRefSeqFile,verbose)
-    os.system("rm "+compartmentRefSeqFile)
+    eigenMultiplier,geneDensity = detectActiveCompartment(compartmentRefSeqFile)
+    #os.system("rm "+compartmentRefSeqFile)
 
     verboseprint("\tflipping vectors by",eigenMultiplier," ... ",end="",file=sys.stderr)
     egv1 *= eigenMultiplier
@@ -172,17 +181,22 @@ def main():
     
     verboseprint("")
     
-    writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,compartmentFile,verbose)
+    writeCompartmentFile(egv1,egv2,egv3,pca_score[0:3],geneDensity,header_rows,compartmentFile)
     
     eig1BedGraphFile=inputMatrix_name+".eigen1.bedGraph"    
-    writeBedGraphFile(egv1,pca_score[0],header_rows,inputMatrix_name,eig1BedGraphFile,verbose)
+    writeBedGraphFile(egv1,pca_score[0],header_rows,inputMatrix_name,eig1BedGraphFile)
     
-    verboseprint("drawing plot (",inputMatrix_name,") ... ",end="",file=sys.stderr)
-    drawPlot = scriptPath+"/R/plotEigen.R"
-    os.system("Rscript "+drawPlot+" `pwd` "+compartmentFile+" "+inputMatrix_name+" 0.1 > /dev/null")
+    verboseprint("drawing eigen plot (",inputMatrix_name,") ... ",end="",file=sys.stderr)
+    eigenPlot = scriptPath+"/R/plotEigen.R"
+    os.system("Rscript "+eigenPlot+" `pwd` "+compartmentFile+" "+inputMatrix_name+" > /dev/null")
     verboseprint("done",file=sys.stderr)
     
-    #valid_rowcols=np.where(nan_rowcols == False)[0]
+    verboseprint("drawing evr plot (",inputMatrix_name,") ... ",end="",file=sys.stderr)
+    evrFile=inputMatrix_name+".evr.txt"    
+    writePCAevr(pca_score,evrFile)
+    evrPlot = scriptPath+"/R/plotEVR.R"
+    os.system("Rscript "+evrPlot+" `pwd` "+evrFile+" "+inputMatrix_name+" > /dev/null")
+    verboseprint("done",file=sys.stderr)
     
     collapsed_corrMatrixFile=inputMatrix_name+'.collapsed.correlation.matrix.gz'
     verboseprint("writing collapsed_corrcoef matrix ...",end="",file=sys.stderr)
@@ -201,10 +215,19 @@ def main():
     
     verboseprint("",file=sys.stderr)
 
-def writeBedGraphFile(egv1,evr,header_rows,name,outfile,verbose=0):
-    "write the compartment file"
+
+def writePCAevr(pca_score,outfile):
+    out_fh=output_wrapper(outfile)
+    print("eigenvector","\t","evr",sep="",file=out_fh)
     
-    verboseprint = print if verbose else lambda *a, **k: None
+    for i,evr in enumerate(pca_score):
+        print(i+1,evr,sep="\t",file=out_fh)
+    
+    out_fh.close()
+    
+        
+def writeBedGraphFile(egv1,evr,header_rows,name,outfile):
+    "write the compartment file"
     
     verboseprint("writing bed graph file (",outfile,") ... ",end="",file=sys.stderr)
     
@@ -212,7 +235,7 @@ def writeBedGraphFile(egv1,evr,header_rows,name,outfile,verbose=0):
     yBound *= 1.25
     yBound=round(yBound,5)
     
-    out_fh=open(outfile,"w")
+    out_fh=output_wrapper(outfile,suppress_comments=True)
     print("track type=bedGraph name='"+name+"-evr:"+str(evr)+"%' description='"+name+"-evr:"+str(evr)+"%' maxHeightPixels=128:64:32 visibility=full autoScale=off viewLimits="+str(-yBound)+":"+str(yBound)+" color=0,255,0 altColor=255,0,0",end="\n",file=out_fh)
 
     for i,header in enumerate(header_rows):
@@ -231,14 +254,12 @@ def writeBedGraphFile(egv1,evr,header_rows,name,outfile,verbose=0):
     out_fh.close()
     verboseprint("done",file=sys.stderr)
     
-def writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,outfile,verbose=0):
+def writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,outfile):
     "write the compartment file"
-    
-    verboseprint = print if verbose else lambda *a, **k: None
-    
+        
     nan_geneDensity=np.sum(np.isnan(geneDensity))
     
-    out_fh=open(outfile,"w")
+    out_fh=output_wrapper(outfile,suppress_comments=True)
     verboseprint("writing eigenvector file (",outfile,") ... ",end="",file=sys.stderr)
     
     if len(geneDensity)==nan_geneDensity:
@@ -267,14 +288,12 @@ def writeCompartmentFile(egv1,egv2,egv3,pca_score,geneDensity,header_rows,outfil
     
     verboseprint("done",file=sys.stderr)
     
-def detectActiveCompartment(file,verbose=0):
+def detectActiveCompartment(file):
     "detect the active compartment - overlap +/- with gene density"
-    
-    verboseprint = print if verbose else lambda *a, **k: None
-    
+        
     eigenMultiplier=1
     
-    infh=open(file,'r')
+    infh=input_wrapper(file)
     #chr    start   end     name    eigen1  eigen2  eigen3 geneCount    
     
     geneDensity=[]
@@ -345,12 +364,13 @@ def calculate_eigen(A, numPCs = 3):
     #egv2[~nan_rowcols]=eig2
     #egv3[~nan_rowcols]=eig3
     
-    pca = decomposition.PCA(n_components=3)
+    ncomp=min(100,A.shape[0])
+    pca = decomposition.PCA(n_components=ncomp)
     pca.fit(A)
     PCA(copy=True, n_components=3, whiten=False)
     pca_score=pca.explained_variance_ratio_
-    pca_v = pca.components_
-    
+    pca_v = pca.components_[0:3]
+        
     return(pca_score,pca_v)
     
 
@@ -365,7 +385,7 @@ def load_matrix(fh,hrows=0,hcols=0,np_dtype='float32',row_block_size=1000,numpy_
         if (fh=='-'):
             fh=sys.stdin
         else:
-            fh=open(fh,'r')
+            fh=input_wrapper(fh)
             fh_from_filename=True
 
     original_fh=fh
@@ -480,6 +500,74 @@ def load_matrix(fh,hrows=0,hcols=0,np_dtype='float32',row_block_size=1000,numpy_
     
     return data
 
+  
+def input_wrapper(infile):
+    if infile.endswith('.gz'):
+        fh=gzip.open(infile,'r')
+    else:
+        fh=open(infile,'r')
+        
+    return fh
+    
+def output_wrapper(outfile,append=False,suppress_comments=False):
+    
+    if outfile.endswith('.gz'):
+        if append:
+            fh=gzip.open(outfile,'a')
+        else:
+            fh=gzip.open(outfile,'w')   
+    else:
+        if append:
+            fh=open(outfile,'a')
+        else:
+            fh=open(outfile,'w')
+    
+    # disable comment(s)if (UCSC format file)
+    if outfile.endswith('.bed'):
+        suppress_comments = True
+    if outfile.endswith('.bed.gz'):
+        suppress_comments = True
+    if outfile.endswith('.bedGraph'):
+        suppress_comments = True
+    if outfile.endswith('.bedGraph.gz'):
+        suppress_comments = True
+    if outfile.endswith('.wig'):
+        suppress_comments = True
+    if outfile.endswith('.wig.gz'):
+        suppress_comments = True
+    if outfile.endswith('.sam'):
+        suppress_comments = True
+    if outfile.endswith('.sam.gz'):
+        suppress_comments = True
+    if outfile.endswith('.bam'):
+        suppress_comments = True
+    if outfile.endswith('.fastq'):
+        suppress_comments = True
+    if outfile.endswith('.fastq.gz'):
+        suppress_comments = True
+
+    if not suppress_comments:
+        print("## ",os.path.basename(__file__),sep="",file=fh)
+        print("## ",sep="",file=fh)
+        print("## Dekker Lab",sep="",file=fh)
+        print("## Contact: Bryan R. Lajoie",sep="",file=fh)
+        print("## https://github.com/blajoie",sep="",file=fh)
+        print("## ",sep="",file=fh)
+        print("## Version:\t",__version__,sep="",file=fh)
+        print("## Date:\t",get_date(),sep="",file=fh)
+        print("## Host:\t",get_compute_resource(),sep="",file=fh)
+    
+    return(fh)
+
+def get_date():
+    time=datetime.now()
+    date=time.strftime('%I:%M:%S %p, %m/%d/%Y')
+    
+    return date
+
+def get_compute_resource():
+    return(socket.gethostname())
+
 def writeMatrix(header_rows,header_cols,matrix,matrixFile,precision=4):
     """
     write a np matrix with row/col headers - my5C file format - txt formatted gzipped file
@@ -489,7 +577,7 @@ def writeMatrix(header_rows,header_cols,matrix,matrixFile,precision=4):
     ncols=len(header_cols)
     
     # interaction matrix output
-    out_fh=gzip.open(matrixFile,"wb")
+    out_fh=output_wrapper(matrixFile)
     
     # write matrix col headers
     header=[str(i) for i in header_cols]

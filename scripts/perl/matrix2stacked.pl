@@ -217,7 +217,7 @@ sub matrix2stacked($$$$$$) {
     
     for(my $i=-$nOffsetBins;$i<=$nOffsetBins;$i++) {
         my $binOffset=(($i+($headerSizing-$headerSpacing))*$headerSpacing);
-        print OUT "\t$binOffset";
+        print OUT "\tx_".$binOffset;
     }
     print OUT "\n";
         

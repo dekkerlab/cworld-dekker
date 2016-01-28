@@ -183,7 +183,7 @@ sub help() {
     printf STDERR ("\t%-10s %-10s %-10s\n", "--caf", "[1000]", "cis approximate factor to speed up loess, genomic distance / -caffs");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--lt", "[]", "log transform input data into specified base");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ez", "[]", "FLAG, ignore 0s in all calculations");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--fm", "[zScore]", "outlier detection mode - zScore,obsExp");
+    printf STDERR ("\t%-10s %-10s %-10s\n", "--fm", "[zScore]", "factorMode, how to apply the correction factors (zScore,obsExp)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--mi", "[]", "max iterations allowed");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ct", "[0.1]", "optional, convergance threshold");
     print STDERR "\n";

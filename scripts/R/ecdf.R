@@ -18,10 +18,9 @@ ks.boot <- function(x, y, ...,
 		D[i] <- ks$statistic
 		p[i] <- ks$p.value
 	}
-	list(D = mean(D), p.value = mean(p), nboots = nboots)
-	
 	close(pb)
-
+	
+	return(list(D = mean(D), p.value = mean(p), nboots = nboots))
 }
 
 args <- commandArgs(TRUE)

@@ -272,6 +272,7 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
     my $highlightMatrix={};
     
     my $numAnchors=@{$elements};
+    
     my $numInteractions=(($numAnchors*$numAnchors)-$numAnchors);
     my $nItx=keys %{$interactions};
     $numInteractions=keys %{$interactions} if($nItx != 0);
@@ -285,9 +286,10 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
         my $element_1_name=$elements->[$a1]->{ name2 };
         
         my $elementObject_1=getHeaderObject($element_1,1);
-        my $element1_chromosome=$elementObject_1->{ chromosome };
+        my $element1_chromosome=stripChromosomeGroup($elementObject_1->{ chromosome });
         
         my $elementIndex_1=-1;
+        
         $elementIndex_1=$header2inc->{ xy }->{$element_1} if(exists($header2inc->{ xy }->{$element_1}));
         croak "non-existant header ($element_1)" if($elementIndex_1 == -1);
     
@@ -298,19 +300,18 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
             # exclude self:self interactions
             next if($a1 == $a2);
             
-            
             my $element_2=$elements->[$a2]->{ name };
             my $element_2_name=$elements->[$a2]->{ name2 };
             my $elementObject_2=getHeaderObject($element_2,1);
-            my $element2_chromosome=$elementObject_2->{ chromosome };
-        
+            my $element2_chromosome=stripChromosomeGroup($elementObject_2->{ chromosome });
+                
             my $key=$element_1_name."___".$element_2_name;
-            next if(!exists($interactions->{$key}));
+            next if(($nItx != 0) and (!exists($interactions->{$key})));
             
             my $elementIndex_2=-1;
             $elementIndex_2=$header2inc->{ xy }->{$element_2} if(exists($header2inc->{ xy }->{$element_2}));
             croak "non-existant header [$element_2]" if($elementIndex_2 == -1);
-            
+
             my $elementIndex_x=$elementIndex_2;
             
             $interactionCounter++;
@@ -325,13 +326,13 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
             # subset by element (#element) distance
             next if((defined($minElementDistance)) and ($elementDistance < $minElementDistance));
             next if((defined($maxElementDistance)) and ($elementDistance > $maxElementDistance));
-        
+            
             my $tmpMatrix={} if($debugMode);
             my $tmp_inc2header={} if($debugMode);
             
             # exclude diagonal 
             next if(($includeDiagonal == 0) and (abs($elementIndex_y-$elementIndex_x) <= (($elementZoneSize_bins*2)+1)));
-                    
+                        
             for(my $y=0;$y<$numYLabels;$y++) {
                 my $yOffset=$label_to_offset->{$y};
                 my $tmpY=($elementIndex_y+$yOffset);
@@ -342,8 +343,8 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
                     
                 my $tmp_yHeader=$inc2header->{ xy }->{$tmpY};
                 my $tmp_yHeader_object=getHeaderObject($tmp_yHeader,1);
-                my $tmp_yHeader_chromosome=$tmp_yHeader_object->{ chromosome };
-                
+                my $tmp_yHeader_chromosome=stripChromosomeGroup($tmp_yHeader_object->{ chromosome });
+                                
                 next if($tmp_yHeader_chromosome ne $element1_chromosome);
                     
                 $tmp_inc2header->{ y }->{ $y }=$tmp_yHeader if($debugMode);
@@ -358,7 +359,7 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
                     
                     my $tmp_xHeader=$inc2header->{ xy }->{$tmpX};
                     my $tmp_xHeader_object=getHeaderObject($tmp_xHeader,1);
-                    my $tmp_xHeader_chromosome=$tmp_xHeader_object->{ chromosome };
+                    my $tmp_xHeader_chromosome=stripChromosomeGroup($tmp_xHeader_object->{ chromosome });
                     
                     next if($tmp_xHeader_chromosome ne $element2_chromosome);
                     
@@ -370,7 +371,7 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
                     my $tmp_yHeaderObject=getHeaderObject($tmp_yHeader,1);
                     my $interactionDistance=getInteractionDistance($matrixObject,$tmp_yHeaderObject,$tmp_xHeaderObject,1);
                     my $interactionType=classifyInteractionDistance($interactionDistance);
-                    
+                                  
                     # subset by distance
                     next if((defined($minDistance)) and ($interactionDistance < $minDistance));
                     next if((defined($maxDistance)) and ($interactionDistance > $maxDistance));
@@ -410,7 +411,7 @@ sub interactionPileUp($$$$$$$$$$$$$$$$$$) {
             my $element_2_shortName=(split(/__/,$element_2_name))[0];
             
             my $tmpMatrixFile=$element_1_shortName."__".$element_2_shortName."__".$interactionCounter.".matrix.gz";            
-            writeMatrix($tmpMatrix,$tmp_inc2header,$tmpMatrixFile,0) if($debugMode);
+            writeMatrix($tmpMatrix,$tmp_inc2header,$tmpMatrixFile,"NA") if($debugMode);
             
         }
     }
@@ -500,9 +501,10 @@ sub buildElements($;$) {
     my $bedName="";
     $bedName=shift if @_;
     
-    $bedName = "__".$bedName if($bedName ne "");
-    my $combinedBedFile=$bedName."__".getSmallUniqueString().".bed";
+    $bedName = $bedName."__" if($bedName ne "");
+    my $combinedBedFile=$bedName.getSmallUniqueString().".bed";
     
+    my %elements=();
     my %interactions=();
     
     open(OUT,outputWrapper($combinedBedFile)) or confess "Could not open file [$combinedBedFile] - $!";
@@ -520,7 +522,7 @@ sub buildElements($;$) {
         
         my @tmp=split(/\t/,$line);
         
-        confess "bad itx format - expected 7 columns, bed3 + bed3 + name\n\t@tmp\n\t$line\n" if(@tmp != 7);
+        confess "bad itx format - expected 7 columns, bed3 + bed3 + name\n\t@tmp\n\t$line\n" if(@tmp < 7);
         
         $tmp[1] =~ s/,//g;
         $tmp[2] =~ s/,//g;
@@ -546,14 +548,17 @@ sub buildElements($;$) {
         $tmp[4]=floor($midpoint_2);
         $tmp[5]=ceil($midpoint_2);
         
-        my $name_1 = $tmp[6]."_1";
-        my $name_2 = $tmp[6]."_2";
+
+        my $key_1=$tmp[0].":".$tmp[1]."-".$tmp[2];
+        print OUT "$tmp[0]\t$tmp[1]\t$tmp[2]\t$key_1\n" if(!exists($elements{$key_1}));
+        $elements{$key_1}=1;
         
-        my $key=$name_1."___".$name_2;
+        my $key_2=$tmp[3].":".$tmp[4]."-".$tmp[5];
+        print OUT "$tmp[3]\t$tmp[4]\t$tmp[5]\t$key_2\n" if(!exists($elements{$key_2}));
+        $elements{$key_2}=1;
+    
+        my $key=$key_1."___".$key_2;
         $interactions{$key}=1;
-        
-        print OUT "$tmp[0]\t$tmp[1]\t$tmp[2]\t$name_1\n";
-        print OUT "$tmp[3]\t$tmp[4]\t$tmp[5]\t$name_2\n";
     }
     
     close(IN);
@@ -629,7 +634,7 @@ if(@{$elementBedFiles} >= 1) {
 
 } else {
 
-    print STDERR "building elements from itx file\n" if($verbose);
+    print STDERR "building elements from itx file [$interactionBedFile]\n" if($verbose);
     print STDERR "\n" if($verbose);
     
     $elementFileName=getFileName($interactionBedFile);
@@ -653,7 +658,7 @@ system("rm '".$elementBedFile."'") if(-e $elementBedFile);
 
 print STDERR "\n" if($verbose);
 
-print STDERR "loading Bed file ...\n" if($verbose);
+print STDERR "loading bed file ...\n" if($verbose);
 my ($elements)=loadBED($bedOverlapFile);
 print STDERR "\tfound ".@{$elements}." elements\n" if($verbose);
 system("rm '".$bedOverlapFile."'");

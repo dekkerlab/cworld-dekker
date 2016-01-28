@@ -141,7 +141,7 @@ def main():
     inhdf.close()
     
 def fib(n):
-    a,b = 1,1
+    a,b = 0,1
     
     while(b < n):
         a,b = b,a+b

@@ -29,9 +29,18 @@ for (i in 1:nFiles) {
 	dataVector<-subset(dataVector,dataVector!=".")
 	
 	dataVector<-as.numeric(dataVector)
+
+	tmpName<-basename(tmpFile)
+	tmpName.arr<-unlist(strsplit(tmpName,"\\."))
+	print(tmpName)
+	tmpName<-tmpName.arr[1]
 	
 	# do some outlier trimming (1.5 IQR)
 	tmpIQR<-IQR(dataVector)
+	quant<-quantile(dataVector, c(0.25, 0.5, 0.75), type = 1)
+	q1<-quant[1]
+	q2<-quant[2]
+	q3<-quant[3]
 	tmpMedian<-median(dataVector)
 	tmpTop<-tmpMedian+(1.5*tmpIQR)
 	tmpBottom<-tmpMedian-(1.5*tmpIQR)
@@ -40,15 +49,12 @@ for (i in 1:nFiles) {
 	dataVector<-subset(dataVector,dataVector<tmpTop)
 	
 	variance<-var(dataVector)
-	
-	print(paste(tmpIQR,tmpMedian,tmpTop,tmpBottom))
+	stdev<-sd(dataVector)
 	
 	barData<-c(barData,variance)
 	
-	tmpName<-basename(tmpFile)
-	tmpName.arr<-unlist(strsplit(tmpName,"\\."))
-	tmpName<-tmpName.arr[1]
-	print(tmpName)
+
+	print(paste("iqr=",tmpIQR,"q1=",q1,"q2=",q2,"q3=",q3,"median=",tmpMedian,"iqrTop=",tmpTop,"iqrBottom=",tmpBottom,"variance=",variance,"stdev=",stdev))
 	
 	if(nchar(tmpName) > 50) {
 		tmpName<-substr(tmpName,0,50)

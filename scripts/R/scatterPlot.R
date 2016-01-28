@@ -23,10 +23,6 @@ if(length(name_2) > 60) {
 	name_2<-substr(name_2, 1, 60)
 }
 
-plotFile<-paste(name,".",correlationMode,sep="")
-pngfile<-paste(plotFile,".png",sep='')
-png(pngfile,height=600,width=600)
-
 tmpData_1<-read.table(inputFile_1,skip=skip,header=F,sep="\t",stringsAsFactors=FALSE,comment.char="#")
 dataVector_1=tmpData_1[,eval(dataColumn)]
 
@@ -44,13 +40,20 @@ scatter<-subset(scatter,scatter[,2]!="NaN")
 scatter <- data.frame(scatter)
 names(scatter) <- c("x","y")
 
-
 res <- resid(mod <- lm(y ~ x,data=scatter))
 res.qt <- quantile(res, probs = c(outlierFraction,(1-outlierFraction)))
 good <- which(res >= res.qt[1] & res <= res.qt[2])
 rmatrix<-cor(scatter[good,],method=correlationMode)
 r<-rmatrix[2]
 fit<-lm(y~x,data=scatter[good,])
+
+cat(paste(name,"\t",r,"\n",sep=""))
+
+# plot PNG image
+
+plotFile<-paste(name,".",correlationMode,sep="")
+pngfile<-paste(plotFile,".png",sep='')
+png(pngfile,height=600,width=600)
 
 plot(scatter, type = "n",main=paste(name,"\n",correlationMode,"\noutlier=",outlierFraction," & ","r=",r),cex=0.5,xlab=name_1,ylab=name_2)
 points(scatter[-good,], col = "black", pch = 21, bg = "black", cex = 0.8)
@@ -59,4 +62,15 @@ abline(fit, col = "blue", lwd = 2)
 
 garbage <- dev.off()
 
-cat(paste(name,"\t",r,"\n",sep=""))
+# plot PDF image
+
+plotFile<-paste(name,".",correlationMode,sep="")
+pdffile<-paste(plotFile,".pdf",sep='')
+pdf(pdffile)
+
+plot(scatter, type = "n",main=paste(name,"\n",correlationMode,"\noutlier=",outlierFraction," & ","r=",r),cex=0.5,xlab=name_1,ylab=name_2)
+points(scatter[-good,], col = "black", pch = 21, bg = "black", cex = 0.8)
+points(scatter[good,], col = "red", pch = 21, bg = "red", cex = 0.8)
+abline(fit, col = "blue", lwd = 2)
+
+garbage <- dev.off()

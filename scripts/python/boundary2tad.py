@@ -302,8 +302,6 @@ def create_tad(boundary_noise,boundary_ref,anchor_idx,chr_bound,tads,header2idx,
     return(tads)
     
 def num_consecutive_nan(arr):
-        
-    
     max_con_nan = 0
     con_nan = [len(list(v)) for i, v in itertools.groupby(np.isnan(arr)) if i]
     if(len(con_nan) > 0):

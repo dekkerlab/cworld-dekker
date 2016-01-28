@@ -114,7 +114,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 our @EXPORT = qw(autoScale autoSize badFormat baseName
-             calculateColorPalette calculateLoess calculateLog2Ratio
+             calculateColorPalette calculateColorString calculateLoess calculateLog2Ratio
              calculateObsMinusExp calculateTransExpected calculateZscore
              classifyInteraction classifyInteractionDistance
              combineBedFiles commify compareMatrices
@@ -126,7 +126,7 @@ our @EXPORT = qw(autoScale autoSize badFormat baseName
              getHeaderObject getRestrictionEnzymeSequences
              getRowSum getScriptOpts getShortFileName getSmallUniqueString
              getUniqueString getUserHomeDirectory header2subMatrix headers2bed
-             initHeatmap inputWrapper intersectBED intersectHeaders isOverlapping
+             initHeatmap initColors inputWrapper intersectBED intersectHeaders isOverlapping
              isSymmetrical listStats loadBED logTransformMatrix matrix2distance
              matrix2inputlist matrix2listfile matrix2pairwise midpointBedFile
              scaleMatrix outputWrapper parseHeaders processMatrixFile
@@ -4953,6 +4953,7 @@ sub initHeatmap($$$;$$$$) {
     return($img,$colorPalette,$nPosNegColorShades,$availableColors);
 }
 
+
 =head2 calculateColorPalette
 
  Title     : calculateColorPalette
@@ -5046,6 +5047,182 @@ sub calculateColorPalette($$$$$$$) {
     $nColorShades = (($nColors-1)*$shadesPerColor);
     
     return($colorPalette,$img,$nColorShades);
+}
+
+=head2 initColors
+
+ Title     : initColors
+ Usage     : $colorPalette,$nPosNegColorShades,$availableColors=initColors(...)
+ Function  : init a perl-GD image object
+ Returns   : colorPalette hash, nPosNegColorShades, availableColors hash
+ Argument  : 
+
+=cut
+
+sub initColors($$$;$$$$) {
+    # required
+    my $colorString=shift;
+    # optional
+    my $missingColor="null";
+    $missingColor=shift if @_;
+    my $highlightColor="cyan";
+    $highlightColor=shift if @_;
+    my $transparency=0;
+    $transparency=shift if @_;
+    my $verbose=0;
+    $verbose=shift if @_;
+    
+    my $colorPalette={};
+    my ($availableColors)=getAvailableColors($transparency);
+    my ($availableColorScales)=getAvailableColorScales();
+    
+    # missing data color
+    if($missingColor =~ /\./) {
+        my @rgb = split(/\./, $missingColor);
+        confess "color is not in the available color list nor is a valid rgb color ($missingColor)" if((@rgb != 3) and (@rgb != 4));
+        foreach my $rgb_value (@rgb){
+            confess "color is not in the available color list nor is a valid rgb color ($missingColor)" if(($rgb_value < 0) || ($rgb_value > 255));
+        }
+        my $tmpTransparency=$transparency;
+        $tmpTransparency=$rgb[3] if(@rgb == 4);
+        @{$availableColors->{ $missingColor }} = ($rgb[0],$rgb[1],$rgb[2],$tmpTransparency);
+    } 
+    confess "unknown color ($missingColor)" if(!(exists($availableColors->{ $missingColor })));
+    
+    my $nColorShades = 255;
+    $nColorShades -= keys(%{$colorPalette});
+    
+    my $nPositiveColorShades=floor($nColorShades/2);
+    my $nNegativeColorShades=floor($nColorShades/2);
+    
+    my ($positiveColorString,$negativeColorString)=split(/___/,$colorString);
+    
+    # turn names color scale into names color list
+    $positiveColorString=$availableColorScales->{ $positiveColorString } if(exists($availableColorScales->{ $positiveColorString }));
+    $negativeColorString=$availableColorScales->{ $negativeColorString } if(exists($availableColorScales->{ $negativeColorString }));
+    
+    # positive color information
+    $positiveColorString=$positiveColorString.",".$positiveColorString if($positiveColorString !~ /,/);
+    my @positiveColorStringArray=split(/,/,$positiveColorString);
+    my $nPositiveColors=@positiveColorStringArray;
+    my $nPositiveShadesPerColor=floor($nPositiveColorShades/($nPositiveColors-1));    
+    $nPositiveColorShades = (($nPositiveColors-1)*($nPositiveShadesPerColor-1));
+    
+    # negative color information
+    $negativeColorString=$negativeColorString.",".$negativeColorString if($negativeColorString !~ /,/);
+    my @negativeColorStringArray=split(/,/,$negativeColorString);
+    my $nNegativeColors=@negativeColorStringArray;
+    my $nNegativeShadesPerColor=floor($nNegativeColorShades/($nNegativeColors-1));    
+    $nNegativeColorShades = (($nNegativeColors-1)*($nNegativeShadesPerColor-1));
+    
+    # adjust pos/neg color information to make symmetrical
+    $nPositiveColorShades = $nNegativeColorShades if($nNegativeColorShades < $nPositiveColorShades);
+    $nNegativeColorShades = $nPositiveColorShades if($nPositiveColorShades < $nNegativeColorShades);
+    
+    print STDERR "\tpositive color ($positiveColorString)\n" if($verbose);
+    ($colorPalette,$nPositiveColorShades)=calculateColorStrings($nPositiveColorShades,$positiveColorString,$availableColors,$colorPalette,"pc");
+
+    print STDERR "\tnegative color ($negativeColorString)\n" if($verbose);
+    ($colorPalette,$nNegativeColorShades)=calculateColorStrings($nNegativeColorShades,$negativeColorString,$availableColors,$colorPalette,"nc");
+        
+    my $nPosNegColorShades=$nPositiveColorShades=$nNegativeColorShades;
+    
+    return($colorPalette,$nPosNegColorShades,$availableColors);
+}
+
+
+=head2 calculateColorStrings
+
+ Title     : calculateColorStrings
+ Usage     : $colorPalette,$nColorShades=calculateColorPalette(...)
+ Function  : calculate a user-defined color palette [range]
+ Returns   : nColorShades, colorString, availableColors hash, colorPalette hash, colorMode, img object, transparency value
+ Argument  : 
+
+=cut
+
+sub calculateColorStrings($$$$$$) {
+    my $nColorShades=shift;
+    my $colorString=shift;
+    my $availableColors=shift;
+    my $colorPalette=shift;
+    my $colorMode=shift;
+    my $transparency=shift;
+    
+    my @colorStringArray=split(/,/,$colorString);
+    my $nColors=@colorStringArray;
+    confess "not enough colors! $nColors - $colorString" if($nColors < 2);
+
+    my $shadesPerColor=floor($nColorShades/($nColors-1));    
+    
+    # JMB 08/14/14 change
+    #validate that color either exists in palette or is a valid RGB color
+    for(my $i=0;$i<$nColors;$i++) {
+        my $currentColorName=$colorStringArray[$i];
+        
+        if($currentColorName =~ /\./) { # if color is RGB code
+            my @rgb = split(/\./, $currentColorName);
+            confess "color is not in the available color list nor is a valid rgb color ($currentColorName)" if((@rgb != 3) and (@rgb != 4));
+            
+            foreach my $rgb_value (@rgb){
+                confess "color is not in the available color list nor is a valid rgb color ($currentColorName)" if(($rgb_value < 0) || ($rgb_value > 255));
+            }
+            
+            # push user defined RGB code onto availableColors container
+            my $tmpTransparency=$transparency;
+            $tmpTransparency=$rgb[3] if(@rgb == 4);
+            @{$availableColors->{ $currentColorName }} = ($rgb[0],$rgb[1],$rgb[2],$tmpTransparency);
+            
+        } else { # if color is named color
+            confess "unknown color ($currentColorName)" if(!(exists($availableColors->{ $currentColorName })));
+        }
+    }
+    
+
+    for(my $i=0;$i<($nColors-1);$i++) {
+        my $currentColorName=$colorStringArray[$i];
+        my $currentColor=$availableColors->{ $currentColorName };
+        my $currentColorRed=$currentColor->[0];
+        my $currentColorGreen=$currentColor->[1];
+        my $currentColorBlue=$currentColor->[2];
+        
+        my $nextColorName=$colorStringArray[$i+1];
+        my $nextColor=$availableColors->{ $nextColorName };
+        my $nextColorRed=$nextColor->[0];
+        my $nextColorGreen=$nextColor->[1];
+        my $nextColorBlue=$nextColor->[2];
+        
+        my $redDistance=($currentColorRed - $nextColorRed);
+        my $greenDistance=($currentColorGreen - $nextColorGreen);
+        my $blueDistance=($currentColorBlue - $nextColorBlue);        
+        
+        my $redColorStep=($redDistance/($shadesPerColor-1));
+        my $greenColorStep=($greenDistance/($shadesPerColor-1));
+        my $blueColorStep=($blueDistance/($shadesPerColor-1));
+        
+        for(my $c=0;$c<$shadesPerColor;$c++) {
+            my $red=$currentColorRed;
+            my $green=$currentColorGreen;
+            my $blue=$currentColorBlue;
+            
+            $red -= round($c*$redColorStep);
+            $green -= round($c*$greenColorStep);
+            $blue -= round($c*$blueColorStep);
+            
+            $red=$nextColorRed if($c == ($shadesPerColor-1));
+            $green=$nextColorGreen if($c == ($shadesPerColor-1));
+            $blue=$nextColorBlue if($c == ($shadesPerColor-1));
+            
+            my $colorIndex=(($i*$shadesPerColor)+$c);
+            @{$colorPalette->{ $colorMode }[$colorIndex]} = ($red,$green,$blue);
+            
+        }
+
+    }
+    
+    $nColorShades = (($nColors-1)*$shadesPerColor);
+    
+    return($colorPalette,$nColorShades);
 }
 
 =head2 getColorIndex
@@ -5275,8 +5452,8 @@ sub combineBedFiles($;$) {
     my $bedName="";
     $bedName=shift if @_;
     
-    $bedName = "__".$bedName if($bedName ne "");
-    my $combinedBedFile=$bedName."__".getSmallUniqueString().".bed";
+    $bedName = $bedName."__" if($bedName ne "");
+    my $combinedBedFile=$bedName.getSmallUniqueString().".bed";
     
     open(OUT,outputWrapper($combinedBedFile)) or confess "Could not open file [$combinedBedFile] - $!";
     
@@ -5324,15 +5501,16 @@ sub combineBedFiles($;$) {
 
 =cut
 
-sub midpointBedFile($$) {
+sub midpointBedFile($;$) {
     # required
     my $inputBedFile=shift;
     # optional
     my $bedName="";
     $bedName=shift if @_;
     
-    $bedName = "__".$bedName if($bedName ne "");
-    my $combinedBedFile=$bedName."__".getSmallUniqueString().".bed";
+    $bedName = $bedName."__" if($bedName ne "");
+    $bedName = getFileName($inputBedFile)."__";
+    my $combinedBedFile=$bedName.getSmallUniqueString().".bed";
     
     my $numElements=0;
     

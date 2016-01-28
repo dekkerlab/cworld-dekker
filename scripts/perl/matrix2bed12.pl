@@ -17,7 +17,7 @@ my $tool=(split(/\//,abs_path($0)))[-1];
 sub check_options {
     my $opts = shift;
 
-    my ($inputMatrix,$verbose,$output,$scaleStart,$scaleEnd,$scaleStartTile,$scaleEndTile);
+    my ($inputMatrix,$verbose,$output,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile);
     
     my $ret={};
     
@@ -40,39 +40,39 @@ sub check_options {
         $output = "";
     }
     
-     if( exists($opts->{ scaleStart }) ) {
-        $scaleStart = $opts->{ scaleStart };
+     if( exists($opts->{ colorScaleStart }) ) {
+        $colorScaleStart = $opts->{ colorScaleStart };
     } else {
-        $scaleStart = "NA";
+        $colorScaleStart = "NA";
     }
     
     if( exists($opts->{ scaleEnd }) ) {
-        $scaleEnd = $opts->{ scaleEnd };
+        $colorScaleEnd = $opts->{ scaleEnd };
     } else {
-        $scaleEnd = "NA";
+        $colorScaleEnd = "NA";
     }
     
-    if( exists($opts->{ scaleStartTile }) ) {
-        $scaleStartTile = $opts->{ scaleStartTile };
+    if( exists($opts->{ colorScaleStartTile }) ) {
+        $colorScaleStartTile = $opts->{ colorScaleStartTile };
     } else {
-        $scaleStartTile = 0.025;
+        $colorScaleStartTile = 0.025;
     }
     
     if( exists($opts->{ scaleEndTile }) ) {
-        $scaleEndTile = $opts->{ scaleEndTile };
+        $colorScaleEndTile = $opts->{ scaleEndTile };
     } else {
-        $scaleEndTile = 0.975;
+        $colorScaleEndTile = 0.975;
     }
     
     $ret->{ inputMatrix }=$inputMatrix;
     $ret->{ verbose }=$verbose;
     $ret->{ output }=$output;
-    $ret->{ scaleStart }=$scaleStart;
-    $ret->{ scaleEnd }=$scaleEnd;
-    $ret->{ scaleStartTile }=$scaleStartTile;
-    $ret->{ scaleEndTile }=$scaleEndTile;
+    $ret->{ colorScaleStart }=$colorScaleStart;
+    $ret->{ scaleEnd }=$colorScaleEnd;
+    $ret->{ colorScaleStartTile }=$colorScaleStartTile;
+    $ret->{ scaleEndTile }=$colorScaleEndTile;
     
-    return($ret,$inputMatrix,$verbose,$output,$scaleStart,$scaleEnd,$scaleStartTile,$scaleEndTile);
+    return($ret,$inputMatrix,$verbose,$output,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile);
 }
 
 sub intro() {
@@ -126,13 +126,14 @@ sub help() {
     exit;
 }
 
-sub matrix2bed12($$$$$$) {
+sub matrix2bed12($$$$;$) {
     my $matrixObject=shift;
     my $matrix=shift;
-    my $scaleStart=shift;
-    my $scaleEnd=shift;
-    my $scaleBucketSize=shift;
-    my $nColorShades=shift;
+    my $colorScaleStart=shift;
+    my $colorScaleEnd=shift;
+    # optional
+    my $verbose=0;
+    $verbose = shift if @_;
     
     my $inc2header=$matrixObject->{ inc2header };
     my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -143,9 +144,25 @@ sub matrix2bed12($$$$$$) {
     
     my %usedName=();
     
+    my $posColorString="white,cyan,blue,darkBlue";
+    my $negColorString="white,orange,red,darkRed";
+    my $colorString=$posColorString."___".$negColorString;
+    my $missingColor="null";
+    my $transparency=0;
+    
+    my ($colorPalette,$nColorShades,$availableColors)=initColors($colorString,$missingColor,$transparency,$verbose);
+    
+    # calculate color distances
+    my ($colorDistance,$colorBucketSize,$cisColorDistance,$cisColorBucketSize,$transColorDistance,$transColorBucketSize);
+    $colorDistance=$colorBucketSize=$cisColorDistance=$cisColorBucketSize=$transColorDistance=$transColorBucketSize="NA";
+    $colorDistance = ($colorScaleEnd-$colorScaleStart) if(($colorScaleEnd ne "NA") and ($colorScaleStart ne "NA"));
+    $colorBucketSize = ($colorDistance/($nColorShades-1)) if($colorDistance ne "NA");
+    print STDERR "\t$colorDistance [$colorBucketSize]\n" if($verbose);
+    print STDERR "\n" if($verbose);
+
     my $bedFile=$output.".bed.gz";
     open(OUT,outputWrapper($bedFile)) or croak "Could not open file [$bedFile] - $!";
-    print OUT "track name=$output description='$output ($scaleStart - $scaleEnd)' useScore=1 visibility=4 itemRgb='On'\n";
+    print OUT "track name=$output description='$output ($colorScaleStart - $colorScaleEnd)' useScore=1 visibility=4 itemRgb='On'\n";
 
     for(my $y=0;$y<$numYHeaders;$y++) {
         my $yHeader=$inc2header->{ y }->{$y};
@@ -168,9 +185,8 @@ sub matrix2bed12($$$$$$) {
             next if($score eq "NA");
             next if($score == 0);
             
-            my $scaleIndex = -1;
-            $scaleIndex=getColorIndex($score,$scaleStart,$scaleEnd,$nColorShades,$scaleBucketSize) if($score ne "NA");
-            next if($scaleIndex == 0);
+            my $colorIndex = -1;
+            $colorIndex=getColorIndex($score,$colorScaleStart,$colorScaleEnd,$nColorShades,$colorBucketSize) if($score ne "NA");
             
             my $chromosome=$yChromosome=$xChromosome;
             
@@ -190,10 +206,20 @@ sub matrix2bed12($$$$$$) {
             $usedName{$name2}=1;
             
             my $strand=".";
-            my $rgb="0,0,0";
-            $rgb="255,0,0" if($score > 0);
-            $rgb="0,0,255" if($score < 0);
             
+            my $color=$colorPalette->{ N };
+        
+            if($score eq "NA") {
+                $color=$colorPalette->{ NA } if(exists($colorPalette->{ NA }));
+            } elsif($score < 0) {
+                $color=$colorPalette->{ nc }[$colorIndex] if(($colorIndex != -1) and (exists($colorPalette->{ nc }[$colorIndex])));
+            } elsif($score >= 0) {
+                $color=$colorPalette->{ pc }[$colorIndex] if(($colorIndex != -1) and (exists($colorPalette->{ pc }[$colorIndex])));
+            }
+            $colorString=join(",",@$color);
+            
+            #print "$score\t$colorScaleStart\t$colorScaleEnd\t$colorIndex\t$colorString\n";
+
             my $blockCount=2;
             
             my ($blockSizes,$blockStarts);
@@ -205,7 +231,7 @@ sub matrix2bed12($$$$$$) {
                 $blockStarts="0,".($yStart-$start);
             }
         
-            print OUT "$chromosome\t$start\t$end\t$name\t$scaleIndex\t$strand\t$start\t$end\t$rgb\t$blockCount\t$blockSizes\t$blockStarts\n";
+            print OUT "$chromosome\t$start\t$end\t$name\t$score\t$strand\t$start\t$end\t$colorString\t$blockCount\t$blockSizes\t$blockStarts\n";
             
         }
     }
@@ -216,8 +242,8 @@ sub matrix2bed12($$$$$$) {
 }
 
 my %options;
-my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','scaleStart|start=s','scaleEnd|end=s','scaleStartTile|startTile=s','scaleEndTile|endTile=s') or croak help();
-my ($ret,$inputMatrix,$verbose,$output,$scaleStart,$scaleEnd,$scaleStartTile,$scaleEndTile)=check_options( \%options );
+my $results = GetOptions( \%options,'inputMatrix|i=s','verbose|v','output|o=s','colorScaleStart|start=s','scaleEnd|end=s','colorScaleStartTile|startTile=s','scaleEndTile|endTile=s') or croak help();
+my ($ret,$inputMatrix,$verbose,$output,$colorScaleStart,$colorScaleEnd,$colorScaleStartTile,$colorScaleEndTile)=check_options( \%options );
 
 intro() if($verbose);
 
@@ -247,19 +273,15 @@ my ($matrix)=getData($inputMatrix,$matrixObject,$verbose);
 
 print STDERR "\n" if($verbose);
 
-my $nColorShades=1000;
-print STDERR "Calculating Auto Color scale [$scaleStartTile:$scaleEndTile]...\n" if($verbose);
-my ($tmpScaleStart,$tmpScaleEnd)=autoScale($matrixObject,$matrix,$scaleStartTile,$scaleEndTile);
-$scaleStart=$tmpScaleStart if($scaleStart eq "NA");
-$scaleEnd=$tmpScaleEnd if($scaleEnd eq "NA");
-my $scaleDistance = ($scaleEnd-$scaleStart);
-my $scaleBucketSize = ($scaleDistance/($nColorShades-1));
-print STDERR "\tALL\t".$scaleStart."-".$scaleEnd."\n" if($verbose);
+print STDERR "Calculating Auto Color scale [$colorScaleStartTile:$colorScaleEndTile]...\n" if($verbose);
+my ($tmpScaleStart,$tmpScaleEnd)=autoScale($matrixObject,$matrix,$colorScaleStartTile,$colorScaleEndTile);
+$colorScaleStart=$tmpScaleStart if($colorScaleStart eq "NA");
+$colorScaleEnd=$tmpScaleEnd if($colorScaleEnd eq "NA");
 
 print STDERR "\n" if($verbose);
 
 print STDERR "Transforming into bed12 ...\n" if($verbose);
-my $bedFile=matrix2bed12($matrixObject,$matrix,$scaleStart,$scaleEnd,$scaleBucketSize,$nColorShades);
+my $bedFile=matrix2bed12($matrixObject,$matrix,$colorScaleStart,$colorScaleEnd,$verbose);
 print STDERR "\tdone\n" if($verbose);
 
 print STDERR "\n" if($verbose);

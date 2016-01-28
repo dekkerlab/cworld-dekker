@@ -117,7 +117,6 @@ sub help() {
     print STDERR "Options:\n";
     printf STDERR ("\t%-10s %-10s %-10s\n", "-v", "[]", "FLAG, verbose mode");
     printf STDERR ("\t%-10s %-10s %-10s\n", "-o", "[]", "prefix for output file(s)");
-    printf STDERR ("\t%-10s %-10s %-10s\n", "--lof", "[]", "optional loess object file (pre-calculated loess)");   
     printf STDERR ("\t%-10s %-10s %-10s\n", "--ezs", "[]", "elementZoneSize, size of zone to use around element (x axis - in BP)");
     printf STDERR ("\t%-10s %-10s %-10s\n", "--am", "[]", "aggregrate mode, how to aggregrate signal [mean,sum,median]");    
     printf STDERR ("\t%-10s %-10s %-10s\n", "--minDist", "[]", "minimum allowed interaction distance, exclude < N distance (in BP)");

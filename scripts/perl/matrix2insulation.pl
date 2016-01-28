@@ -319,9 +319,8 @@ sub calculateInsulation($$$$$$$$) {
         #mean center the insulation scores
         my $normalizedInsulationScore = "NA";
         $normalizedInsulationScore = (log($insulationScore/$meanInsulationScore)/log(2)) if(($meanInsulationScore ne "NA") and ($insulationScore ne "NA") and ($meanInsulationScore != 0) and ($insulationScore != 0));
-            
+         
         $matrixInsulation{$yHead}{ normalized_insulation }=$normalizedInsulationScore;
-        #print STDERR "$y\t$normalizedInsulationScore\n";
         push(@normalizedInsulationSignals,$normalizedInsulationScore) if($normalizedInsulationScore ne "NA");
     }
     
@@ -615,7 +614,6 @@ sub detectInsulationBoundaries($$$$$$$) {
         $tadBoundaries{$yHead}{ strength }=$valleyDeltaStrength;
         $tadBoundaries{$yHead}{ insulation }=$normalized_insulation;
         $tadBoundaries{$yHead}{ directionality }=$valleyDirectionality;
-        
         
         push(@boundaryStrengthArr,$valleyDeltaStrength) if($valleyDeltaStrength ne "NA");
         push(@boundaryDirectionalityArr,$valleyDirectionality) if($valleyDirectionality ne "NA");

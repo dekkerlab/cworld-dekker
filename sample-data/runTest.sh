@@ -1,5 +1,5 @@
 perl -I ../lib ../scripts/perl/addMatrixHeaders.pl -i ../sample-data/addMatrixHeaders/5C.naked.matrix.gz --xhf ../sample-data/addMatrixHeaders/5C.xHeaders.gz --yhf ../sample-data/addMatrixHeaders/5C.yHeaders.gz
-perl -I ../lib ../scripts/perl/aggregateBED.pl -i ../sample-data/aggregrateBED/chrX.bed.gz --a mm9 --wsize 40000 --wstep 1 --wmode sum
+perl -I ../lib ../scripts/perl/aggregateBED.pl -i ../sample-data/aggregrateBED/chrX.bed.gz --a mm9 --wsize 40000 --wstep 1 --wmode sum --cis
 perl -I ../lib ../scripts/perl/elementPileUp.pl -i ../sample-data/elementPileUp/NPC_chrX.matrix.gz --ebf ../sample-data/elementPileUp/Xi-escapees.bed --ezs 50000000 --ez --maxDist 50000000 
 perl -I ../lib ../scripts/perl/anchorPurge.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --ic --fm obsExp --im 1.5 
 perl -I ../lib ../scripts/perl/applyCorrection.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --ff ../sample-data/applyCorrection/K5.allPrimerFactors --ic
@@ -13,6 +13,7 @@ perl -I ../lib ../scripts/perl/compareMatrices.pl -1 ../sample-data/addMatrixHea
 perl -I ../lib ../scripts/perl/correlateMatrices.pl -1 ../sample-data/addMatrixHeaders/K5.matrix.gz -2 ../sample-data/combineMatrices/GM.matrix.gz -o K5__GM
 perl -I ../lib ../scripts/perl/coverageCorrect.pl -i ../sample-data/addMatrixHeaders/K5.matrix.gz --cm cis --ct 0.2
 perl -I ../lib ../scripts/perl/digitizePicture.pl -i ../sample-data/digitizePicture/K5.png
+perl -I ../lib ../scripts/perl/elementPileUp.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16__chr14__chr14__cis.matrix.gz --ebf ../sample-data/tickPlot/chr14.bed
 perl -I ../lib ../scripts/perl/extractSubMatrices.pl -i ../sample-data/collapseMatrix/NPC_chr14-chr15-chr16.matrix.gz --ozc chr14:50000000--70000000 --ozc chr15:1--30000000 --ozc chr16:30000000--90000000 --ozc chr14:1--20000000
 perl -I ../lib ../scripts/perl/fillMissingData.pl -i ../sample-data/fillMissingData/K5.outlierFiltered.matrix.gz
 perl -I ../lib ../scripts/perl/generateBins.pl --r chr1:1-2000000 --bsize 30000 --bstep 10 -a hg19 chr1-FGF5

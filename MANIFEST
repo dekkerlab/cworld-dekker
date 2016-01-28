@@ -120,6 +120,7 @@ scripts/perl/matrix2direction.pl
 scripts/perl/matrix2distance.pl
 scripts/perl/matrix2headerBed.pl
 scripts/perl/matrix2info.pl
+scripts/perl/matrix2insulation-lite.pl
 scripts/perl/matrix2insulation.pl
 scripts/perl/matrix2insulationRange.pl
 scripts/perl/matrix2loess.pl
@@ -141,9 +142,12 @@ scripts/python/findTADs.py
 scripts/python/getEigenVectors.py
 scripts/python/matrix2correlation.py
 scripts/python/matrix2EigenVectors.py
+scripts/python/matrix2insulation-lite.py
+scripts/python/matrix2tab.py
 scripts/python/sampleHDF5.py
 scripts/python/smoothImage.py
 scripts/python/smoothMatrix.py
+scripts/python/vec2mat.py
 scripts/R/anchorIterativeCorrectionPlot.R
 scripts/R/anchorPlot.R
 scripts/R/barPlots.R
@@ -162,6 +166,7 @@ scripts/R/histogram.R
 scripts/R/ksTest.R
 scripts/R/loess.R
 scripts/R/matrix2direction.R
+scripts/R/matrix2insulation-lite.R
 scripts/R/matrix2insulation.R
 scripts/R/multiDensity.R
 scripts/R/multiHistogram.R

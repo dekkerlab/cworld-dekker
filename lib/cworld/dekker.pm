@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 
 =head1 SYNOPSIS
 
@@ -2815,7 +2815,7 @@ sub matrix2inputlist($$$$$$$;$) {
             }
         }
         
-        $pcComplete = round((($y/($numYHeaders-1))*100),2);
+        $pcComplete = round((($y/($numYHeaders-1))*100),2) if($numYHeaders > 1);
         print STDERR "\e[A" if(($verbose) and ($y != 0));
         printf STDERR "\t%.2f%% complete (".$y."/".($numYHeaders-1).")...\n", $pcComplete if($verbose);
     }

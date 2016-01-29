@@ -118,9 +118,9 @@ def main():
         
         boundary_ref,chr_boundaries,chr_range,chr_idx,tads,boundary_field2index=assemble_tads(boundary_noise,boundary_ref,chr_boundaries,chr_range,chr_idx,tads,boundary_field2index,header2idx,insulation)
         
-        tad_bedFile=jobName+"__tads.bed"
+        tad_bedFile=jobName+"__nested-tads.bed"
         tad_fh=output_wrapper(tad_bedFile,suppress_comments=True)
-        print("track name='tad_bed' description='tad_bed' visibility=squish",end="\n",file=tad_fh)
+        print("track name='",jobName,"__nested-tads' description='",jobName,"__nested-tads' visibility=squish",sep="",end="\n",file=tad_fh)
 
         for i in xrange(len(tads)):
             tad,tad_headers,tad_strength=tads[i]
@@ -152,7 +152,7 @@ def main():
     
     matrix=fillTadMatrix(header_rows,header_cols,matrix,tads,header2idx,nan_rowcols)
     
-    tadMatrixFile=jobName+'.tad.matrix.gz'
+    tadMatrixFile=jobName+'__nested-tads.matrix.gz'
     verboseprint("writing tad matrix ...",end="")
     writeMatrix(header_rows,header_cols,matrix,tadMatrixFile)
     verboseprint("done")
@@ -166,7 +166,7 @@ def fillTadMatrix(header_rows,header_cols,matrix,tads,header2idx,nan_rowcols):
         tad_start_idx=header2idx[tad_start_header]
         tad_end_idx=header2idx[tad_end_header]
         
-        print(i,tad_start_header,tad_start_idx,tad_end_header,tad_end_idx,tad_strength,sep="\t")
+        #print(i,tad_start_header,tad_start_idx,tad_end_header,tad_end_idx,tad_strength,sep="\t")
         
         for y in xrange(tad_start_idx,tad_end_idx):
             for x in xrange(tad_start_idx,tad_end_idx):
@@ -190,8 +190,8 @@ def assemble_tads(boundary_noise,boundary_ref,chr_boundaries,chr_range,chr_idx,t
     while(len(chr_boundaries) != 0):
         tmp_strength,tmp_index=chr_boundaries.pop()
        
-        print("")
-        print("STARTING TAD #",tmp_index,boundary_ref[tmp_index]["header"]," ... ")
+        #print("")
+        #print("STARTING TAD #",tmp_index,boundary_ref[tmp_index]["header"]," ... ")
         
         boundary_ref[tmp_index]["available"]=False
         tads=create_tad(boundary_noise,boundary_ref,tmp_index,chr_range[chr_idx],tads,header2idx,insulation)
@@ -243,18 +243,18 @@ def create_tad(boundary_noise,boundary_ref,anchor_idx,chr_bound,tads,header2idx,
     left_idx=None
     if left_bound != None:
         for i in left_ref[::-1]:
-            print("\t\tleft searching",i,"...")
+            #print("\t\tleft searching",i,"...")
             tmp_strength=boundary_ref[i]["boundaryStrength"]
-            print("\t\t\t","left",anchor_idx,left_bound,i,anchor_strength,"vs",tmp_strength,"(",anchor_strength-tmp_strength,") [",boundary_noise,"]")
+            #print("\t\t\t","left",anchor_idx,left_bound,i,anchor_strength,"vs",tmp_strength,"(",anchor_strength-tmp_strength,") [",boundary_noise,"]")
  
             if(tmp_strength > (anchor_strength-boundary_noise)) or (abs(anchor_strength-tmp_strength) > boundary_noise):
-                print("\t\t\t\t","found a potential TAD!",anchor_strength,tmp_strength)
+                #print("\t\t\t\t","found a potential TAD!",anchor_strength,tmp_strength)
                 left_idx=i
                 break
             # else keep looking
                 
         if left_idx != None:
-            print("\t\t\t\t","good left idx",left_idx)
+            #print("\t\t\t\t","good left idx",left_idx)
             tad_start_header_idx=header2idx[boundary_ref[left_idx]["boundaryHeader"]]
             tad_end_header_idx=header2idx[boundary_ref[anchor_idx]["boundaryHeader"]]
             tad_insulation=np.array(insulation[tad_start_header_idx:tad_end_header_idx+1])
@@ -262,7 +262,7 @@ def create_tad(boundary_noise,boundary_ref,anchor_idx,chr_bound,tads,header2idx,
             tad_strength=np.nanmax(tad_insulation)-np.nanmin(tad_insulation)
             con_nan=num_consecutive_nan(tad_insulation)
             
-            print("\t\t\t\t",na_pc,con_nan)
+            #print("\t\t\t\t",na_pc,con_nan)
             if na_pc < 0.25 and con_nan < 10:
                 left_tad=[boundary_ref[left_idx]["header"],boundary_ref[anchor_idx]["header"]]
                 left_tad_headers=[boundary_ref[left_idx]["boundaryHeader"],boundary_ref[anchor_idx]["boundaryHeader"]]
@@ -274,17 +274,17 @@ def create_tad(boundary_noise,boundary_ref,anchor_idx,chr_bound,tads,header2idx,
     right_idx=None    
     if right_bound != None:
         for i in right_ref:
-            print("\t\tright searching",i,"...")
+           # print("\t\tright searching",i,"...")
             tmp_strength=boundary_ref[i]["boundaryStrength"]
-            print("\t\t\t","right",anchor_idx,right_bound,i,anchor_strength,"vs",tmp_strength,"(",anchor_strength-tmp_strength,") [",boundary_noise,"]")
+            #print("\t\t\t","right",anchor_idx,right_bound,i,anchor_strength,"vs",tmp_strength,"(",anchor_strength-tmp_strength,") [",boundary_noise,"]")
             
             if(tmp_strength > (anchor_strength-boundary_noise)) or (abs(anchor_strength-tmp_strength) > boundary_noise):
-                print("\t\t\t\t","found a potential TAD!",anchor_strength,tmp_strength)
+                #print("\t\t\t\t","found a potential TAD!",anchor_strength,tmp_strength)
                 right_idx=i
                 break
                 
         if right_idx != None:
-            print("\t\t\t\t","good right idx",right_idx)
+            #print("\t\t\t\t","good right idx",right_idx)
             tad_start_header_idx=header2idx[boundary_ref[anchor_idx]["boundaryHeader"]]
             tad_end_header_idx=header2idx[boundary_ref[right_idx]["boundaryHeader"]]
             tad_insulation=np.array(insulation[tad_start_header_idx:tad_end_header_idx+1])
@@ -292,7 +292,7 @@ def create_tad(boundary_noise,boundary_ref,anchor_idx,chr_bound,tads,header2idx,
             tad_strength=np.nanmax(tad_insulation)-np.nanmin(tad_insulation)
             con_nan=num_consecutive_nan(tad_insulation)
             
-            print("\t\t\t\t",na_pc,con_nan)
+            #print("\t\t\t\t",na_pc,con_nan)
             if na_pc < 0.25 and con_nan < 10:
                 right_tad=[boundary_ref[anchor_idx]["header"],boundary_ref[right_idx]["header"]]
                 right_tad_headers=[boundary_ref[anchor_idx]["boundaryHeader"],boundary_ref[right_idx]["boundaryHeader"]]

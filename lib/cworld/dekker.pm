@@ -134,7 +134,7 @@ our @EXPORT = qw(autoScale autoSize badFormat baseName
              roundNearest splitCoordinate stitchMatrices stripChromosomeGroup 
              translateFlag transposeMatrix getInteractionDistance updateMatrixObject validateBED
              validateIdenticalMatrixStructure validateLoessObject validateZoomCoordinate
-             writeMatrix);
+             which writeMatrix);
              
 our @EXPORT_OK = @EXPORT;
 
@@ -167,6 +167,28 @@ sub getDate() {
 sub commify {
    (my $num = shift) =~ s/\G(\d{1,3})(?=(?:\d\d\d)+(?:\.|$))/$1,/g; 
    return $num; 
+}
+
+=head2 which
+
+ Title     : which
+ Usage     : $path=which($bin)
+ Function  : return path of executable if exists
+ Returns   : string
+ Argument  : command
+
+=cut
+
+sub which($) {
+    my $command=shift;
+    
+    
+    my $path=`which $command 2>&1`;
+    chomp($path);
+    
+    confess "no path for $command" if($path =~ /which: no/);
+        
+    return($path);
 }
 
 =head2 get_script_opts

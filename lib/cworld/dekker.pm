@@ -5,7 +5,7 @@ package cworld::dekker;
 use 5.006;
 use strict;
 use warnings;
-use Carp qw(carp cluck confess confess);
+use Carp qw(carp cluck croak confess);
 use POSIX qw(ceil floor strftime);
 use List::Util qw[min max];
 use Cwd 'abs_path';
@@ -17,7 +17,7 @@ cworld::dekker - perl module and collection of utility/analysis scripts for C da
 
 =cut
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 =head1 SYNOPSIS
 

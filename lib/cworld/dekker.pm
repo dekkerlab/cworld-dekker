@@ -125,7 +125,7 @@ our @EXPORT = qw(autoScale autoSize badFormat baseName
              getMatrixSum getNARows getNumberOfLines getRowColFactor
              getHeaderObject getRestrictionEnzymeSequences
              getRowSum getScriptOpts getShortFileName getSmallUniqueString
-             getUniqueString getUserHomeDirectory header2subMatrix headers2bed
+             getUniqueString getUserHomeDirectory getUserEmail header2subMatrix headers2bed
              initHeatmap initColors inputWrapper intersectBED intersectHeaders isOverlapping
              isSymmetrical listStats loadBED logTransformMatrix matrix2distance
              matrix2inputlist matrix2listfile matrix2pairwise midpointBedFile
@@ -4211,7 +4211,34 @@ sub getRestrictionEnzymeSequences() {
     
     return(\%restrictionEnzymeSequences);
 }
+
+
+=head2 getUserEmail
+
+ Title     : getUserEmail
+ Usage     : $home=getUserEmail()
+ Function  : return user email address - if exists
+ Returns   : string
+ Argument  : 
+
+=cut
+
+sub getUserEmail() {
     
+    # hb67w:x:10839:1081:Houda Belaghzal [Houda.belaghzal@umassmed.edu]:/home/hb67w:/bin/bash
+    my $user_info=`grep \$USER /etc/passwd`;
+    chomp($user_info);
+    
+    my @tmp=split(/:/,$user_info);
+    my $user_email=$tmp[4];
+    $user_email=(split(/\[/,$user_email))[1];
+    $user_email =~ s/\]//;
+    
+    $user_email = "" if($user_email !~ /\@/);
+    
+    return($user_email);
+}
+
 =head2 getUserHomeDirectory
 
  Title     : getUserHomeDirectory

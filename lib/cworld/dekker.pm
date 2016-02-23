@@ -115,7 +115,7 @@ our @ISA = qw(Exporter);
 
 our @EXPORT = qw(autoScale autoSize badFormat baseName
              calculateColorPalette calculateColorString calculateLoess calculateLog2Ratio
-             calculateObsMinusExp calculateTransExpected calculateZscore
+             calculateObsMinusExp calculateTransExpected calculateZscore check_dependency
              classifyInteraction classifyInteractionDistance
              combineBedFiles commify compareMatrices
              correctMatrix correlateMatrices createTmpDir deGroupHeader
@@ -169,6 +169,31 @@ sub commify {
    return $num; 
 }
 
+=head2 check_dependency($)
+
+ Title     : check_dependency
+ Usage     : check_dependency()
+ Function  : check dependency of git repo
+ Returns   : string
+ Argument  : command
+
+=cut
+
+sub check_dependency($;$) {
+    # required
+    my $command=shift;
+    # optional
+    my $weblink=shift;
+    
+    my $repo=(split(/\//,$command))[-3];
+    
+    confess "missing dependency [$repo] - $command.\n\tPlease install\n\t$weblink\n\n" if(!-e($command));
+    
+    return($command);
+    
+}
+
+
 =head2 which
 
  Title     : which
@@ -179,14 +204,18 @@ sub commify {
 
 =cut
 
-sub which($) {
+sub which($;$) {
+    # required
     my $command=shift;
+    # optional
+    my $die=1;
+    $die=shift if @_;
     
-    
-    my $path=`which $command 2>&1`;
+    my $path="";
+    $path=`which $command 2>&1`;
     chomp($path);
     
-    confess "no path for $command" if($path =~ /which: no/);
+    confess "no path for $command" if(($path =~ /which: no/) and ($die == 1));
         
     return($path);
 }

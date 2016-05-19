@@ -37,7 +37,7 @@ sub check_options {
     if( exists($opts->{ output }) ) {
         $output = $opts->{ output };
     } else {
-        $output = "default";
+        $output = "";
     }
     
     if( exists($opts->{ excludeDiagonal }) ) {
@@ -258,7 +258,7 @@ if(@{$inputMatrixArray} > 1) {
         croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
         # get matrix information
-        my $matrixObject=getMatrixObject($inputMatrix,"");
+        my $matrixObject=getMatrixObject($inputMatrix,$output);
         my $inc2header=$matrixObject->{ inc2header };
         my $header2inc=$matrixObject->{ header2inc };
         my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -296,7 +296,7 @@ for(my $i=0;$i<@{$inputMatrixArray};$i++) {
     croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
     # get matrix information
-    my $matrixObject=getMatrixObject($inputMatrix,"",0);
+    my $matrixObject=getMatrixObject($inputMatrix,$output,0);
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=$matrixObject->{ numYHeaders };
@@ -341,7 +341,7 @@ for(my $i=0;$i<@scaledMatrixArray;$i++) {
     croak "inputMatrix [$inputMatrix] does not exist" if(!(-e $inputMatrix));
 
     # get matrix information
-    my $matrixObject=getMatrixObject($inputMatrix,"",0);
+    my $matrixObject=getMatrixObject($inputMatrix,$output,0);
     my $inc2header=$matrixObject->{ inc2header };
     my $header2inc=$matrixObject->{ header2inc };
     my $numYHeaders=$matrixObject->{ numYHeaders };

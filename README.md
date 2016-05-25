@@ -60,11 +60,18 @@ OR
 ```
 perl Build.PL
 ./Build
-./Build install --install_base /your/custom/dir)
+./Build install --install_base /your/custom/dir
 (ensure /your/custom/dir is added to your PERL5LIB path)
+
+e.g.
+./Build install --install_base ~/perl5
+# then in .bashrc
+export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
+
+
 ```
 
-After installing the module, you should be free to run the any scripts found in scriots/
+After installing the module, you should be free to run anything in scripts/
 e.g.
 ```
 $ perl scripts/heatmap.pl

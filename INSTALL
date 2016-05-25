@@ -6,11 +6,13 @@ perl Build.PL
 
 OR 
 
-./Build install --install_base /your/custom/dir)
-THEN
-PERL5LIB=${PERL5LIB}:/your/custom/dir [or add to bashrc]
+perl Build.PL
+./Build
+./Build install --install_base /your/custom/dir
+# (ensure /your/custom/dir is added to your PERL5LIB path)
 
-Then run your desired script.
 e.g.
-perl scripts/heatmap.pl
+./Build install --install_base ~/perl5
+# in .bashrc
+export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
 

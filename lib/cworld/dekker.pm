@@ -11,13 +11,18 @@ use List::Util qw[min max];
 use Cwd 'abs_path';
 use Cwd;
 
+# change log
+# 0.41.1 
+# fixed usage statment for correlateMatrices.pl
+#
+
 =head1 NAME
 
 cworld::dekker - perl module and collection of utility/analysis scripts for C data (3C, 4C, 5C, Hi-C)
 
 =cut
 
-our $VERSION = '0.41';
+our $VERSION = '0.41.1';
 
 =head1 SYNOPSIS
 

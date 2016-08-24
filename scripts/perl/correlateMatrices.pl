@@ -181,7 +181,7 @@ sub intro() {
 sub help() {
     intro();
     
-    print STDERR "Usage: perl correlateMatrices.pl [OPTIONS] -i1 <inputMatrix_1> -i2 <inputMatrix_2>\n";
+    print STDERR "Usage: perl correlateMatrices.pl [OPTIONS] -1 <inputMatrix_1> -2 <inputMatrix_2>\n";
     
     print STDERR "\n";
     

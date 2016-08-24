@@ -54,12 +54,6 @@ To install the module:
 ```
 perl Build.PL
 ./Build
-./Build install
-```
-OR 
-```
-perl Build.PL
-./Build
 ./Build install --install_base /your/custom/dir
 (ensure /your/custom/dir is added to your PERL5LIB path)
 
@@ -67,8 +61,19 @@ e.g.
 ./Build install --install_base ~/perl5
 # then in .bashrc
 export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
+```
 
+OR (to install globally - requires root!)
 
+```
+perl Build.PL
+./Build
+./Build install
+```
+
+To clean up after installing:
+```
+./Build distclean
 ```
 
 After installing the module, you should be free to run anything in scripts/

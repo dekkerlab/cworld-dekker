@@ -436,8 +436,7 @@ if(!validateLoessObject($loessObjectFile)) {
     # dump matrix data into input lists (CIS + TRANS)
     print STDERR "seperating cis/trans data...\n" if($verbose);
     ($inputDataCis,$inputDataTrans)=matrix2inputlist($matrixObject,$matrix,$includeCis,$includeTrans,$minDistance,$maxDistance,$excludeZero,$cisApproximateFactor);
-    croak "$inputMatrixName - no avaible CIS data" if(scalar @{ $inputDataCis } <= 0);
-    croak "$inputMatrixName - no avaible TRANS data" if(scalar @{ $inputDataTrans } <= 0);
+    croak "$inputMatrixName - no avaible data" if((scalar @{ $inputDataCis } <= 0) and (scalar @{ $inputDataTrans } <= 0));
     print STDERR "\n" if($verbose);
 }
 

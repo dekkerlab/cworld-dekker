@@ -119,7 +119,7 @@ def main():
     valid_rowcols=np.invert(nan_rowcols)
     
     # remove nan rows
-    matrix=matrix[-nan_rowcols,:][:,-nan_rowcols]
+    matrix=matrix[~nan_rowcols,:][:,~nan_rowcols]
     verboseprint("done",file=sys.stderr)
     
     # convert all nan to 0
@@ -231,7 +231,7 @@ def writeBedGraphFile(egv1,evr,header_rows,name,outfile):
     
     verboseprint("writing bed graph file (",outfile,") ... ",end="",file=sys.stderr)
     
-    yBound=np.nanmax(abs(np.nanmin(egv1)),np.nanmax(egv1))
+    yBound=np.nanmax([abs(np.nanmin(egv1)),np.nanmax(egv1)])
     yBound *= 1.25
     yBound=round(yBound,5)
     

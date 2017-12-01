@@ -15,7 +15,8 @@ import sys
 import gzip
 import re
 
-from scipy.stats.stats import nanmean
+# deprecated from scipy and unusde in the script:
+# from scipy.stats.stats import nanmean
 import numpy as np
 import scipy as sp
 from  collections import *
@@ -26,7 +27,8 @@ from noamlib  import *
 # For eigenvectors and eigenvalues
 from scipy import linalg as la
 from math import cos,log,sin,sqrt 
-from scipy import weave 
+# deprecated from scipy and unusde in the script:
+# from scipy import weave 
 
 def main():
     print("")

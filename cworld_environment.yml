@@ -1,0 +1,23 @@
+name: cworld
+channels:
+    - conda-forge               
+    - defaults                  
+    - bioconda                  
+    - r
+dependencies:
+    - python==2.7.9
+    - r>=3.0.2
+    - perl>=5.18.1,<6
+    - perl-module-build
+    - perl-gd
+    - bedtools>=2.25.0
+    - numpy>=1.9.2
+    - matplotlib>=1.4.3,<2
+    - scipy>=0.15.1
+    - h5py>=2.5.0
+    - pysam>=0.7.8
+    - scikit-learn>=0.17
+    - bowtie2>=2.1.0
+    - libgd>2.0.28
+    - imagemagick
+    - jupyter

@@ -119,6 +119,7 @@ def main():
     valid_rowcols=np.invert(nan_rowcols)
     
     # remove nan rows
+    # numpy negation with "~" more common, "-" deprecated
     matrix=matrix[~nan_rowcols,:][:,~nan_rowcols]
     verboseprint("done",file=sys.stderr)
     
@@ -231,6 +232,8 @@ def writeBedGraphFile(egv1,evr,header_rows,name,outfile):
     
     verboseprint("writing bed graph file (",outfile,") ... ",end="",file=sys.stderr)
     
+    # "nanmax" expects iterable as 1st argument, second is axis
+    # wrapping abs(min(egv1)) and max(egv1) as a 2-element list:
     yBound=np.nanmax([abs(np.nanmin(egv1)),np.nanmax(egv1)])
     yBound *= 1.25
     yBound=round(yBound,5)

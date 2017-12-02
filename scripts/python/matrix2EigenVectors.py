@@ -32,6 +32,7 @@ from math import cos,log,sin,sqrt
 from sklearn.decomposition import PCA
 from sklearn import decomposition
 
+# HAS BEEN COMMENTED LONG BEFORE 2017
 # For eigenvectors and eigenvalues
 #from scipy.stats.stats import nanmean
 #from scipy import linalg as la

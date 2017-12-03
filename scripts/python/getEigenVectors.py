@@ -27,8 +27,8 @@ from noamlib  import *
 # For eigenvectors and eigenvalues
 from scipy import linalg as la
 from math import cos,log,sin,sqrt 
-# deprecated from scipy and unusde in the script:
-# from scipy import weave 
+# deprecated from scipy to be replaced with Cython:
+from scipy import weave 
 
 def main():
     print("")

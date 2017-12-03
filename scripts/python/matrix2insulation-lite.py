@@ -31,14 +31,16 @@ from datetime import datetime
 import re
 import os
 
-from scipy.stats.stats import nanmean
+# deprecated from scipy and unusde in the script:
+# from scipy.stats.stats import nanmean
 import numpy as np
 import scipy as sp
 
 # For eigenvectors and eigenvalues
 from scipy import linalg as la
 from math import cos,log,sin,sqrt 
-from scipy import weave 
+# deprecated from scipy and unusde in the script:
+# from scipy import weave 
 
 verboseprint=lambda *a, **k: None
 __version__ = "1.0"

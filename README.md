@@ -37,7 +37,7 @@ you can create an environment with all the cworld dependencies:
 
 ```
 conda config --set always_yes yes --set changeps1 no
-conda env create --name cworld --file environment.yml
+conda env create --name cworld --file cworld_environment.yml
 conda clean --tarballs --index-cache --lock
 ```
 

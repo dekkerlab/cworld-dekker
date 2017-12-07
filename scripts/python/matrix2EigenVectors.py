@@ -32,6 +32,7 @@ from math import cos,log,sin,sqrt
 from sklearn.decomposition import PCA
 from sklearn import decomposition
 
+# HAS BEEN COMMENTED LONG BEFORE 2017
 # For eigenvectors and eigenvalues
 #from scipy.stats.stats import nanmean
 #from scipy import linalg as la
@@ -119,7 +120,8 @@ def main():
     valid_rowcols=np.invert(nan_rowcols)
     
     # remove nan rows
-    matrix=matrix[-nan_rowcols,:][:,-nan_rowcols]
+    # numpy negation with "~" more common, "-" deprecated
+    matrix=matrix[~nan_rowcols,:][:,~nan_rowcols]
     verboseprint("done",file=sys.stderr)
     
     # convert all nan to 0
@@ -231,7 +233,9 @@ def writeBedGraphFile(egv1,evr,header_rows,name,outfile):
     
     verboseprint("writing bed graph file (",outfile,") ... ",end="",file=sys.stderr)
     
-    yBound=np.nanmax(abs(np.nanmin(egv1)),np.nanmax(egv1))
+    # "nanmax" expects iterable as 1st argument, second is axis
+    # wrapping abs(min(egv1)) and max(egv1) as a 2-element list:
+    yBound=np.nanmax([abs(np.nanmin(egv1)),np.nanmax(egv1)])
     yBound *= 1.25
     yBound=round(yBound,5)
     

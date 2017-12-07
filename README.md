@@ -10,12 +10,54 @@ a collection of perl/python/R scripts for maniputing 3C/4C/5C/Hi-C data.
 
 ## Installation
 
+### dependencies installation:
+
 This package requires:
 ```
 libgd (2.0.28 or higher)
 bedtools (bedtools or bedtools2)
 R / Rscript
+Python 2 (numpy,scipy,matplotlib)
 ```
+
+for detailed list of requirements, please see `environent.yml` file.
+It describes dependencies in a format compatible with [`conda`](https://conda.io/docs/) package manager.
+
+You can download latest version of `conda` from ['this'](https://repo.continuum.io) repository directory,
+or simply execute the following set of commands:
+
+```
+curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -p ~/path/to/miniconda3 -b
+rm Miniconda3-latest-Linux-x86_64.sh
+```
+
+Once you have `conda` installed and `~/path/to/miniconda3` added to you [`$PATH`](https://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path),
+you can create an environment with all the cworld dependencies:
+
+```
+conda config --set always_yes yes --set changeps1 no
+conda env create --name cworld --file cworld_environment.yml
+conda clean --tarballs --index-cache --lock
+```
+
+In order to build `cworld` project and use its scripts,
+you would need to activate `cworld` environment, every time you log in to your Linux/Unix system:
+
+```
+source activate cworld
+```
+
+To check if your environment has been successfully activated, try `which perl`, to make sure
+you are using `perl` executable that has been installed with `conda`. 
+
+Before proceeding to `cworld` building/installation/using, make sure that your actually have the most recent version of `perl-GD` by doing:
+```
+perl -MGD -e 'print $GD::VERSION ."\n";'
+```
+The version should be higher than `2.56`. In case you have earlier version of `perl-GD`, please, read the troubleshooting section of this manual.
+
+### alternative dependencies installation:
 
 To download/install dependencies:
 ```
@@ -37,20 +79,23 @@ For Linux:
 yum install libgd
 ```
 
-Download the project.
+### building and installing `cworld`:
+
+Once the environment with dependencies is all taken care of,
+download the `cworld` project:
 
 Grab the latest stable release
 ```
 https://github.com/blajoie/cworld-dekker/releases
 ```
 
-or clone the git project
+OR clone the git project
 ```
 [ssh] - git clone git@github.com:blajoie/cworld-dekker.git
 [https] - git clone https://github.com/blajoie/cworld-dekker.git
 ```
 
-To install the module:
+Change directory to the `cworld-dekker` and install the `Perl` module:
 ```
 perl Build.PL
 ./Build
@@ -81,12 +126,29 @@ e.g.
 ```
 $ perl scripts/heatmap.pl
 ```
-## Install Troubleshooting
+
+## Installation Troubleshooting
 
 Trouble with libgd?
 ```
 libgd 2.0.33 or higher required for copyRotated support
 ```
+
+### `conda` installation:
+
+In the case you have chosen `conda` package manager as a way to install software stack for `cworld`, then you can fix `libgd` issue, by manually installing [`perl-GD`](https://metacpan.org/pod/GD).
+
+The actual problem has nothing to do with old `libgd`, but rather is an issue of `perl-GD 2.56` distributed by `bioconda` channel, the problem is described here https://github.com/lstein/Perl-GD/issues/14. `libgd` distributed by `conda` repos is much more recent than `2.0.33`.
+
+So, once you have your `cworld` environment created accoring to the `cworld_environment.yml` file, you can just install `perl-GD` using instructions provided at: https://metacpan.org/pod/GD (installation section), either using `cpanm` or from the interactive Perl shell.
+
+Before proceeding to `cworld` building/installation/using, make sure that your actually have the most recent version of `perl-GD` by doing:
+```
+perl -MGD -e 'print $GD::VERSION ."\n";'
+```
+The version should be higher than `2.56`.
+
+### alternative installation:
 
 You need to install libgd 2.0.33 or higher.
 Try to compile from source.
@@ -184,6 +246,10 @@ perl scripts/perl/tickPlot.pl -i sample-data/collapseMatrix/NPC_chr14-chr15-chr1
 ```
 
 ## Change Log
+
+ - [12/02/2017] `conda` recipie was added to simplify installation and provide full list of dependencies. Accompanied by minimal changes in the `Python` code.
+ - [future] `docker/singularity` images need to be created to simplify dependencies handling even further.
+ - [future] get rid of `weave` Python package in favor of `Cython` and transition to `Python3` to make `cworld` compatible with [`cooltools`](https://github.com/mirnylab/cooltools)
 
 ## Bugs and Feedback
 

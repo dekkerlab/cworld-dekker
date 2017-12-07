@@ -18,7 +18,8 @@ import itertools
 import time
 import gzip
 
-from scipy.stats.stats import nanmean
+# deprecated from scipy and unusde in the script:
+# from scipy.stats.stats import nanmean
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage,dendrogram
 from scipy.cluster.vq import kmeans, vq, whiten
@@ -33,7 +34,8 @@ import matplotlib.pyplot as plt
 # For eigenvectors and eigenvalues
 from scipy import linalg as la
 from math import cos,log,sin,sqrt 
-from scipy import weave 
+# deprecated from scipy and unusde in the script:
+# from scipy import weave 
 
 def main():
     print("")

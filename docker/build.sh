@@ -3,8 +3,9 @@ set -ex
 USERNAME=dekkerlab
 IMAGE=cworld_env
 
-cp  ../VERSION ./VERSION
-cp ../cworld_environment.yml ./cworld_environment.yml
+cp -r ../* ./
+#cp ../VERSION ./VERSION
+#cp ../cworld_environment.yml ./cworld_environment.yml
 
 function cleanup {
     rm  ./VERSION

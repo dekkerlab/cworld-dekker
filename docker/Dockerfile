@@ -94,18 +94,19 @@ RUN conda install pysam
 # # then in .bashrc
 # export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
 
-RUN git clone https://github.com/dekkerlab/cworld-dekker.git
-WORKDIR /root/cworld-dekker
+#RUN git clone https://github.com/dekkerlab/cworld-dekker.git
+#WORKDIR /root/cworld-dekker
 
 # global install ...
 RUN perl ./Build.PL
 RUN ./Build
 RUN ./Build install
-ENV PERL5LIB=${PERL5LIB}:/root/perl5/lib/perl5
+RUN ./Build install --install_base /perl5
+ENV PERL5LIB=${PERL5LIB}:/perl5/lib/perl5
 
 RUN ./Build distclean
 # After installing the module, you should be free to run anything in scripts/ e.g.
 # $ perl scripts/heatmap.pl
 
-WORKDIR /root
+# WORKDIR /root
 # it should be more civilized, but for now, let's hope it just works

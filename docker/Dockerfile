@@ -2,6 +2,7 @@ FROM ubuntu:16.04
 
 MAINTAINER dekkerlab
 
+USER root
 #  a lot of it is stollen from :
 # https://hub.docker.com/r/genomicpariscentre/bioperl/dockerfile/
 
@@ -93,15 +94,18 @@ RUN conda install pysam
 # # then in .bashrc
 # export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
 
-
+RUN git clone https://hub.com/dekkerlab/cworld-dekker.git
+WORKDIR /root/cworld-dekker
 
 # global install ...
-RUN perl ../Build.PL
-RUN ../Build
-RUN ../Build install
+RUN perl ./Build.PL
+RUN ./Build
+RUN ./Build install
+ENV PERL5LIB=${PERL5LIB}:/root/perl5/lib/perl5
 
-
-RUN ../Build distclean
+RUN ./Build distclean
 # After installing the module, you should be free to run anything in scripts/ e.g.
-
 # $ perl scripts/heatmap.pl
+
+WORKDIR /root
+# it should be more civilized, but for now, let's hope it just works

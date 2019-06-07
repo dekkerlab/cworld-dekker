@@ -1,7 +1,7 @@
 set -ex
 
 USERNAME=dekkerlab
-IMAGE=cworld_env
+IMAGE=cworld_bioperl
 
 cp -r ../lib ./
 cp -r ../scripts ./

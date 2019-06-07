@@ -1,20 +1,17 @@
-FROM ubuntu:16.04
+# Set the base image to the BioPerl prebuilt prerequisites image
+# for building from source
+FROM bioperl/bioperl-deps
+
+# # File Author / Maintainer
+# LABEL maintainer="Hilmar Lapp <hlapp@drycafe.net>"
 
 MAINTAINER dekkerlab
 
 USER root
-#  a lot of it is stollen from :
-# https://hub.docker.com/r/genomicpariscentre/bioperl/dockerfile/
 
-# install a bunch of system-wide stuff
-# and figure out later what's essential ...
-RUN apt-get update --fix-missing && \
- apt-get install -q -y apt-utils wget \
- curl bzip2 pkg-config \
- libbz2-dev git build-essential \
- zlib1g-dev locales vim fontconfig \
- perl expat libexpat-dev\
- ttf-dejavu cpanminus libgd-perl
+# # Set the working directory to where we will install bioperl
+# # in the builder stage
+# WORKDIR /bioperl
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -22,36 +19,8 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-
-# Install perl modules 
-RUN apt-get install -y cpanminus
-
-RUN cpanm CPAN::Meta \
-     readline \
-     Term::ReadKey \
-     YAML \
-     Digest::SHA \
-     Module::Build \
-     ExtUtils::MakeMaker \
-     Test::More \
-     Data::Stag \
-     Config::Simple \
-     Statistics::Lite \
-     Statistics::Descriptive 
-
-RUN apt-get install --yes \
- libarchive-zip-perl
-
-
-# Install GD
-RUN apt-get remove --yes libgd-gd2-perl
-
-RUN apt-get install --yes \
- libgd2-noxpm-dev
-
-RUN cpanm GD \
- GD::Graph \
- GD::Graph::smoothlines 
+RUN apt-get update --yes && \
+    apt-get install --yes git
 
 # install imagemagick
 RUN apt-get install --yes imagemagick
@@ -76,7 +45,7 @@ RUN conda config --set always_yes yes --set changeps1 no && \
     conda env update -q -n root --file cworld_environment.yml && \
     conda clean --tarballs --index-cache --lock
 
-RUN conda install pysam
+# RUN conda install pysam
 
 
 #export MKL OMP etc ...
@@ -94,15 +63,11 @@ RUN conda install pysam
 # # then in .bashrc
 # export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
 
-#RUN git clone https://github.com/dekkerlab/cworld-dekker.git
 WORKDIR /cworld-dekker
 ADD Build.PL .
 ADD lib ./lib
 ADD scripts ./scripts
 ADD MANIFEST .
-
-RUN pwd
-RUN ls -lah
 
 # global install ...
 RUN perl ./Build.PL

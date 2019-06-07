@@ -94,7 +94,7 @@ RUN conda install pysam
 # # then in .bashrc
 # export PERL5LIB=${PERL5LIB}:/home/<yourusername>/perl5/lib/perl5
 
-RUN git clone https://hub.com/dekkerlab/cworld-dekker.git
+RUN git clone https://github.com/dekkerlab/cworld-dekker.git
 WORKDIR /root/cworld-dekker
 
 # global install ...
